@@ -1,34 +1,77 @@
 // js/script.js
 
 (function () {
-  // This will run after HTML is parsed because we used `defer`
+  var currentDate = new Date();
+  var yearTarget = document.querySelector('[data-current-year]');
+  var dateTarget = document.querySelector('[data-current-date]');
 
-  // 1. Footer handling
-  var footer = document.querySelector('footer');
-
-  if (footer) {
-    var currentYear = new Date().getFullYear();
-    var copyrightText = '&copy; ' + currentYear + ' ';
-
-    footer.insertAdjacentHTML('afterbegin', copyrightText);
-  } else {
-    console.warn('Footer element not found in the DOM');
+  if (yearTarget) {
+    yearTarget.textContent = currentDate.getFullYear();
   }
 
-  // 2. Black Friday banner handling
-  var nav = document.querySelector('header nav');
+  if (dateTarget) {
+    dateTarget.textContent = currentDate.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
 
-  if (nav) {
-    var bannerHTML = `
-      <div class="black-friday-banner">
-        🔥 BLACK FRIDAY SALE! Get 50% OFF with code 
-        <strong>BLACKFRIDAY50</strong> 🔥
-      </div>
-    `;
+  var announcements = [
+    'Dual-language program applications open on Monday.',
+    'Facilities inspection scheduled for Friday at 2 PM.',
+    'New cafeteria vendor onboarding completed.'
+  ];
 
-    nav.insertAdjacentHTML('beforebegin', bannerHTML);
-    console.log('Black Friday banner inserted above nav');
-  } else {
-    console.warn('Header nav not found in the DOM');
+  var announcementList = document.querySelector('#announcement-list');
+
+  if (announcementList) {
+    announcementList.innerHTML = announcements
+      .map(function (item) {
+        return '<li>• ' + item + '</li>';
+      })
+      .join('');
+  }
+
+  var progressBars = document.querySelectorAll('.progress-bar');
+  progressBars.forEach(function (bar) {
+    var progressValue = bar.getAttribute('data-progress');
+    if (progressValue) {
+      bar.style.width = progressValue + '%';
+    }
+  });
+
+  var studentSearch = document.querySelector('#student-search');
+  var studentRows = Array.prototype.slice.call(
+    document.querySelectorAll('#student-table tbody tr')
+  );
+  var resultCount = document.querySelector('#student-result-count');
+
+  function updateResultCount(visibleCount) {
+    if (resultCount) {
+      resultCount.textContent = visibleCount + ' students shown';
+    }
+  }
+
+  if (studentRows.length) {
+    updateResultCount(studentRows.length);
+  }
+
+  if (studentSearch) {
+    studentSearch.addEventListener('input', function (event) {
+      var query = event.target.value.toLowerCase().trim();
+      var visible = 0;
+
+      studentRows.forEach(function (row) {
+        var rowText = row.textContent.toLowerCase();
+        var matches = rowText.includes(query);
+        row.style.display = matches ? '' : 'none';
+        if (matches) {
+          visible += 1;
+        }
+      });
+
+      updateResultCount(visible);
+    });
   }
 })();

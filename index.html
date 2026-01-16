@@ -11,22 +11,389 @@
   <script src="js/script.js" defer></script>
 </head>
 <body>
-  <header>
-    <nav>
-      <ul>
+  <header class="site-header">
+    <div class="top-banner">
+      <p><strong>Campus update:</strong> Enrollment verification closes in 4 days. <a href="#">Review pending items</a></p>
+      <span class="status-pill">Live data · <span data-current-date></span></span>
+    </div>
+    <nav class="main-nav">
+      <div class="logo">
+        <span class="logo-mark">SM</span>
+        <div>
+          <strong>School Management</strong>
+          <span>Unified operations</span>
+        </div>
+      </div>
+      <ul class="nav-links">
         <li><a href="#">Dashboard</a></li>
         <li><a href="#">Students</a></li>
-        <li><a href="#">Teachers</a></li>
-        <li><a href="#">Classes</a></li>
+        <li><a href="#">Staff</a></li>
+        <li><a href="#">Academics</a></li>
+        <li><a href="#">Finance</a></li>
+        <li><a href="#">Reports</a></li>
       </ul>
+      <div class="nav-actions">
+        <button class="ghost-btn">Sign in</button>
+        <button class="primary-btn">Request demo</button>
+      </div>
     </nav>
   </header>
 
   <main>
-    <h1>School Management System</h1>
-    <p>Demo content here...</p>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Staff-level command center</p>
+        <h1>School Management System</h1>
+        <p class="lead">
+          Run your campus with real-time enrollment, attendance, staffing, and finance insights.
+          Built for district leaders, principals, and operations teams who need clarity in minutes—not days.
+        </p>
+        <div class="hero-actions">
+          <button class="primary-btn">Launch live workspace</button>
+          <button class="ghost-btn">Download overview</button>
+        </div>
+        <div class="hero-meta">
+          <div>
+            <strong>3,842</strong>
+            <span>Active students</span>
+          </div>
+          <div>
+            <strong>94%</strong>
+            <span>Average attendance</span>
+          </div>
+          <div>
+            <strong>128</strong>
+            <span>Open staff requests</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <h2>Today&#39;s operational snapshot</h2>
+        <div class="panel-grid">
+          <div class="panel-card">
+            <p>Attendance at risk</p>
+            <strong>42 students</strong>
+            <span class="trend down">▼ 8% vs. last week</span>
+          </div>
+          <div class="panel-card">
+            <p>Upcoming payroll</p>
+            <strong>$412,890</strong>
+            <span class="trend up">▲ On track</span>
+          </div>
+          <div class="panel-card">
+            <p>Facilities tickets</p>
+            <strong>17 open</strong>
+            <span class="trend up">▲ 5 resolved</span>
+          </div>
+        </div>
+        <div class="announcement">
+          <h3>Announcements</h3>
+          <ul id="announcement-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="feature-grid">
+      <div class="feature-card">
+        <h3>Enrollment &amp; Admissions</h3>
+        <p>Automate applicant workflows, manage seat capacity, and monitor demographic targets.</p>
+        <span class="tag">89% verification complete</span>
+      </div>
+      <div class="feature-card">
+        <h3>Instructional Coverage</h3>
+        <p>Track substitutes, schedule gaps, and certification compliance across campuses.</p>
+        <span class="tag">12 high-priority openings</span>
+      </div>
+      <div class="feature-card">
+        <h3>Student Success</h3>
+        <p>Surface early-warning indicators for attendance, behavior, and academic support.</p>
+        <span class="tag">47 students flagged</span>
+      </div>
+      <div class="feature-card">
+        <h3>Finance &amp; Grants</h3>
+        <p>Close the loop on budget, reimbursements, and grant milestones.</p>
+        <span class="tag">Q4 allocation synced</span>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="workspace-column">
+        <div class="card">
+          <div class="card-header">
+            <h3>Today&#39;s schedule</h3>
+            <button class="ghost-btn">View calendar</button>
+          </div>
+          <ol class="timeline">
+            <li>
+              <span class="time">8:30 AM</span>
+              <div>
+                <strong>Principal check-in</strong>
+                <p>Attendance variances for Roosevelt Middle.</p>
+              </div>
+            </li>
+            <li>
+              <span class="time">10:00 AM</span>
+              <div>
+                <strong>Transportation sync</strong>
+                <p>Route optimizations &amp; driver coverage.</p>
+              </div>
+            </li>
+            <li>
+              <span class="time">1:00 PM</span>
+              <div>
+                <strong>Student services huddle</strong>
+                <p>IEP updates &amp; support allocations.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Quick actions</h3>
+            <button class="ghost-btn">Open tasks</button>
+          </div>
+          <div class="action-grid">
+            <button>Approve transfer</button>
+            <button>Assign substitute</button>
+            <button>Send family alert</button>
+            <button>Review funding</button>
+            <button>Publish schedule</button>
+            <button>Log ticket</button>
+          </div>
+        </div>
+      </div>
+      <div class="workspace-column">
+        <div class="card">
+          <div class="card-header">
+            <h3>Operational health</h3>
+            <button class="ghost-btn">Download report</button>
+          </div>
+          <div class="progress-list">
+            <div>
+              <div class="progress-title">
+                <strong>Staffing coverage</strong>
+                <span>92%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-bar" data-progress="92"></div>
+              </div>
+            </div>
+            <div>
+              <div class="progress-title">
+                <strong>Bus route completion</strong>
+                <span>78%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-bar warning" data-progress="78"></div>
+              </div>
+            </div>
+            <div>
+              <div class="progress-title">
+                <strong>Budget utilization</strong>
+                <span>64%</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-bar" data-progress="64"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Priority queue</h3>
+            <span class="muted">7 items</span>
+          </div>
+          <ul class="priority-list">
+            <li>
+              <div>
+                <strong>Finalize substitute coverage</strong>
+                <p>Eastview Elementary</p>
+              </div>
+              <span class="status danger">High</span>
+            </li>
+            <li>
+              <div>
+                <strong>Review grant milestone</strong>
+                <p>STEM initiative (Phase 2)</p>
+              </div>
+              <span class="status warning">Medium</span>
+            </li>
+            <li>
+              <div>
+                <strong>Approve new bus routes</strong>
+                <p>Updated ridership maps</p>
+              </div>
+              <span class="status">Low</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="data-section">
+      <div class="section-header">
+        <div>
+          <h2>Student insights</h2>
+          <p>Monitor enrollment, attendance, and intervention status across key cohorts.</p>
+        </div>
+        <div class="search-field">
+          <label for="student-search">Search roster</label>
+          <input id="student-search" type="search" placeholder="Search by name, grade, or status" />
+        </div>
+      </div>
+      <div class="data-grid">
+        <div class="card">
+          <h3>Intervention pipeline</h3>
+          <div class="metric-row">
+            <div>
+              <strong>18</strong>
+              <span>Tier 3 support</span>
+            </div>
+            <div>
+              <strong>64</strong>
+              <span>Family outreach</span>
+            </div>
+            <div>
+              <strong>142</strong>
+              <span>Attendance watch</span>
+            </div>
+          </div>
+          <p class="muted">Review weekly snapshots for early intervention and counselor assignments.</p>
+        </div>
+        <div class="card">
+          <h3>Roster overview</h3>
+          <table id="student-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Grade</th>
+                <th>Status</th>
+                <th>Last update</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Jordan Lee</td>
+                <td>9</td>
+                <td><span class="status warning">Attendance</span></td>
+                <td>Today</td>
+              </tr>
+              <tr>
+                <td>Anika Patel</td>
+                <td>11</td>
+                <td><span class="status">On track</span></td>
+                <td>Yesterday</td>
+              </tr>
+              <tr>
+                <td>Marcus Alvarez</td>
+                <td>10</td>
+                <td><span class="status danger">Behavior</span></td>
+                <td>2 days ago</td>
+              </tr>
+              <tr>
+                <td>Sophia Nguyen</td>
+                <td>12</td>
+                <td><span class="status">On track</span></td>
+                <td>Today</td>
+              </tr>
+              <tr>
+                <td>Diego Torres</td>
+                <td>8</td>
+                <td><span class="status warning">Intervention</span></td>
+                <td>3 days ago</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="muted" id="student-result-count"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="team-section">
+      <div class="section-header">
+        <div>
+          <h2>Staff directory highlights</h2>
+          <p>Connect principals, counselors, and operations leads in one view.</p>
+        </div>
+        <button class="ghost-btn">Open full directory</button>
+      </div>
+      <div class="team-grid">
+        <article class="team-card">
+          <div>
+            <strong>Priya Sharma</strong>
+            <p>Director of Student Services</p>
+          </div>
+          <span class="tag">District office</span>
+          <button>Message</button>
+        </article>
+        <article class="team-card">
+          <div>
+            <strong>Chris Bennett</strong>
+            <p>Principal, Roosevelt Middle</p>
+          </div>
+          <span class="tag">School leader</span>
+          <button>Message</button>
+        </article>
+        <article class="team-card">
+          <div>
+            <strong>Maria Santos</strong>
+            <p>Facilities &amp; Operations</p>
+          </div>
+          <span class="tag">Ops lead</span>
+          <button>Message</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta-section">
+      <div>
+        <h2>Ready to align your campus teams?</h2>
+        <p>Centralize data, automate approvals, and deliver transparency across every school.</p>
+      </div>
+      <form class="cta-form">
+        <label>
+          Work email
+          <input type="email" placeholder="you@district.edu" required />
+        </label>
+        <label>
+          Role
+          <select required>
+            <option value="">Select a role</option>
+            <option>District leader</option>
+            <option>Principal</option>
+            <option>Operations</option>
+            <option>Teacher</option>
+          </select>
+        </label>
+        <button class="primary-btn" type="submit">Book a walkthrough</button>
+      </form>
+    </section>
   </main>
 
-  <footer></footer>
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <strong>School Management System</strong>
+        <p>Built for real-time collaboration, compliance, and student success.</p>
+      </div>
+      <div>
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Integrations</a></li>
+          <li><a href="#">Service status</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Implementation guide</a></li>
+          <li><a href="#">Support center</a></li>
+          <li><a href="#">Release notes</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="footer-meta">&copy; <span data-current-year></span> School Management Demo. All rights reserved.</p>
+  </footer>
 </body>
 </html>
