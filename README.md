@@ -1,4 +1,4 @@
-# 🎓 eSkooly Pro - Advanced School Management System
+# 🎓 School ERM Pro - Advanced School Management System
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma)](https://prisma.io/)
