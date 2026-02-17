@@ -56,5 +56,13 @@ export function AttendanceTable({ attendance }: { attendance: any[] }) {
         },
     ];
 
-    return <DataTable title="Daily Attendance Log" columns={columns} data={attendance} />;
+    return (
+        <DataTable
+            title="Daily Attendance Log"
+            columns={columns}
+            data={attendance}
+            onAdd={() => alert("Attendance marking module coming soon!")}
+            addButtonText="Mark Attendance"
+        />
+    );
 }
