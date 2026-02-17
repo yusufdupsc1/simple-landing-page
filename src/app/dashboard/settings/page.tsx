@@ -1,99 +1,120 @@
 import { prisma } from "@/lib/prisma";
-import { Building, Mail, Phone, MapPin, Calendar, Globe } from "lucide-react";
+import { Building, Mail, Phone, MapPin, Calendar, Globe, Pencil } from "lucide-react";
 
 export default async function SettingsPage() {
     const school = await prisma.schoolSettings.findFirst();
 
-    if (!school) return <div className="p-8 text-center text-gray-500">No school settings found. Please run seed.</div>;
+    if (!school) return <div className="p-8 text-center text-gray-500 font-bold">No school settings found. Please run seed.</div>;
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900">General Settings</h1>
-                <p className="text-gray-500 text-sm">Update your school profile, contact information, and branding.</p>
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-2xl font-black text-[#1e266d] tracking-tight">Institutional Configuration</h1>
+                    <p className="text-gray-400 text-sm font-bold mt-1 uppercase tracking-widest">Update profile, branding, and contact details.</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Profile Card */}
+                {/* Profile Card - Bento ID */}
                 <div className="lg:col-span-1 space-y-6">
-                    <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 flex flex-col items-center text-center">
-                        <div className="w-24 h-24 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 relative group overflow-hidden">
-                            <Building size={48} className="text-blue-600 transition-transform group-hover:scale-110 duration-500" />
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                <span className="text-[10px] text-white font-bold uppercase tracking-widest">Change</span>
+                    <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 flex flex-col items-center text-center relative overflow-hidden group">
+                        <div className="w-24 h-24 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center mb-6 relative shadow-lg shadow-blue-200 group-hover:rotate-3 transition-transform duration-500">
+                            <span className="text-3xl font-black text-white">S</span>
+                            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-white/20 rounded-xl backdrop-blur-md flex items-center justify-center">
+                                <Pencil size={12} className="text-white" />
                             </div>
                         </div>
-                        <h2 className="text-xl font-bold text-gray-900">{school.schoolName}</h2>
-                        <p className="text-sm text-gray-500 mt-1 uppercase tracking-widest font-bold">Location: {school.city}, {school.country}</p>
+                        <h2 className="text-lg font-black text-[#1e266d] px-4">{school.schoolName}</h2>
+                        <p className="text-[10px] text-gray-400 mt-2 uppercase tracking-[0.2em] font-black">{school.city}, {school.country}</p>
 
-                        <div className="mt-8 w-full space-y-4">
-                            <button className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all">Upload New Logo</button>
-                            <button className="w-full py-2.5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 rounded-xl text-sm font-semibold transition-all">Remove Branding</button>
+                        <div className="mt-8 w-full space-y-3">
+                            <button className="w-full py-3 bg-[#1e266d] hover:bg-blue-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                                Update Brand Assets
+                            </button>
+                            <button className="w-full py-3 bg-white border border-gray-100 hover:bg-gray-50 text-gray-400 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                Reset Preferences
+                            </button>
                         </div>
                     </div>
 
-                    <div className="bg-[#1e266d] rounded-2xl p-6 text-white shadow-lg space-y-4">
-                        <div className="flex items-center gap-3">
-                            <Globe size={18} className="text-blue-400" />
-                            <div>
-                                <p className="text-[10px] uppercase font-bold text-white/50 tracking-widest">Website</p>
-                                <p className="text-sm font-semibold">{school.website || 'www.eskooly.com'}</p>
+                    <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-[2rem] p-8 text-white shadow-xl shadow-indigo-200 relative overflow-hidden group">
+                        <div className="relative z-10 space-y-6">
+                            <div className="flex items-start gap-4">
+                                <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
+                                    <Globe size={20} className="text-blue-200" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] uppercase font-black text-blue-200 tracking-widest mb-1">Public Portal</p>
+                                    <p className="text-sm font-bold tracking-tight">www.eskooly.com</p>
+                                </div>
+                            </div>
+                            <div className="h-[1px] w-full bg-white/10"></div>
+                            <div className="flex items-start gap-4">
+                                <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
+                                    <Calendar size={20} className="text-orange-200" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] uppercase font-black text-orange-200 tracking-widest mb-1">System Time</p>
+                                    <p className="text-sm font-bold tracking-tight">{school.timezone}</p>
+                                </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <Calendar size={18} className="text-orange-400" />
-                            <div>
-                                <p className="text-[10px] uppercase font-bold text-white/50 tracking-widest">Timezone</p>
-                                <p className="text-sm font-semibold">{school.timezone}</p>
-                            </div>
-                        </div>
+                        <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
                     </div>
                 </div>
 
                 {/* Detailed Settings Forms */}
-                <div className="lg:col-span-2 space-y-8">
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="px-8 py-6 border-b border-gray-100">
-                            <h3 className="font-bold text-gray-900">School Profile Details</h3>
+                <div className="lg:col-span-2">
+                    <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="px-8 py-8 border-b border-gray-100 bg-gray-50/30">
+                            <h3 className="font-black text-[#1e266d] text-sm uppercase tracking-widest flex items-center gap-2">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                School Profile Details
+                            </h3>
                         </div>
-                        <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">School Name</label>
+                        <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="space-y-3 group">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-focus-within:text-blue-600 transition-colors">Institute Name</label>
                                 <div className="relative">
-                                    <Building className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                                    <input type="text" defaultValue={school.schoolName} className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                    <Building className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                                    <input type="text" defaultValue={school.schoolName} className="w-full bg-gray-50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all shadow-inner" />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Tagline</label>
+
+                            <div className="space-y-3 group">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-focus-within:text-blue-600 transition-colors">Official Tagline</label>
+                                <input type="text" defaultValue={school.tagline || ''} className="w-full bg-gray-50 border-none rounded-2xl py-3.5 px-6 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all shadow-inner" />
+                            </div>
+
+                            <div className="space-y-3 group">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-focus-within:text-blue-600 transition-colors">Contact Email</label>
                                 <div className="relative">
-                                    <input type="text" defaultValue={school.tagline || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                                    <input type="email" defaultValue={school.email || ''} className="w-full bg-gray-50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all shadow-inner" />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Email Address</label>
+
+                            <div className="space-y-3 group">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-focus-within:text-blue-600 transition-colors">Phone Support</label>
                                 <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                                    <input type="email" defaultValue={school.email || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                                    <input type="text" defaultValue={school.phone || ''} className="w-full bg-gray-50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all shadow-inner" />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Phone Number</label>
+
+                            <div className="space-y-3 md:col-span-2 group">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest group-focus-within:text-blue-600 transition-colors">Physical Campus Address</label>
                                 <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                                    <input type="text" defaultValue={school.phone || ''} className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-                                </div>
-                            </div>
-                            <div className="space-y-2 md:col-span-2">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Physical Address</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-3 top-3 text-gray-400" size={16} />
-                                    <textarea defaultValue={school.address || ''} rows={3} className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+                                    <MapPin className="absolute left-4 top-4 text-gray-300 group-focus-within:text-blue-500 transition-colors" size={18} />
+                                    <textarea defaultValue={school.address || ''} rows={3} className="w-full bg-gray-50 border-none rounded-2xl py-3.5 pl-12 pr-4 text-sm font-bold text-gray-700 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-all shadow-inner resize-none" />
                                 </div>
                             </div>
                         </div>
-                        <div className="px-8 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end">
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl text-sm font-semibold transition-all shadow-md">Save Changes</button>
+                        <div className="px-8 py-6 bg-gray-50/50 border-t border-gray-100 flex justify-end">
+                            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 transform active:scale-95">
+                                Save Configuration
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -1,10 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { DataTable } from "@/components/shared/data-table";
 import { cn } from "@/lib/utils";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone } from "lucide-react";
+import { Modal } from "@/components/shared/modal";
+import { EmployeeForm } from "@/components/dashboard/employee-form";
+import { useRouter } from "next/navigation";
 
 export function EmployeesTable({ employees }: { employees: any[] }) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const router = useRouter();
+
     const columns = [
         {
             header: "Employee ID",
@@ -79,5 +86,28 @@ export function EmployeesTable({ employees }: { employees: any[] }) {
         },
     ];
 
-    return <DataTable title="Staff & Administration" columns={columns} data={employees} />;
+    return (
+        <>
+            <DataTable
+                title="Staff & Administration"
+                columns={columns}
+                data={employees}
+                onAdd={() => setIsModalOpen(true)}
+            />
+
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Register New Employee"
+                maxWidth="max-w-4xl"
+            >
+                <EmployeeForm
+                    onSuccess={() => {
+                        setIsModalOpen(false);
+                        router.refresh();
+                    }}
+                />
+            </Modal>
+        </>
+    );
 }

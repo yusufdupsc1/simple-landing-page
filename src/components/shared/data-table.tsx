@@ -12,13 +12,15 @@ interface DataTableProps<T> {
     data: T[];
     title: string;
     onAdd?: () => void;
+    addButtonText?: string;
 }
 
 export function DataTable<T extends { id: string | number }>({
     columns,
     data,
     title,
-    onAdd
+    onAdd,
+    addButtonText = "Add New"
 }: DataTableProps<T>) {
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -46,7 +48,7 @@ export function DataTable<T extends { id: string | number }>({
                             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shrink-0"
                         >
                             <Plus size={18} />
-                            <span>Add New</span>
+                            <span>{addButtonText}</span>
                         </button>
                     )}
                 </div>

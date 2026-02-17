@@ -1,9 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { DataTable } from "@/components/shared/data-table";
 import { cn } from "@/lib/utils";
+import { Modal } from "@/components/shared/modal";
+import { StudentForm } from "@/components/dashboard/student-form";
+import { useRouter } from "next/navigation";
 
-export function StudentsTable({ students }: { students: any[] }) {
+interface StudentsTableProps {
+    students: any[];
+    classes: any[];
+}
+
+export function StudentsTable({ students, classes }: StudentsTableProps) {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const router = useRouter();
+
     const columns = [
         {
             header: "Admission No",
@@ -53,7 +65,7 @@ export function StudentsTable({ students }: { students: any[] }) {
             header: "Contact",
             accessorKey: "phone" as const,
             cell: (item: any) => (
-                <span className="text-xs font-medium text-gray-600">{item.phone}</span>
+                <span className="text-xs font-medium text-gray-600">{item.phone || "N/A"}</span>
             ),
         },
         {
@@ -70,5 +82,29 @@ export function StudentsTable({ students }: { students: any[] }) {
         },
     ];
 
-    return <DataTable title="Student List" columns={columns} data={students} />;
+    return (
+        <>
+            <DataTable
+                title="Student List"
+                columns={columns}
+                data={students}
+                onAdd={() => setIsModalOpen(true)}
+            />
+
+            <Modal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                title="Register New Student"
+                maxWidth="max-w-4xl"
+            >
+                <StudentForm
+                    classes={classes}
+                    onSuccess={() => {
+                        setIsModalOpen(false);
+                        router.refresh();
+                    }}
+                />
+            </Modal>
+        </>
+    );
 }
