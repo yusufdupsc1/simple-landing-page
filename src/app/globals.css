@@ -23,6 +23,8 @@
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 226 70% 45%;
+    --font-inter: "Inter", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+    --font-plus-jakarta: "Plus Jakarta Sans", "Inter", "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
     --radius: 1rem;
   }
 }
