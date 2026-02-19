@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getUserIdFromAuthTokenEdge } from '@/lib/session-edge';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const authToken = request.cookies.get('auth_token')?.value;
-  const isAuthenticated = Boolean(authToken);
+  const userId = await getUserIdFromAuthTokenEdge(authToken);
+  const isAuthenticated = Boolean(userId);
 
   const isLoginPage = request.nextUrl.pathname === '/login';
   const isApiAuth = request.nextUrl.pathname.startsWith('/api/auth');
