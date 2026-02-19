@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: file:./prisma/dev.db
+      DEMO_ADMIN_EMAIL: admin@eskooly.com
+      DEMO_ADMIN_PASSWORD: admin123
+      AUTH_SESSION_SECRET: change-me-for-real-deployments
+      AUTH_SESSION_TTL_SECONDS: "43200"
+      AUTH_RATE_LIMIT_MAX: "10"
+      AUTH_RATE_LIMIT_WINDOW_MS: "60000"
+    volumes:
+      - prisma_data:/app/prisma
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  prisma_data:

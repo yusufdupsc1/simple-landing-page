@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { createAuthToken } from '@/lib/session';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 const authSchema = z.object({
@@ -11,6 +12,14 @@ const authSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const clientIp = forwardedFor?.split(',')[0]?.trim() || 'unknown-client';
+    const rate = checkRateLimit(`login:${clientIp}`, Number(process.env.AUTH_RATE_LIMIT_MAX ?? 10), Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS ?? 60_000));
+
+    if (!rate.allowed) {
+      return NextResponse.json({ error: 'Too many login attempts. Please try again shortly.' }, { status: 429 });
+    }
+
     const payload = await request.json();
     const parsedPayload = authSchema.safeParse(payload);
 
@@ -84,7 +93,6 @@ export async function POST(request: Request) {
     const token = createAuthToken(user.id);
 
     const response = NextResponse.json({
-      token,
       user: {
         id: user.id,
         email: user.email,
@@ -98,7 +106,7 @@ export async function POST(request: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: Number(process.env.AUTH_SESSION_TTL_SECONDS ?? 60 * 60 * 12),
       path: '/',
     });
 

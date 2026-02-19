@@ -33,7 +33,6 @@ export default function LoginPage() {
         throw new Error(data.error || 'Identity verification failed');
       }
 
-      localStorage.setItem('auth_token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
       router.replace('/dashboard');
