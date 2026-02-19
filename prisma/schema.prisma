@@ -1,0 +1,591 @@
+// prisma/schema.prisma
+// Prisma v7 — Multi-Tenant School Management System
+
+generator client {
+  provider = "prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// MULTI-TENANCY
+// ─────────────────────────────────────────────
+
+model Institution {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  logo        String?
+  website     String?
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  country     String?  @default("US")
+  timezone    String   @default("UTC")
+  currency    String   @default("USD")
+  plan        Plan     @default(STARTER)
+  planExpiry  DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  users       User[]
+  students    Student[]
+  teachers    Teacher[]
+  classes     Class[]
+  subjects    Subject[]
+  grades      Grade[]
+  attendance  Attendance[]
+  fees        Fee[]
+  payments    Payment[]
+  events      Event[]
+  announcements Announcement[]
+  settings    InstitutionSettings?
+
+  @@index([slug])
+  @@map("institutions")
+}
+
+model InstitutionSettings {
+  id              String      @id @default(cuid())
+  institutionId   String      @unique
+  institution     Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  // Academic
+  academicYear    String   @default("2024-2025")
+  termsPerYear    Int      @default(3)
+  workingDays     Int[]    @default([1, 2, 3, 4, 5]) // Mon-Fri
+
+  // Notifications
+  emailNotifs     Boolean  @default(true)
+  smsNotifs       Boolean  @default(false)
+
+  // Fees
+  lateFeePercent  Float    @default(0)
+  gracePeriodDays Int      @default(7)
+
+  updatedAt DateTime @updatedAt
+
+  @@map("institution_settings")
+}
+
+enum Plan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+// ─────────────────────────────────────────────
+// AUTH (Auth.js v5 compatible)
+// ─────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(STAFF)
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  // Auth.js required relations
+  accounts      Account[]
+  sessions      Session[]
+
+  // App relations
+  teacherProfile Teacher?
+  auditLogs      AuditLog[]
+
+  @@index([institutionId])
+  @@index([email])
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  PRINCIPAL
+  TEACHER
+  STAFF
+  STUDENT
+  PARENT
+}
+
+// ─────────────────────────────────────────────
+// ACADEMIC STRUCTURE
+// ─────────────────────────────────────────────
+
+model Class {
+  id            String   @id @default(cuid())
+  name          String   // "Grade 10A"
+  grade         String   // "10"
+  section       String   // "A"
+  capacity      Int      @default(30)
+  roomNumber    String?
+  academicYear  String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  teacherId     String?
+  classTeacher  Teacher?  @relation("ClassTeacher", fields: [teacherId], references: [id])
+
+  students      Student[]
+  timetable     Timetable[]
+  attendance    Attendance[]
+  fees          Fee[]
+
+  @@unique([institutionId, grade, section, academicYear])
+  @@index([institutionId])
+  @@map("classes")
+}
+
+model Subject {
+  id            String   @id @default(cuid())
+  name          String
+  code          String
+  description   String?
+  credits       Int      @default(1)
+  isCore        Boolean  @default(true)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  teachers      TeacherSubject[]
+  timetable     Timetable[]
+  grades        Grade[]
+
+  @@unique([institutionId, code])
+  @@index([institutionId])
+  @@map("subjects")
+}
+
+model Timetable {
+  id          String   @id @default(cuid())
+  dayOfWeek   Int      // 1=Mon ... 7=Sun
+  startTime   String   // "09:00"
+  endTime     String   // "10:00"
+  createdAt   DateTime @default(now())
+
+  classId     String
+  class       Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  subjectId   String
+  subject     Subject  @relation(fields: [subjectId], references: [id])
+
+  teacherId   String
+  teacher     Teacher  @relation(fields: [teacherId], references: [id])
+
+  @@index([classId])
+  @@index([teacherId])
+  @@map("timetables")
+}
+
+// ─────────────────────────────────────────────
+// PEOPLE
+// ─────────────────────────────────────────────
+
+model Student {
+  id              String   @id @default(cuid())
+  studentId       String   // Human-readable ID e.g. "STU-2024-001"
+  firstName       String
+  lastName        String
+  email           String?
+  phone           String?
+  dateOfBirth     DateTime?
+  gender          Gender?
+  photo           String?
+  address         String?
+  city            String?
+  country         String?
+
+  // Academic
+  enrollmentDate  DateTime @default(now())
+  graduationDate  DateTime?
+  status          StudentStatus @default(ACTIVE)
+  bloodGroup      String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  institutionId   String
+  institution     Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  classId         String?
+  class           Class?   @relation(fields: [classId], references: [id])
+
+  // Relations
+  parents         Parent[]
+  attendance      Attendance[]
+  grades          Grade[]
+  fees            Fee[]
+
+  @@unique([institutionId, studentId])
+  @@index([institutionId])
+  @@index([classId])
+  @@map("students")
+}
+
+model Parent {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  occupation  String?
+  relation    String   @default("Parent") // Father, Mother, Guardian
+
+  studentId   String
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("parents")
+}
+
+model Teacher {
+  id              String   @id @default(cuid())
+  teacherId       String   // e.g. "TCH-2024-001"
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  dateOfBirth     DateTime?
+  gender          Gender?
+  photo           String?
+  address         String?
+  qualification   String?
+  specialization  String?
+  joiningDate     DateTime @default(now())
+  salary          Decimal? @db.Decimal(12, 2)
+  status          EmployeeStatus @default(ACTIVE)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  institutionId   String
+  institution     Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  userId          String?  @unique
+  user            User?    @relation(fields: [userId], references: [id])
+
+  // Relations
+  subjects        TeacherSubject[]
+  classTeacher    Class[]  @relation("ClassTeacher")
+  timetable       Timetable[]
+
+  @@unique([institutionId, teacherId])
+  @@index([institutionId])
+  @@map("teachers")
+}
+
+model TeacherSubject {
+  teacherId  String
+  subjectId  String
+  teacher    Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject    Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, subjectId])
+  @@map("teacher_subjects")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  GRADUATED
+  SUSPENDED
+  EXPELLED
+  TRANSFERRED
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  RESIGNED
+  TERMINATED
+}
+
+// ─────────────────────────────────────────────
+// ACADEMICS — GRADES & ATTENDANCE
+// ─────────────────────────────────────────────
+
+model Grade {
+  id          String   @id @default(cuid())
+  score       Float
+  maxScore    Float    @default(100)
+  percentage  Float
+  letterGrade String?  // A, B+, etc.
+  term        String   // "Term 1 2024"
+  remarks     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  studentId   String
+  student     Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  subjectId   String
+  subject     Subject @relation(fields: [subjectId], references: [id])
+
+  @@index([studentId])
+  @@index([institutionId])
+  @@map("grades")
+}
+
+model Attendance {
+  id          String          @id @default(cuid())
+  date        DateTime        @db.Date
+  status      AttendanceStatus
+  remarks     String?
+  markedAt    DateTime        @default(now())
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  classId     String
+  class       Class @relation(fields: [classId], references: [id])
+
+  studentId   String
+  student     Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, date])
+  @@index([classId, date])
+  @@index([institutionId])
+  @@map("attendance")
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+  HOLIDAY
+}
+
+// ─────────────────────────────────────────────
+// FINANCE
+// ─────────────────────────────────────────────
+
+model Fee {
+  id            String      @id @default(cuid())
+  title         String      // "Tuition Fee — Term 1"
+  description   String?
+  amount        Decimal     @db.Decimal(12, 2)
+  dueDate       DateTime
+  term          String
+  academicYear  String
+  feeType       FeeType     @default(TUITION)
+  status        FeeStatus   @default(UNPAID)
+  isRecurring   Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  studentId     String
+  student       Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  classId       String?
+  class         Class?  @relation(fields: [classId], references: [id])
+
+  payments      Payment[]
+
+  @@index([studentId])
+  @@index([institutionId])
+  @@map("fees")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  amount          Decimal       @db.Decimal(12, 2)
+  method          PaymentMethod @default(CASH)
+  transactionRef  String?       @unique
+  receiptNumber   String?       @unique
+  notes           String?
+  paidAt          DateTime      @default(now())
+  createdAt       DateTime      @default(now())
+
+  institutionId   String
+  institution     Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  feeId           String
+  fee             Fee @relation(fields: [feeId], references: [id])
+
+  @@index([feeId])
+  @@index([institutionId])
+  @@map("payments")
+}
+
+enum FeeType {
+  TUITION
+  TRANSPORT
+  LIBRARY
+  LABORATORY
+  SPORTS
+  EXAMINATION
+  UNIFORM
+  MISC
+}
+
+enum FeeStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  OVERDUE
+  WAIVED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  CHEQUE
+  ONLINE
+  STRIPE
+}
+
+// ─────────────────────────────────────────────
+// COMMUNICATION
+// ─────────────────────────────────────────────
+
+model Announcement {
+  id            String   @id @default(cuid())
+  title         String
+  content       String
+  priority      Priority @default(NORMAL)
+  targetAudience String[] @default(["ALL"]) // ALL, STUDENTS, TEACHERS, PARENTS
+  publishedAt   DateTime @default(now())
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@index([institutionId])
+  @@map("announcements")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  location    String?
+  type        EventType @default(GENERAL)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@index([institutionId])
+  @@map("events")
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum EventType {
+  ACADEMIC
+  SPORTS
+  CULTURAL
+  HOLIDAY
+  EXAM
+  GENERAL
+}
+
+// ─────────────────────────────────────────────
+// AUDIT
+// ─────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  entity      String
+  entityId    String
+  oldValues   Json?
+  newValues   Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  userId      String
+  user        User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}
