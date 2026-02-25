@@ -12,26 +12,35 @@ interface StudentItem {
 
 export function RecentStudents({ students }: { students: StudentItem[] }) {
   return (
-    <section className="rounded-xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-base font-semibold">Recent Students</h2>
-        <Link className="text-sm text-muted-foreground hover:text-foreground" href="/dashboard/students">
-          View all
+    <section className="group h-full rounded-3xl border border-border/50 bg-card p-6 shadow-sm hover:border-border transition-colors relative overflow-hidden flex flex-col">
+      <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="mb-6 flex items-center justify-between relative z-10">
+        <h2 className="text-lg font-semibold tracking-tight">Recent Enrollments</h2>
+        <Link className="text-sm font-medium text-primary hover:text-primary/80 transition-colors" href="/dashboard/students">
+          View directory &rarr;
         </Link>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3 flex-1 relative z-10">
         {students.length ? (
           students.map((student) => (
-            <div key={student.id} className="flex items-center justify-between rounded-md border border-border/70 px-3 py-2">
-              <div>
-                <p className="text-sm font-medium">{student.firstName} {student.lastName}</p>
-                <p className="text-xs text-muted-foreground">{student.studentId} {student.class?.name ? `• ${student.class.name}` : ""}</p>
+            <div key={student.id} className="flex items-center justify-between rounded-2xl border border-border/40 bg-muted/20 px-4 py-3 hover:bg-muted/50 transition-colors group/item">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                  {student.firstName[0]}{student.lastName[0]}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{student.firstName} {student.lastName}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{student.studentId} {student.class?.name ? `• ${student.class.name}` : ""}</p>
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground">{formatDate(student.createdAt)}</p>
+              <p className="text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">{formatDate(student.createdAt)}</p>
             </div>
           ))
         ) : (
-          <p className="text-sm text-muted-foreground">No students found.</p>
+          <div className="h-full flex flex-col items-center justify-center p-6 border border-dashed border-border rounded-xl bg-muted/10">
+            <p className="text-sm font-medium text-muted-foreground">No students found.</p>
+            <p className="text-xs text-muted-foreground mt-1">Enrollments will appear here.</p>
+          </div>
         )}
       </div>
     </section>

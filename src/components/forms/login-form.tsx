@@ -9,6 +9,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,12 +86,19 @@ export function LoginForm({ callbackUrl, error }: LoginFormProps) {
   };
 
   return (
-    <div className="space-y-5">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-6"
+    >
       {formError && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{formError}</AlertDescription>
-        </Alert>
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+          <Alert variant="destructive" className="border-destructive/50 bg-destructive/10 text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{formError}</AlertDescription>
+          </Alert>
+        </motion.div>
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -203,15 +211,28 @@ export function LoginForm({ callbackUrl, error }: LoginFormProps) {
       </Button>
 
       {/* Demo credentials hint */}
-      <div className="rounded-lg border border-dashed border-border p-3 bg-muted/30">
-        <p className="text-xs font-medium text-muted-foreground mb-1.5">
-          Demo credentials
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
+        className="rounded-xl border border-dashed border-primary/20 p-4 bg-primary/5 shadow-sm"
+      >
+        <p className="text-xs font-semibold text-primary mb-2 flex items-center gap-1.5">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+          </span>
+          Demo Access
         </p>
-        <div className="space-y-0.5 font-mono text-xs text-muted-foreground">
-          <p>admin@eskooly.com</p>
-          <p>admin123</p>
+        <div className="space-y-1 font-mono text-sm text-foreground/80">
+          <div className="flex justify-between items-center group">
+            <span>admin@eskooly.com</span>
+            <span className="text-muted-foreground group-hover:text-primary transition-colors text-xs">admin123</span>
+          </div>
+          <div className="flex justify-between items-center group">
+            <span>principal@eskooly.com</span>
+            <span className="text-muted-foreground group-hover:text-primary transition-colors text-xs">principal123</span>
+          </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
