@@ -1,4 +1,7 @@
+"use client";
+
 import { Users, UserCheck, ClipboardCheck, CreditCard } from "lucide-react";
+
 import { formatCurrency } from "@/lib/utils";
 import { motion } from "motion/react";
 

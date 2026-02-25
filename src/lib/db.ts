@@ -52,9 +52,11 @@ const globalForPrisma = globalThis as { prisma?: unknown };
 
 function createDbClient() {
   try {
-    return new PrismaClient({
+    const client = new PrismaClient({
       log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
     });
+    console.log("[db] Real database client initialized.");
+    return client;
   } catch (error) {
     console.warn("[db] Falling back to mock database client.", error);
     return createMockDb();

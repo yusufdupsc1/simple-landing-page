@@ -31,11 +31,11 @@ export type StudentFormData = z.infer<typeof StudentSchema>;
 type ActionResult<T = void> =
   | { success: true; data?: T; error?: never }
   | {
-      success: false;
-      error: string;
-      fieldErrors?: Record<string, string[]>;
-      data?: never;
-    };
+    success: false;
+    error: string;
+    fieldErrors?: Record<string, string[]>;
+    data?: never;
+  };
 
 // ─── Helper: get session + institution ─────
 async function getAuthContext() {
@@ -361,7 +361,7 @@ export async function getDashboardStats() {
     totalTeachers,
     todayAttendance,
     pendingFees: {
-      amount: pendingFees._sum.amount ?? 0,
+      amount: Number(pendingFees._sum.amount ?? 0),
       count: pendingFees._count,
     },
     recentStudents,

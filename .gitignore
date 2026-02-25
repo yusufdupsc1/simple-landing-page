@@ -7,3 +7,10 @@ npm-debug.log*
 .env.*.local
 .DS_Store
 *.log
+*.txt
+*_pid.txt
+dev_logs.txt
+server_pid.txt
+server_run.log
+test_bcrypt.ts
+check.ts

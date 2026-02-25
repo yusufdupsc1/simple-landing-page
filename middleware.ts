@@ -1,9 +1,7 @@
 // middleware.ts
-// Next.js middleware — Auth guard + RBAC + Institution routing
-
 import { NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
 
 const PUBLIC_ROUTES = [
   "/auth/login",
@@ -23,102 +21,83 @@ const ADMIN_ROUTES = [
   "/dashboard/users",
 ];
 
-const AUTH_SECRET = process.env.AUTH_SECRET || "development-secret-change-in-production";
-
-interface TokenPayload {
-  id: string;
-  email: string;
-  role: string;
-  institutionId: string;
-  institutionSlug?: string;
-  institutionName?: string;
-}
-
-function decodeSessionToken(token: string): TokenPayload | null {
-  try {
-    const decoded = jwt.verify(token, AUTH_SECRET) as TokenPayload;
-    return decoded;
-  } catch {
-    return null;
-  }
-}
-
-function getTokenFromRequest(req: NextRequest): string | null {
-  // Check Authorization header first (for API routes)
-  const authHeader = req.headers.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    return authHeader.slice(7);
-  }
-
-  // Check session cookies
-  const sessionToken =
-    req.cookies.get("authjs.session-token")?.value ||
-    req.cookies.get("__Secure-authjs.session-token")?.value ||
-    req.cookies.get("next-auth.session-token")?.value ||
-    req.cookies.get("__Secure-next-auth.session-token")?.value;
-
-  return sessionToken || null;
-}
+const AUTH_SECRET = process.env.AUTH_SECRET;
 
 export default async function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname;
+  const { pathname } = req.nextUrl;
 
-  // Allow static files and Next.js internals
+  // 1. Allow static files and Next.js internals
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/static") ||
+    pathname.startsWith("/api/uploadthing") ||
     pathname.includes(".") ||
     pathname.startsWith("/favicon")
   ) {
     return NextResponse.next();
   }
 
-  // Allow public routes
+  // 2. Allow public routes
   const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
   if (isPublic) {
     return NextResponse.next();
   }
 
-  // Get session token
-  const token = getTokenFromRequest(req);
+  // 3. Get session token (Edge-compatible)
+  // getToken automatically handles cookie decryption using AUTH_SECRET
+  const token = await getToken({
+    req,
+    secret: AUTH_SECRET,
+    salt: process.env.NODE_ENV === "production"
+      ? "__Secure-authjs.session-token"
+      : "authjs.session-token",
+  });
+
   if (!token) {
-    return handleUnauthorized(req);
+    const loginUrl = new URL("/auth/login", req.url);
+    if (pathname !== "/") {
+      loginUrl.searchParams.set("callbackUrl", pathname);
+    }
+    return NextResponse.redirect(loginUrl);
   }
 
-  // Decode token
-  const payload = decodeSessionToken(token);
-  if (!payload) {
-    return handleUnauthorized(req);
-  }
-
-  // RBAC: Check admin routes
+  // 4. RBAC Check
   const isAdminRoute = ADMIN_ROUTES.some((route) => pathname.startsWith(route));
-  const isAdmin = ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"].includes(payload.role);
+  const userRole = token.role as string;
+  const isAdmin = ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"].includes(userRole);
 
   if (isAdminRoute && !isAdmin) {
-    // Redirect to dashboard if user lacks permission
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  // Multi-tenancy: Add institution context headers
+  // 5. Success — Add context headers for Server Components
   const response = NextResponse.next();
-  response.headers.set("x-user-id", payload.id);
-  response.headers.set("x-user-role", payload.role);
-  response.headers.set("x-institution-id", payload.institutionId);
-  response.headers.set("x-institution-slug", payload.institutionSlug || "");
-  response.headers.set("x-institution-name", payload.institutionName || "");
+
+  if (token.sub) response.headers.set("x-user-id", token.sub);
+  if (userRole) response.headers.set("x-user-role", userRole);
+  if (token.institutionId) {
+    response.headers.set("x-institution-id", token.institutionId as string);
+  }
+  if (token.institutionSlug) {
+    response.headers.set("x-institution-slug", token.institutionSlug as string);
+  }
+  if (token.institutionName) {
+    response.headers.set("x-institution-name", token.institutionName as string);
+  }
 
   return response;
 }
 
-function handleUnauthorized(req: NextRequest): NextResponse {
-  const loginUrl = new URL("/auth/login", req.url);
-  loginUrl.searchParams.set("callbackUrl", encodeURIComponent(req.nextUrl.pathname));
-  return NextResponse.redirect(loginUrl);
-}
 
 export const config = {
   matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (svg, png, jpg, etc)
+     */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
+
