@@ -224,11 +224,11 @@ export function LoginForm({ callbackUrl, error }: LoginFormProps) {
         </p>
         <div className="space-y-1 font-mono text-sm text-foreground/80">
           <div className="flex justify-between items-center group">
-            <span>admin@eskooly.com</span>
+            <span>admin@schooledu.com</span>
             <span className="text-muted-foreground group-hover:text-primary transition-colors text-xs">admin123</span>
           </div>
           <div className="flex justify-between items-center group">
-            <span>principal@eskooly.com</span>
+            <span>principal@schooledu.com</span>
             <span className="text-muted-foreground group-hover:text-primary transition-colors text-xs">principal123</span>
           </div>
         </div>

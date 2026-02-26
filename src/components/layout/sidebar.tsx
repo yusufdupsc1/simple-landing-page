@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 import {
   LayoutDashboard,
-  GraduationCap,
+  Sparkles,
   Users,
   ClipboardCheck,
   CreditCard,
@@ -19,6 +19,8 @@ import {
   School,
   BookOpen,
   ChevronRight,
+  ShieldCheck,
+  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -106,14 +108,14 @@ export function Sidebar({ session }: SidebarProps) {
       <aside className="hidden lg:flex w-[220px] xl:w-[240px] flex-col border-r border-border bg-card flex-shrink-0">
         {/* Brand */}
         <div className="flex items-center gap-2.5 h-14 px-4 border-b border-border">
-          <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-            <span className="text-primary-foreground font-bold text-xs">S</span>
+          <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
+            <ShieldCheck className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="font-bold text-sm tracking-tight truncate">
-            ScholasticOS
+            ScholaOPS
           </span>
           <Badge variant="outline" className="ml-auto text-[10px] font-mono py-0">
-            2.0
+            v1.0
           </Badge>
         </div>
 

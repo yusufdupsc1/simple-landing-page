@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, GraduationCap, Users, BookOpen, BarChart3, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, Sparkles, Users, BookOpen, BarChart3, ShieldCheck, Zap } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 
@@ -18,10 +18,10 @@ export default async function Home() {
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform duration-300">
-              <GraduationCap className="w-5 h-5 text-white" />
+              <Sparkles className="w-5 h-5 text-white animate-pulse-slow" />
             </div>
             <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
-              ScholasticOS
+              ScholaOPS
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -55,12 +55,12 @@ export default async function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-              ScholasticOS 2.0 is now live
+              ScholaOPS v1.0 is now live
             </div>
 
             <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter max-w-5xl text-balance leading-[1.1]">
-              The invisible <br className="hidden sm:block" />
-              <span className="gradient-text">operating system</span> <br className="hidden sm:block" />
+              The operations <br className="hidden sm:block" />
+              <span className="gradient-text">standard of excellence</span> <br className="hidden sm:block" />
               for modern schools
             </h1>
 
@@ -155,11 +155,11 @@ export default async function Home() {
       {/* Footer */}
       <footer className="border-t border-border/40 py-12 bg-background/40 relative z-10 backdrop-blur-sm">
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left text-sm text-muted-foreground/80">
-          <p className="font-medium">© {new Date().getFullYear()} ScholasticOS. All rights reserved.</p>
+          <p className="font-medium">© {new Date().getFullYear()} ScholaOPS. Excellence in Operations.</p>
           <div className="flex gap-8">
             <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link href="https://github.com/scholasticos" target="_blank" className="hover:text-foreground transition-colors">GitHub</Link>
+            <Link href="https://github.com/scholaops" target="_blank" className="hover:text-foreground transition-colors">GitHub</Link>
           </div>
         </div>
       </footer>

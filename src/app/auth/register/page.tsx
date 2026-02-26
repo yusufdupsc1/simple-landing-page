@@ -9,7 +9,7 @@ import {
   Eye,
   EyeOff,
   Loader2,
-  GraduationCap,
+  ShieldCheck,
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,13 +62,13 @@ export default function RegisterPage() {
         {/* Brand */}
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/10 mb-4">
-            <GraduationCap className="h-6 w-6 text-primary" />
+            <ShieldCheck className="h-6 w-6 text-primary" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight">
             Create your institution
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Set up ScholasticOS for your school in under a minute.
+            Set up ScholaOPS for your school in under a minute.
           </p>
         </div>
 
@@ -147,18 +147,16 @@ export default function RegisterPage() {
                   {PASSWORD_RULES.map(({ label, test }) => (
                     <div key={label} className="flex items-center gap-1.5">
                       <CheckCircle2
-                        className={`h-3.5 w-3.5 ${
-                          test(form.password)
-                            ? "text-green-500"
-                            : "text-muted-foreground/40"
-                        }`}
+                        className={`h-3.5 w-3.5 ${test(form.password)
+                          ? "text-green-500"
+                          : "text-muted-foreground/40"
+                          }`}
                       />
                       <span
-                        className={`text-xs ${
-                          test(form.password)
-                            ? "text-green-500"
-                            : "text-muted-foreground"
-                        }`}
+                        className={`text-xs ${test(form.password)
+                          ? "text-green-500"
+                          : "text-muted-foreground"
+                          }`}
                       >
                         {label}
                       </span>
@@ -198,7 +196,7 @@ export default function RegisterPage() {
                   Creating institution…
                 </>
               ) : (
-                "Create Institution"
+                "Enroll Institution"
               )}
             </Button>
           </form>

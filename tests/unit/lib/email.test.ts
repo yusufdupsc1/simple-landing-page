@@ -124,7 +124,7 @@ describe("Email Service", () => {
       const html = passwordResetEmail("https://example.com/reset");
 
       // Assert
-      expect(html).toContain("ScholasticOS");
+      expect(html).toContain("ScholaOPS");
     });
   });
 
@@ -138,7 +138,7 @@ describe("Email Service", () => {
       );
 
       // Assert
-      expect(html).toContain("Welcome to ScholasticOS");
+      expect(html).toContain("Welcome to ScholaOPS");
       expect(html).toContain("John Doe");
       expect(html).toContain("Test Academy");
       expect(html).toContain("https://example.com/login");

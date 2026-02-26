@@ -19,7 +19,7 @@ const envSchema = z.object({
 
   // Email (Resend)
   RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().email().default("noreply@scholasticos.app"),
+  EMAIL_FROM: z.string().email().default("noreply@schooledu.com"),
 
   // Uploads (UploadThing)
   UPLOADTHING_SECRET: z.string().optional(),

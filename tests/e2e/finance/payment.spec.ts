@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Finance Flows", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/auth/login");
-    await page.fill('input[name="email"]', "admin@eskooly.com");
+    await page.fill('input[name="email"]', "admin@schooledu.com");
     await page.fill('input[name="password"]', "admin123");
     await page.click('button[type="submit"]');
     await page.waitForURL("/dashboard", { timeout: 10000 });

@@ -132,7 +132,7 @@ export async function registerInstitution(
     // Send welcome email (non-blocking)
     void sendEmail({
       to: email,
-      subject: `Welcome to ScholasticOS — ${institutionName}`,
+      subject: `Welcome to ScholaOPS — ${institutionName}`,
       html: welcomeEmail(
         adminName,
         institutionName,
@@ -183,7 +183,7 @@ export async function forgotPassword(
 
     await sendEmail({
       to: email,
-      subject: "Reset your ScholasticOS password",
+      subject: "Reset your ScholaOPS password",
       html: passwordResetEmail(resetUrl),
     });
 

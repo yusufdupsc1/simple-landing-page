@@ -33,7 +33,7 @@ test.describe("Authentication Flows", () => {
       await page.goto("/auth/login");
 
       // Fill in credentials (using seeded test data)
-      await page.fill('input[name="email"]', "admin@eskooly.com");
+      await page.fill('input[name="email"]', "admin@schooledu.com");
       await page.fill('input[name="password"]', "admin123");
       await page.click('button[type="submit"]');
 
@@ -150,7 +150,7 @@ test.describe("Authentication Flows", () => {
     test("should persist session across page refreshes", async ({ page }) => {
       // Login first
       await page.goto("/auth/login");
-      await page.fill('input[name="email"]', "admin@eskooly.com");
+      await page.fill('input[name="email"]', "admin@schooledu.com");
       await page.fill('input[name="password"]', "admin123");
       await page.click('button[type="submit"]');
 
@@ -175,7 +175,7 @@ test.describe("Authentication Flows", () => {
     test("should logout and clear session", async ({ page }) => {
       // Login first
       await page.goto("/auth/login");
-      await page.fill('input[name="email"]', "admin@eskooly.com");
+      await page.fill('input[name="email"]', "admin@schooledu.com");
       await page.fill('input[name="password"]', "admin123");
       await page.click('button[type="submit"]');
 

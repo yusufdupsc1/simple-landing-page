@@ -5,19 +5,19 @@ import bcryptjs from "bcryptjs";
 const db = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding ScholasticOS database...\n");
+  console.log("🌱 Seeding ScholaOPS database...\n");
 
   // ── Institution ──────────────────────────────
   const institution = await db.institution.upsert({
-    where: { slug: "eskooly-demo" },
+    where: { slug: "scholaops-demo" },
     update: {},
     create: {
-      name: "Eskooly Academy",
-      slug: "eskooly-demo",
-      email: "admin@eskooly.com",
+      name: "ScholaOPS Academy",
+      slug: "scholaops-demo",
+      email: "admin@schooledu.com",
       phone: "+1-555-0100",
-      address: "123 Academic Boulevard",
-      city: "San Francisco",
+      address: "123 Innovation Way",
+      city: "Palo Alto",
       country: "US",
       timezone: "America/Los_Angeles",
       currency: "USD",
@@ -41,11 +41,11 @@ async function main() {
   // ── Admin User ───────────────────────────────
   const hashedPassword = await bcryptjs.hash("admin123", 12);
   const adminUser = await db.user.upsert({
-    where: { email: "admin@eskooly.com" },
+    where: { email: "admin@schooledu.com" },
     update: {},
     create: {
       name: "Alex Admin",
-      email: "admin@eskooly.com",
+      email: "admin@schooledu.com",
       password: hashedPassword,
       role: Role.ADMIN,
       emailVerified: new Date(),
@@ -57,11 +57,11 @@ async function main() {
   // ── Principal ────────────────────────────────
   const principalPwd = await bcryptjs.hash("principal123", 12);
   await db.user.upsert({
-    where: { email: "principal@eskooly.com" },
+    where: { email: "principal@schooledu.com" },
     update: {},
     create: {
       name: "Dr. Sarah Chen",
-      email: "principal@eskooly.com",
+      email: "principal@schooledu.com",
       password: principalPwd,
       role: Role.PRINCIPAL,
       emailVerified: new Date(),
@@ -126,10 +126,10 @@ async function main() {
 
   // ── Teachers ─────────────────────────────────
   const teacherData = [
-    { firstName: "James", lastName: "Wilson", email: "j.wilson@eskooly.com", specialization: "Mathematics" },
-    { firstName: "Maria", lastName: "Rodriguez", email: "m.rodriguez@eskooly.com", specialization: "Science" },
-    { firstName: "David", lastName: "Kim", email: "d.kim@eskooly.com", specialization: "Computer Science" },
-    { firstName: "Emily", lastName: "Thompson", email: "e.thompson@eskooly.com", specialization: "English" },
+    { firstName: "James", lastName: "Wilson", email: "j.wilson@schooledu.com", specialization: "Mathematics" },
+    { firstName: "Maria", lastName: "Rodriguez", email: "m.rodriguez@schooledu.com", specialization: "Science" },
+    { firstName: "David", lastName: "Kim", email: "d.kim@schooledu.com", specialization: "Computer Science" },
+    { firstName: "Emily", lastName: "Thompson", email: "e.thompson@schooledu.com", specialization: "English" },
   ];
 
   const teachers = await Promise.all(
@@ -175,7 +175,7 @@ async function main() {
           studentId: sid,
           firstName,
           lastName,
-          email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@student.eskooly.com`,
+          email: `${firstName.toUpperCase()}.${lastName.toUpperCase()}@student.schooledu.com`,
           gender: s % 2 === 0 ? Gender.MALE : Gender.FEMALE,
           dateOfBirth: new Date(2006 + (c % 4), s % 12, (s % 28) + 1),
           status: StudentStatus.ACTIVE,
@@ -208,8 +208,8 @@ async function main() {
         rand > 0.9
           ? AttendanceStatus.ABSENT
           : rand > 0.85
-          ? AttendanceStatus.LATE
-          : AttendanceStatus.PRESENT;
+            ? AttendanceStatus.LATE
+            : AttendanceStatus.PRESENT;
 
       await db.attendance.upsert({
         where: { studentId_date: { studentId: student.id, date } },
@@ -283,8 +283,8 @@ async function main() {
 
   console.log("\n🎉 Seeding complete!\n");
   console.log("Demo credentials:");
-  console.log("  Admin:     admin@eskooly.com / admin123");
-  console.log("  Principal: principal@eskooly.com / principal123");
+  console.log("  Admin:     admin@schooledu.com / admin123");
+  console.log("  Principal: principal@schooledu.com / principal123");
 }
 
 main()

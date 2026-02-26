@@ -7,35 +7,34 @@ import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "ScholasticOS — School Management",
-    template: "%s | ScholasticOS",
+    default: "ScholaOPS — Precision School Management",
+    template: "%s | ScholaOPS",
   },
   description:
-    "Production-grade school management SaaS. Manage students, teachers, attendance, grades, and finance in one platform.",
+    "Professional-grade school operations platform. Precision engineered for administrative efficiency and institutional excellence.",
   keywords: [
-    "school management",
-    "SaaS",
-    "education",
-    "students",
-    "attendance",
-    "grades",
+    "school management system",
+    "education ERP",
+    "ScholaOPS",
+    "academic administration",
+    "school operations",
   ],
-  authors: [{ name: "ScholasticOS" }],
-  creator: "ScholasticOS",
+  authors: [{ name: "ScholaOPS" }],
+  creator: "ScholaOPS",
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "ScholasticOS",
-    title: "ScholasticOS — School Management Platform",
-    description: "Modern school management SaaS for institutions of any size.",
+    siteName: "ScholaOPS",
+    title: "ScholaOPS — Modern Education Infrastructure",
+    description: "The professional operations platform for forward-thinking schools.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ScholasticOS",
-    description: "Modern school management SaaS for institutions of any size.",
+    title: "ScholaOPS",
+    description: "The professional operations platform for forward-thinking schools.",
   },
   robots: {
-    index: false, // App is SaaS — no indexing of dashboards
+    index: false,
     follow: false,
   },
 };
