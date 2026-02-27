@@ -1,4 +1,4 @@
-# ScholasticOS 🏫
+# SholaOps 🏫
 
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js" alt="Next.js">
@@ -196,8 +196,8 @@ User Login → Credentials → NextAuth (JWT) → Session Token → Protected Ro
 
 ```bash
 # Clone the repository
-git clone https://github.com/yusufdupsc1/scholasticOS.git
-cd scholasticOS
+git clone https://github.com/yusufdupsc1/scholaOps.git
+cd scholaOps
 
 # Install dependencies
 pnpm install
@@ -221,7 +221,7 @@ pnpm dev
 
 ```env
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/scholasticOS"
+DATABASE_URL="postgresql://user:password@localhost:5432/scholaOps"
 
 # NextAuth
 AUTH_SECRET="your-secret-key-min-32-chars"
