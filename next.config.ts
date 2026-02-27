@@ -1,15 +1,12 @@
 // next.config.ts
-import type { NextConfig } from "next";
 import bundleAnalyzer from "@next/bundle-analyzer";
+import type { NextConfig } from "next";
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
 
 const nextConfig: NextConfig = {
-  // Turbopack (stable in Next.js 15+, full builds in 16)
-  // Enabled via `next dev --turbopack` and `next build --turbopack`
-
   // TypeScript — errors block production builds
   typescript: { ignoreBuildErrors: false },
 

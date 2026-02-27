@@ -7,23 +7,25 @@ WORKDIR /app
 # Install dependencies only when needed
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
-COPY package.json package-lock.json* ./
-RUN npm ci --legacy-peer-deps
+RUN npm install -g pnpm@latest
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile
 
 # Build stage
 FROM base AS builder
 WORKDIR /app
+RUN npm install -g pnpm@latest
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Generate Prisma client
-RUN npx prisma generate
+RUN pnpm exec prisma generate
 
 # Next.js build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN npm run build
+RUN pnpm run build
 
 # Production runner
 FROM base AS runner
