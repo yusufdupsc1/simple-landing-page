@@ -22,6 +22,12 @@ const ADMIN_ROUTES = [
 ];
 
 const AUTH_SECRET = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+const SESSION_COOKIE_CANDIDATES = [
+  "__Secure-authjs.session-token",
+  "authjs.session-token",
+  "__Secure-next-auth.session-token",
+  "next-auth.session-token",
+];
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -47,15 +53,30 @@ export default async function middleware(req: NextRequest) {
   const isSecureCookie = req.nextUrl.protocol === "https:" ||
     req.headers.get("x-forwarded-proto") === "https";
 
-  const token = await getToken({
-    req,
-    secret: AUTH_SECRET,
-    secureCookie: isSecureCookie,
-  }) ?? await getToken({
-    req,
-    secret: AUTH_SECRET,
-    secureCookie: !isSecureCookie,
-  });
+  let token = null;
+  for (const cookieName of SESSION_COOKIE_CANDIDATES) {
+    if (!req.cookies.get(cookieName)?.value) continue;
+    token = await getToken({
+      req,
+      secret: AUTH_SECRET,
+      cookieName,
+      secureCookie: cookieName.startsWith("__Secure-"),
+    });
+    if (token) break;
+  }
+
+  // Defensive fallback when proxy headers/cookie prefixes are inconsistent.
+  if (!token) {
+    token = await getToken({
+      req,
+      secret: AUTH_SECRET,
+      secureCookie: isSecureCookie,
+    }) ?? await getToken({
+      req,
+      secret: AUTH_SECRET,
+      secureCookie: !isSecureCookie,
+    });
+  }
 
   if (!token) {
     const loginUrl = new URL("/auth/login", req.url);

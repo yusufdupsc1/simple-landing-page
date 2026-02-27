@@ -63,6 +63,7 @@ if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
 }
 
 const authConfig: any = {
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   pages: { signIn: "/auth/login" },
   providers,
