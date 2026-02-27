@@ -34,7 +34,12 @@ const envSchema = z.object({
 export type Env = z.infer<typeof envSchema>;
 
 function createEnv(): Env {
-  const parsed = envSchema.safeParse(process.env);
+  const parsed = envSchema.safeParse({
+    ...process.env,
+    // Backward-compatible aliases frequently used with Auth.js/NextAuth.
+    AUTH_SECRET: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+    AUTH_URL: process.env.AUTH_URL ?? process.env.NEXTAUTH_URL,
+  });
 
   if (!parsed.success) {
     console.error(
