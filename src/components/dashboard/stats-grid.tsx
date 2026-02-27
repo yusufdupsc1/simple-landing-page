@@ -49,7 +49,7 @@ export function StatsGrid({ stats }: { stats: StatsData }) {
         <motion.article
           variants={item}
           key={card.label}
-          className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 shadow-sm hover:shadow-md hover:border-border transition-all duration-300"
+          className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-4 shadow-sm transition-all duration-300 hover:border-border hover:shadow-md sm:p-6"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           <div className="mb-4 flex items-center justify-between relative z-10">
@@ -59,7 +59,7 @@ export function StatsGrid({ stats }: { stats: StatsData }) {
             </div>
           </div>
           <div className="relative z-10">
-            <p className="text-3xl font-bold tracking-tight text-foreground">{card.value}</p>
+            <p className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{card.value}</p>
             {card.subtitle ? <p className="mt-1 text-sm font-medium text-muted-foreground">{card.subtitle}</p> : null}
           </div>
         </motion.article>

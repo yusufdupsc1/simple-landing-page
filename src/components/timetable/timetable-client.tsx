@@ -259,7 +259,7 @@ export function TimetableClient({
       <PageHeader title="Timetable" description="Manage class schedules">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" onClick={() => setEditEntry(null)}>
+            <Button size="sm" className="w-full sm:w-auto" onClick={() => setEditEntry(null)}>
               <Plus className="h-4 w-4 mr-1.5" /> Add Entry
             </Button>
           </DialogTrigger>
@@ -280,12 +280,12 @@ export function TimetableClient({
         </Dialog>
       </PageHeader>
 
-      <div className="flex gap-3 mb-6">
+      <div className="mb-6 flex w-full gap-3">
         <Select
           value={selectedClassId || "all"}
           onValueChange={handleClassChange}
         >
-          <SelectTrigger className="w-full sm:w-64">
+          <SelectTrigger className="w-full sm:w-72">
             <SelectValue placeholder="Select class" />
           </SelectTrigger>
           <SelectContent>
@@ -299,7 +299,7 @@ export function TimetableClient({
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-7">
         {timetable.map(({ day, dayIndex, entries }) => (
           <div
             key={dayIndex}
@@ -313,7 +313,7 @@ export function TimetableClient({
                 {entries.length} periods
               </p>
             </div>
-            <div className="p-2 space-y-2 min-h-[200px]">
+            <div className="min-h-[180px] space-y-2 p-2">
               {entries.length === 0 ? (
                 <p className="text-xs text-muted-foreground text-center py-4">
                   No classes

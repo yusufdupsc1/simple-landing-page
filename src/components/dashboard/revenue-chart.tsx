@@ -7,11 +7,11 @@ interface RevenueRow {
 
 export function RevenueChart({ data }: { data: RevenueRow[] }) {
   return (
-    <section className="group h-full rounded-3xl border border-border/50 bg-card p-6 shadow-sm hover:border-border transition-colors relative overflow-hidden flex flex-col">
+    <section className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/50 bg-card p-4 shadow-sm transition-colors hover:border-border sm:p-6">
       <div className="absolute inset-0 bg-gradient-to-bl from-amber-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <h2 className="mb-6 text-lg font-semibold tracking-tight relative z-10 flex items-center justify-between">
+      <h2 className="relative z-10 mb-6 flex items-center justify-between gap-2 text-lg font-semibold tracking-tight">
         Revenue (This Year)
-        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600">YTD</span>
+        <span className="rounded-full bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-600 sm:px-2.5 sm:text-xs">YTD</span>
       </h2>
       <div className="space-y-3 relative z-10 flex-1 flex flex-col justify-center">
         {data.length ? (

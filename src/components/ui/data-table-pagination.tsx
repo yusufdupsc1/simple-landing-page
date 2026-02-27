@@ -42,18 +42,20 @@ export function DataTablePagination({
                 <Button
                     variant="outline"
                     size="sm"
+                    className="min-w-24 sm:min-w-0"
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage <= 1}
                 >
                     <ChevronLeft className="h-4 w-4" />
                     Prev
                 </Button>
-                <span className="min-w-16 text-center text-sm text-muted-foreground">
+                <span className="min-w-20 text-center text-sm text-muted-foreground">
                     {currentPage} / {totalPages}
                 </span>
                 <Button
                     variant="outline"
                     size="sm"
+                    className="min-w-24 sm:min-w-0"
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage >= totalPages}
                 >

@@ -146,10 +146,10 @@ export default async function StudentPortalPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">Welcome back,</p>
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-xl font-bold sm:text-2xl">
           {student.firstName} {student.lastName}
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm text-muted-foreground sm:text-base">
           {student.class?.name} • ID: {student.studentId}
         </p>
       </div>
@@ -205,7 +205,7 @@ export default async function StudentPortalPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Recent Grades</CardTitle>
@@ -218,10 +218,7 @@ export default async function StudentPortalPage() {
             ) : (
               <div className="space-y-3">
                 {grades.slice(0, 5).map((grade) => (
-                  <div
-                    key={grade.id}
-                    className="flex items-center justify-between"
-                  >
+                  <div key={grade.id} className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-medium text-sm">
                         {grade.subject.name}
@@ -259,10 +256,7 @@ export default async function StudentPortalPage() {
             ) : (
               <div className="space-y-3">
                 {fees.slice(0, 5).map((fee) => (
-                  <div
-                    key={fee.id}
-                    className="flex items-center justify-between"
-                  >
+                  <div key={fee.id} className="flex items-center justify-between gap-3">
                     <div>
                       <p className="font-medium text-sm">{fee.title}</p>
                       <p className="text-xs text-muted-foreground">
@@ -307,7 +301,7 @@ export default async function StudentPortalPage() {
                   key={announcement.id}
                   className="border-b pb-3 last:border-0"
                 >
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
                     <p className="font-medium text-sm">{announcement.title}</p>
                     <Badge variant="outline">{announcement.priority}</Badge>
                   </div>

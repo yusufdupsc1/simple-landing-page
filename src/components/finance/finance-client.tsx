@@ -182,7 +182,7 @@ export function FinanceClient({ fees, students, summary, total, pages, currentPa
             <PageHeader title="Finance" description="Manage fees and payments">
                 <Dialog open={feeOpen} onOpenChange={setFeeOpen}>
                     <DialogTrigger asChild>
-                        <Button size="sm"><Plus className="h-4 w-4 mr-1.5" /> Create Fee</Button>
+                        <Button size="sm" className="w-full sm:w-auto"><Plus className="h-4 w-4 mr-1.5" /> Create Fee</Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader><DialogTitle>Create New Fee</DialogTitle></DialogHeader>
@@ -192,14 +192,14 @@ export function FinanceClient({ fees, students, summary, total, pages, currentPa
             </PageHeader>
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
                 {summaryCards.map(({ label, value, icon: Icon, color, count, isCount }) => (
-                    <div key={label} className="rounded-xl border border-border bg-card p-4">
+                    <div key={label} className="rounded-xl border border-border bg-card p-3 sm:p-4">
                         <div className="flex items-center justify-between mb-2">
                             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
                             <Icon className={`h-4 w-4 ${color}`} />
                         </div>
-                        <p className={`text-xl font-bold ${color}`}>
+                        <p className={`text-lg font-bold sm:text-xl ${color}`}>
                             {isCount ? value : formatCurrency(value)}
                         </p>
                         {count !== undefined && <p className="text-xs text-muted-foreground mt-0.5">{count} fees</p>}
@@ -207,18 +207,18 @@ export function FinanceClient({ fees, students, summary, total, pages, currentPa
                 ))}
             </div>
 
-            <div className="flex w-full gap-3">
+            <div className="flex w-full flex-wrap gap-3">
                 <SearchInput placeholder="Search fees..." className="w-full sm:w-64" />
             </div>
 
             {/* Fees Table */}
             <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                    <table className="w-full min-w-[720px] text-sm">
+                    <table className="w-full min-w-[680px] text-sm">
                         <thead className="border-b border-border bg-muted/30">
                             <tr>
                                 {["Student", "Fee", "Amount", "Paid", "Due Date", "Status", ""].map(h => (
-                                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
+                                    <th key={h} className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</th>
                                 ))}
                             </tr>
                         </thead>

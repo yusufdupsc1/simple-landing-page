@@ -150,7 +150,7 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in sm:space-y-8">
       {/* Page Header */}
       <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
@@ -162,7 +162,7 @@ export default async function DashboardPage() {
             day: "numeric",
           })}
         </p>
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
           {greeting},{" "}
           <span className="text-primary">{userName}</span>
         </h1>

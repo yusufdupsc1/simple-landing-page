@@ -137,7 +137,7 @@ export function GradesClient({ grades, subjects, distribution, total, pages, cur
             <PageHeader title="Grades" total={total} totalLabel="records">
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button size="sm" onClick={() => setEditGrade(null)}>
+                        <Button size="sm" className="w-full sm:w-auto" onClick={() => setEditGrade(null)}>
                             <Plus className="h-4 w-4 mr-1.5" /> Add Grade
                         </Button>
                     </DialogTrigger>
@@ -148,18 +148,18 @@ export function GradesClient({ grades, subjects, distribution, total, pages, cur
                 </Dialog>
             </PageHeader>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
                 <div className="lg:col-span-3 space-y-4">
-                    <div className="flex w-full gap-3">
+                    <div className="flex w-full flex-wrap gap-3">
                         <SearchInput placeholder="Search students..." className="w-full sm:w-64" />
                     </div>
                     <div className="rounded-xl border border-border bg-card overflow-hidden">
                         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                        <table className="w-full min-w-[680px] text-sm">
+                        <table className="w-full min-w-[640px] text-sm">
                             <thead className="border-b border-border bg-muted/30">
                                 <tr>
                                     {["Student", "Subject", "Score", "Grade", "Term", ""].map(h => (
-                                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
+                                        <th key={h} className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</th>
                                     ))}
                                 </tr>
                             </thead>

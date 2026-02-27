@@ -14,7 +14,7 @@ export default async function DashboardLayout({
   if (!session) redirect("/auth/login");
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="safe-bottom flex min-h-svh overflow-hidden bg-background/80">
       {/* Desktop Sidebar */}
       <Sidebar session={session} />
 
@@ -24,8 +24,8 @@ export default async function DashboardLayout({
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <div className="pb-20 lg:pb-0">{children}</div>
+          <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-6 lg:px-8">
+            <div className="pb-24 lg:pb-2">{children}</div>
           </div>
         </main>
       </div>

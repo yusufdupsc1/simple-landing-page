@@ -104,10 +104,10 @@ export default async function ParentPortalPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">Welcome,</p>
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-xl font-bold sm:text-2xl">
           {parent.firstName} {parent.lastName}
         </h1>
-        <p className="text-muted-foreground">
+        <p className="text-sm text-muted-foreground sm:text-base">
           Managing {students.length} student{students.length !== 1 ? "s" : ""}
         </p>
       </div>
@@ -146,7 +146,7 @@ export default async function ParentPortalPage() {
       </div>
 
       <Tabs defaultValue={students[0]?.id}>
-        <TabsList className="w-full justify-start overflow-x-auto">
+        <TabsList className="w-full justify-start">
           {students.map((student) => (
             <TabsTrigger key={student.id} value={student.id}>
               {student.firstName} {student.lastName}
@@ -180,7 +180,7 @@ export default async function ParentPortalPage() {
               value={student.id}
               className="space-y-4"
             >
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <div className="flex-1">
                   <p className="font-medium">
                     {student.firstName} {student.lastName}
@@ -189,7 +189,7 @@ export default async function ParentPortalPage() {
                     {student.class?.name} • ID: {student.studentId}
                   </p>
                 </div>
-                <div className="text-right">
+                <div className="text-left sm:text-right">
                   <Badge
                     variant={attendanceRate >= 75 ? "default" : "destructive"}
                   >
@@ -198,7 +198,7 @@ export default async function ParentPortalPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-sm">Recent Grades</CardTitle>
@@ -211,10 +211,7 @@ export default async function ParentPortalPage() {
                     ) : (
                       <div className="space-y-2">
                         {student.grades.slice(0, 5).map((grade) => (
-                          <div
-                            key={grade.id}
-                            className="flex justify-between text-sm"
-                          >
+                          <div key={grade.id} className="flex justify-between gap-3 text-sm">
                             <span>{grade.subject.name}</span>
                             <span className="font-medium">
                               {grade.percentage}% ({grade.letterGrade})
@@ -244,10 +241,7 @@ export default async function ParentPortalPage() {
                     ) : (
                       <div className="space-y-2">
                         {unpaidStudentFees.map((fee) => (
-                          <div
-                            key={fee.id}
-                            className="flex justify-between text-sm"
-                          >
+                          <div key={fee.id} className="flex justify-between gap-3 text-sm">
                             <span>{fee.title}</span>
                             <span className="font-medium">
                               {formatCurrency(Number(fee.amount))}
@@ -278,7 +272,7 @@ export default async function ParentPortalPage() {
                   key={announcement.id}
                   className="border-b pb-3 last:border-0"
                 >
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
                     <p className="font-medium">{announcement.title}</p>
                     <Badge variant="outline">{announcement.priority}</Badge>
                   </div>

@@ -77,20 +77,20 @@ export function AnalyticsClient({
             <PageHeader title="Analytics" description="Institution-wide insights across all modules" />
 
             {/* KPI Strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
                 {kpis.map(({ label, value, color }) => (
-                    <div key={label} className="rounded-xl border border-border bg-card p-4">
+                    <div key={label} className="rounded-xl border border-border bg-card p-3 sm:p-4">
                         <p className="text-xs text-muted-foreground mb-1">{label}</p>
-                        <p className={`text-xl font-bold ${color}`}>{value}</p>
+                        <p className={`text-lg font-bold sm:text-xl ${color}`}>{value}</p>
                     </div>
                 ))}
             </div>
 
             {/* Attendance Trend */}
-            <div className="rounded-xl border border-border bg-card p-5">
+            <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
                 <h2 className="font-semibold text-sm mb-4">Attendance Trend — Last 14 Days</h2>
                 {trendData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={240}>
+                    <ResponsiveContainer width="100%" height={260}>
                         <LineChart data={trendData} margin={{ top: 4, right: 16, left: -20, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                             <XAxis dataKey="date" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
@@ -107,16 +107,17 @@ export function AnalyticsClient({
                 )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 {/* Grade Distribution */}
-                <div className="rounded-xl border border-border bg-card p-5">
+                <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
                     <h2 className="font-semibold text-sm mb-4">Grade Distribution</h2>
                     {gradeData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={240}>
+                        <ResponsiveContainer width="100%" height={260}>
                             <PieChart>
-                                <Pie data={gradeData} cx="50%" cy="50%" outerRadius={90} dataKey="value" paddingAngle={3} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+                                <Pie data={gradeData} cx="50%" cy="50%" outerRadius={88} dataKey="value" paddingAngle={3}>
                                     {gradeData.map((d, i) => <Cell key={i} fill={d.fill} />)}
                                 </Pie>
+                                <Legend wrapperStyle={{ fontSize: 12 }} />
                                 <Tooltip formatter={(v: number) => [`${v} records`]} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }} />
                             </PieChart>
                         </ResponsiveContainer>
@@ -126,9 +127,9 @@ export function AnalyticsClient({
                 </div>
 
                 {/* Finance Overview */}
-                <div className="rounded-xl border border-border bg-card p-5">
+                <div className="rounded-xl border border-border bg-card p-4 sm:p-5">
                     <h2 className="font-semibold text-sm mb-4">Finance Overview</h2>
-                    <ResponsiveContainer width="100%" height={240}>
+                    <ResponsiveContainer width="100%" height={260}>
                         <BarChart data={financeData} margin={{ top: 4, right: 16, left: -20, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                             <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="hsl(var(--muted-foreground))" />
@@ -143,7 +144,7 @@ export function AnalyticsClient({
             </div>
 
             {/* People Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 {[
                     { title: "Students by Status", data: studentStats },
                     { title: "Teachers by Status", data: teacherStats },

@@ -11,7 +11,7 @@ import { CalendarDays } from "lucide-react";
 
 export function UpcomingEvents({ events }: { events: EventItem[] }) {
   return (
-    <section className="group h-full rounded-3xl border border-border/50 bg-card p-6 shadow-sm hover:border-border transition-colors relative overflow-hidden flex flex-col">
+    <section className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/50 bg-card p-4 shadow-sm transition-colors hover:border-border sm:p-6">
       <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <h2 className="mb-6 text-lg font-semibold tracking-tight relative z-10 flex items-center justify-between">
         Upcoming Events

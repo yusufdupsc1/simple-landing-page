@@ -8,11 +8,11 @@ interface AttendanceRow {
 
 export function AttendanceChart({ data }: { data: AttendanceRow[] }) {
   return (
-    <section className="group h-full rounded-3xl border border-border/50 bg-card p-6 shadow-sm hover:border-border transition-colors relative overflow-hidden flex flex-col">
+    <section className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/50 bg-card p-4 shadow-sm transition-colors hover:border-border sm:p-6">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <h2 className="mb-6 text-lg font-semibold tracking-tight relative z-10 flex items-center justify-between">
+      <h2 className="relative z-10 mb-6 flex items-center justify-between gap-2 text-lg font-semibold tracking-tight">
         Attendance (Last 30 Days)
-        <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600">Overview</span>
+        <span className="rounded-full bg-blue-500/10 px-2 py-1 text-[11px] font-medium text-blue-600 sm:px-2.5 sm:text-xs">Overview</span>
       </h2>
       <div className="flex-1 relative z-10">
         <div className="max-h-72 overflow-auto pr-2 custom-scrollbar">

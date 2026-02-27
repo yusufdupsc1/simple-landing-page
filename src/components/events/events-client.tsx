@@ -118,7 +118,7 @@ export function EventsClient({ events, total, pages, currentPage }: Props) {
             <PageHeader title="Events" total={total} totalLabel="events">
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button size="sm" onClick={() => setEditEvent(null)}>
+                        <Button size="sm" className="w-full sm:w-auto" onClick={() => setEditEvent(null)}>
                             <Plus className="h-4 w-4 mr-1.5" /> Add Event
                         </Button>
                     </DialogTrigger>
@@ -129,9 +129,9 @@ export function EventsClient({ events, total, pages, currentPage }: Props) {
                 </Dialog>
             </PageHeader>
 
-            <SearchInput placeholder="Search events..." className="w-full sm:w-64" />
+            <SearchInput placeholder="Search events..." className="w-full sm:max-w-sm" />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {events.length === 0 ? (
                     <div className="col-span-full rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
                         No events scheduled. Click &ldquo;Add Event&rdquo; to create one.
@@ -151,7 +151,7 @@ export function EventsClient({ events, total, pages, currentPage }: Props) {
                                 </Button>
                             </div>
                         </div>
-                        <h3 className="font-semibold text-sm mb-1">{e.title}</h3>
+                        <h3 className="text-pretty font-semibold text-sm mb-1">{e.title}</h3>
                         {e.description && <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{e.description}</p>}
                         <div className="space-y-1">
                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">

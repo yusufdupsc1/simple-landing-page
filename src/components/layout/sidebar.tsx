@@ -105,7 +105,7 @@ export function Sidebar({ session }: SidebarProps) {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <aside className="hidden lg:flex w-[220px] xl:w-[240px] flex-col border-r border-border bg-card flex-shrink-0">
+      <aside className="hidden h-svh w-[230px] flex-shrink-0 flex-col border-r border-border/80 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 lg:flex xl:w-[250px]">
         {/* Brand */}
         <div className="flex items-center gap-2.5 h-14 px-4 border-b border-border">
           <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">

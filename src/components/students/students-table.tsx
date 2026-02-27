@@ -25,20 +25,20 @@ interface Props {
 export function StudentsTable({ students, total, pages, currentPage }: Props) {
   return (
     <section className="rounded-xl border border-border bg-card p-4">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">Showing {students.length} of {total}</p>
         <p className="text-sm text-muted-foreground">Page {currentPage} / {Math.max(pages, 1)}</p>
       </div>
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="text-muted-foreground">
               <th className="pb-2">Student</th>
-              <th className="pb-2">ID</th>
-              <th className="pb-2">Class</th>
+              <th className="pb-2 whitespace-nowrap">ID</th>
+              <th className="pb-2 whitespace-nowrap">Class</th>
               <th className="pb-2">Email</th>
-              <th className="pb-2">Status</th>
-              <th className="pb-2">Joined</th>
+              <th className="pb-2 whitespace-nowrap">Status</th>
+              <th className="pb-2 whitespace-nowrap">Joined</th>
             </tr>
           </thead>
           <tbody>

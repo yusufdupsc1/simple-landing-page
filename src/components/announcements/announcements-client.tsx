@@ -128,7 +128,7 @@ export function AnnouncementsClient({ announcements, total, pages, currentPage }
             <PageHeader title="Announcements" total={total} totalLabel="announcements">
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button size="sm" onClick={() => setEditItem(null)}>
+                        <Button size="sm" className="w-full sm:w-auto" onClick={() => setEditItem(null)}>
                             <Plus className="h-4 w-4 mr-1.5" /> New Announcement
                         </Button>
                     </DialogTrigger>
@@ -139,7 +139,7 @@ export function AnnouncementsClient({ announcements, total, pages, currentPage }
                 </Dialog>
             </PageHeader>
 
-            <SearchInput placeholder="Search announcements..." className="w-full sm:w-64" />
+            <SearchInput placeholder="Search announcements..." className="w-full sm:max-w-sm" />
 
             <div className="space-y-3">
                 {announcements.length === 0 ? (
@@ -152,28 +152,28 @@ export function AnnouncementsClient({ announcements, total, pages, currentPage }
                     const isExpired = a.expiresAt && new Date(a.expiresAt) < new Date();
                     return (
                         <div key={a.id} className={`rounded-xl border bg-card p-4 transition-shadow hover:shadow-sm ${isExpired ? "opacity-60" : ""}`}>
-                            <div className="flex items-start gap-3">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
                                 <div className={`mt-0.5 rounded-full p-1.5 ${cfg.bg}`}>
                                     <Icon className={`h-4 w-4 ${cfg.color}`} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
+                                    <div className="mb-1 flex flex-wrap items-center gap-2">
                                         <h3 className="font-semibold text-sm">{a.title}</h3>
                                         <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                                         {isExpired && <span className="text-xs text-destructive">Expired</span>}
                                     </div>
                                     <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{a.content}</p>
-                                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                    <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground">
                                         <span>Published {a.publishedAt ? formatDate(a.publishedAt) : "—"}</span>
                                         {a.expiresAt && <span>Expires {formatDate(a.expiresAt)}</span>}
-                                        <div className="flex gap-1">
+                                        <div className="flex flex-wrap gap-1">
                                             {a.targetAudience.map(t => (
                                                 <span key={t} className="rounded bg-muted px-1.5 py-0.5">{t}</span>
                                             ))}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex gap-1 flex-shrink-0">
+                                <div className="flex gap-1 self-end sm:self-start flex-shrink-0">
                                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditItem(a); setOpen(true); }}>
                                         <Pencil className="h-3.5 w-3.5" />
                                     </Button>

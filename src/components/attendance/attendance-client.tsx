@@ -112,11 +112,11 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
             <PageHeader title="Attendance" description="Mark and view daily attendance records" />
 
             {/* Summary Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
                 {stats.map(s => (
-                    <div key={s.label} className="rounded-xl border border-border bg-card p-4">
+                    <div key={s.label} className="rounded-xl border border-border bg-card p-3 sm:p-4">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{s.label}</p>
-                        <p className={`text-2xl font-bold mt-1 ${s.color}`}>{s.value}</p>
+                        <p className={`mt-1 text-xl font-bold sm:text-2xl ${s.color}`}>{s.value}</p>
                     </div>
                 ))}
                 <div className="rounded-xl border border-border bg-card p-4 col-span-2 sm:col-span-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -130,7 +130,7 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
             {/* Controls */}
             <div className="rounded-xl border border-border bg-card p-4">
                 <h2 className="font-semibold mb-3">Mark Attendance</h2>
-                <div className="flex flex-wrap gap-3 items-end">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-end">
                     <div className="w-full space-y-1.5 sm:w-auto">
                         <Label>Class</Label>
                         <Select value={classId} onValueChange={v => { setClassId(v); setLoaded(false); }}>
@@ -144,7 +144,7 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
                         <Label>Date</Label>
                         <Input type="date" value={date} onChange={e => { setDate(e.target.value); setLoaded(false); }} className="w-full sm:w-40" />
                     </div>
-                    <Button onClick={loadStudents} disabled={pending || !classId} className="w-full sm:w-auto">
+                    <Button onClick={loadStudents} disabled={pending || !classId} className="w-full sm:w-auto sm:min-w-36">
                         <Users className="h-4 w-4 mr-1.5" /> Load Students
                     </Button>
                 </div>
@@ -154,7 +154,7 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
                 <div className="rounded-xl border border-border bg-card overflow-hidden">
                     <div className="flex flex-col gap-3 p-4 border-b border-border sm:flex-row sm:items-center sm:justify-between">
                         <p className="font-semibold">{students.length} students</p>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 sm:justify-end">
                             {(["PRESENT", "ABSENT"] as AttendanceStatus[]).map(s => (
                                 <Button key={s} variant="outline" size="sm" onClick={() => setAll(s)}>
                                     Mark All {STATUS_CONFIG[s].label}
@@ -175,7 +175,7 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
                                         <p className="text-xs text-muted-foreground font-mono">{s.studentId}</p>
                                     </div>
                                     <div className="w-full sm:w-auto">
-                                        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:justify-end">
+                                        <div className="flex snap-x items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:justify-end">
                                         {INTERACTIVE_STATUSES.map(({ key, symbol }) => {
                                             const c = STATUS_CONFIG[key];
                                             const Icon = c.icon;
@@ -183,7 +183,7 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
                                                 <button
                                                     key={key}
                                                     onClick={() => setStatus(s.id, key)}
-                                                    className={`group inline-flex min-w-[4.5rem] items-center justify-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs font-semibold transition-all duration-200 active:scale-95 ${status === key
+                                                    className={`group snap-start inline-flex min-w-[4.5rem] items-center justify-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs font-semibold transition-all duration-200 active:scale-95 ${status === key
                                                         ? `${c.bg} ${c.color} border-current shadow-sm`
                                                         : "border-border text-muted-foreground hover:border-muted-foreground hover:bg-muted/50"
                                                         }`}

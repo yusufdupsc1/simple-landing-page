@@ -59,7 +59,7 @@ function ProfileTab({ institution }: { institution: Institution }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
+        <form onSubmit={handleSubmit} className="max-w-2xl space-y-5">
             <div className="flex items-center gap-3 mb-2">
                 <h2 className="font-semibold">Institution Profile</h2>
                 <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${PLAN_COLORS[institution?.plan ?? "STARTER"]}`}>
@@ -122,7 +122,7 @@ function ProfileTab({ institution }: { institution: Institution }) {
                     </Select>
                 </div>
             </div>
-            <Button type="submit" disabled={pending} className="gap-2">
+            <Button type="submit" disabled={pending} className="w-full gap-2 sm:w-auto">
                 <Save className="h-4 w-4" />{pending ? "Saving..." : "Save Profile"}
             </Button>
         </form>
@@ -157,7 +157,7 @@ function AcademicTab({ settings }: { settings: SettingsRow }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+        <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
             <div>
                 <h2 className="font-semibold mb-4">Academic Settings</h2>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -177,7 +177,7 @@ function AcademicTab({ settings }: { settings: SettingsRow }) {
                 </div>
                 <div className="space-y-1.5 mt-4">
                     <Label>Working Days</Label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                         {DAYS.map((d, i) => {
                             const dayNum = i + 1;
                             const active = (form.workingDays as number[]).includes(dayNum);
@@ -213,7 +213,7 @@ function AcademicTab({ settings }: { settings: SettingsRow }) {
                         { key: "emailNotifs" as const, label: "Email Notifications", desc: "Send notifications via email" },
                         { key: "smsNotifs" as const, label: "SMS Notifications", desc: "Send notifications via SMS" },
                     ].map(({ key, label, desc }) => (
-                        <div key={key} className="flex items-center justify-between p-3 rounded-lg border border-border">
+                        <div key={key} className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
                             <div>
                                 <p className="text-sm font-medium">{label}</p>
                                 <p className="text-xs text-muted-foreground">{desc}</p>
@@ -227,7 +227,7 @@ function AcademicTab({ settings }: { settings: SettingsRow }) {
                 </div>
             </div>
 
-            <Button type="submit" disabled={pending} className="gap-2">
+            <Button type="submit" disabled={pending} className="w-full gap-2 sm:w-auto">
                 <Save className="h-4 w-4" />{pending ? "Saving..." : "Save Settings"}
             </Button>
         </form>
@@ -239,7 +239,7 @@ export function SettingsClient({ institution, settings }: Props) {
         <>
             <PageHeader title="Settings" description="Manage institution profile and system preferences" />
             <Tabs defaultValue="profile">
-                <TabsList className="mb-6">
+                <TabsList className="mb-6 w-full sm:w-auto">
                     <TabsTrigger value="profile" className="gap-1.5"><Building2 className="h-3.5 w-3.5" />Profile</TabsTrigger>
                     <TabsTrigger value="academic" className="gap-1.5"><GraduationCap className="h-3.5 w-3.5" />Academic</TabsTrigger>
                 </TabsList>

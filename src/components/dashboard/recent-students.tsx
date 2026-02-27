@@ -12,9 +12,9 @@ interface StudentItem {
 
 export function RecentStudents({ students }: { students: StudentItem[] }) {
   return (
-    <section className="group h-full rounded-3xl border border-border/50 bg-card p-6 shadow-sm hover:border-border transition-colors relative overflow-hidden flex flex-col">
+    <section className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/50 bg-card p-4 shadow-sm transition-colors hover:border-border sm:p-6">
       <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="mb-6 flex items-center justify-between relative z-10">
+      <div className="relative z-10 mb-6 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold tracking-tight">Recent Enrollments</h2>
         <Link className="text-sm font-medium text-primary hover:text-primary/80 transition-colors" href="/dashboard/students">
           View directory &rarr;

@@ -17,7 +17,7 @@ export function MobileNav({ session: _session }: { session: Session }) {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 grid h-14 grid-cols-4 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] lg:hidden">
+    <nav className="safe-bottom fixed inset-x-0 bottom-0 z-50 grid h-16 grid-cols-4 border-t border-border/80 bg-background/90 shadow-[0_-8px_30px_hsl(var(--foreground)/0.06)] backdrop-blur supports-[backdrop-filter]:bg-background/75 lg:hidden">
       {ITEMS.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
@@ -26,8 +26,8 @@ export function MobileNav({ session: _session }: { session: Session }) {
             href={item.href}
             prefetch={false}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 text-[11px]",
-              active ? "text-black" : "text-muted-foreground"
+              "mx-1 my-1 flex flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-medium transition-colors",
+              active ? "bg-primary/10 text-primary" : "text-muted-foreground"
             )}
           >
             <item.icon className="h-4 w-4" />

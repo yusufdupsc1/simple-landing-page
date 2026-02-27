@@ -155,11 +155,11 @@ export function TeachersClient({ teachers, subjects, total, pages, currentPage }
             <PageHeader title="Teachers" total={total} totalLabel="teachers">
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button size="sm" onClick={() => setEditTeacher(null)}>
+                        <Button size="sm" className="w-full sm:w-auto" onClick={() => setEditTeacher(null)}>
                             <Plus className="h-4 w-4 mr-1.5" /> Add Teacher
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-lg">
+                    <DialogContent className="max-w-xl">
                         <DialogHeader>
                             <DialogTitle>{editTeacher ? "Edit Teacher" : "Add New Teacher"}</DialogTitle>
                         </DialogHeader>
@@ -172,17 +172,17 @@ export function TeachersClient({ teachers, subjects, total, pages, currentPage }
                 </Dialog>
             </PageHeader>
 
-            <div className="flex w-full items-center gap-3">
+            <div className="flex w-full flex-wrap items-center gap-3">
                 <SearchInput placeholder="Search teachers..." className="w-full sm:w-64" />
             </div>
 
             <div className="rounded-xl border border-border bg-card overflow-hidden">
                 <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                    <table className="w-full min-w-[760px] text-sm">
+                    <table className="w-full min-w-[700px] text-sm">
                         <thead className="border-b border-border bg-muted/30">
                             <tr>
                                 {["Teacher", "ID", "Contact", "Specialization", "Classes", "Salary", "Status", ""].map(h => (
-                                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
+                                    <th key={h} className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</th>
                                 ))}
                             </tr>
                         </thead>

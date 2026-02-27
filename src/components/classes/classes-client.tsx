@@ -185,14 +185,14 @@ export function ClassesClient({ classes, subjects, teachers, total, pages, curre
         <>
             <PageHeader title="Classes & Subjects" description="Manage academic classes and subjects">
                 <Dialog open={open} onOpenChange={setOpen}>
-                    <div className="flex gap-2">
+                    <div className="flex w-full flex-wrap gap-2 sm:w-auto">
                         <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" onClick={() => { setDialogType("subject"); setEditSubject(null); }}>
+                            <Button size="sm" className="flex-1 sm:flex-none" variant="outline" onClick={() => { setDialogType("subject"); setEditSubject(null); }}>
                                 <Plus className="h-4 w-4 mr-1" /> Subject
                             </Button>
                         </DialogTrigger>
                         <DialogTrigger asChild>
-                            <Button size="sm" onClick={() => { setDialogType("class"); setEditClass(null); }}>
+                            <Button size="sm" className="flex-1 sm:flex-none" onClick={() => { setDialogType("class"); setEditClass(null); }}>
                                 <Plus className="h-4 w-4 mr-1" /> Class
                             </Button>
                         </DialogTrigger>
@@ -222,11 +222,11 @@ export function ClassesClient({ classes, subjects, teachers, total, pages, curre
                 <TabsContent value="classes">
                     <div className="rounded-xl border border-border bg-card overflow-hidden">
                         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                        <table className="w-full min-w-[640px] text-sm">
+                        <table className="w-full min-w-[620px] text-sm">
                             <thead className="border-b border-border bg-muted/30">
                                 <tr>
                                     {["Class", "Academic Year", "Room", "Class Teacher", "Students", "Capacity", ""].map(h => (
-                                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
+                                        <th key={h} className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -270,11 +270,11 @@ export function ClassesClient({ classes, subjects, teachers, total, pages, curre
                 <TabsContent value="subjects">
                     <div className="rounded-xl border border-border bg-card overflow-hidden">
                         <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-                        <table className="w-full min-w-[500px] text-sm">
+                        <table className="w-full min-w-[520px] text-sm">
                             <thead className="border-b border-border bg-muted/30">
                                 <tr>
                                     {["Subject", "Code", "Credits", "Type", "Teachers", ""].map(h => (
-                                        <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
+                                        <th key={h} className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</th>
                                     ))}
                                 </tr>
                             </thead>
