@@ -7,30 +7,30 @@ import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "ScholaOPS — Precision School Management",
-    template: "%s | ScholaOPS",
+    default: "scholaOps — Precision School Management",
+    template: "%s | scholaOps",
   },
   description:
     "Professional-grade school operations platform. Precision engineered for administrative efficiency and institutional excellence.",
   keywords: [
     "school management system",
     "education ERP",
-    "ScholaOPS",
+    "scholaOps",
     "academic administration",
     "school operations",
   ],
-  authors: [{ name: "ScholaOPS" }],
-  creator: "ScholaOPS",
+  authors: [{ name: "scholaOps" }],
+  creator: "scholaOps",
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "ScholaOPS",
-    title: "ScholaOPS — Modern Education Infrastructure",
+    siteName: "scholaOps",
+    title: "scholaOps — Modern Education Infrastructure",
     description: "The professional operations platform for forward-thinking schools.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ScholaOPS",
+    title: "scholaOps",
     description: "The professional operations platform for forward-thinking schools.",
   },
   robots: {

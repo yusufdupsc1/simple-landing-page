@@ -5,14 +5,14 @@ import bcryptjs from "bcryptjs";
 const db = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding ScholaOPS database...\n");
+  console.log("🌱 Seeding scholaOps database...\n");
 
   // ── Institution ──────────────────────────────
   const institution = await db.institution.upsert({
     where: { slug: "scholaops-demo" },
     update: {},
     create: {
-      name: "ScholaOPS Academy",
+      name: "scholaOps Academy",
       slug: "scholaops-demo",
       email: "admin@school.edu",
       phone: "+1-555-0100",

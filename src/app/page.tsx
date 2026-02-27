@@ -21,7 +21,7 @@ export default async function Home() {
               <Sparkles className="w-5 h-5 text-white animate-pulse-slow" />
             </div>
             <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80">
-              ScholaOPS
+              scholaOps
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -55,7 +55,7 @@ export default async function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
-              ScholaOPS v1.0 is now live
+              scholaOps v1.0 is now live
             </div>
 
             <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter max-w-5xl text-balance leading-[1.1]">
@@ -155,7 +155,7 @@ export default async function Home() {
       {/* Footer */}
       <footer className="border-t border-border/40 py-12 bg-background/40 relative z-10 backdrop-blur-sm">
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left text-sm text-muted-foreground/80">
-          <p className="font-medium">© {new Date().getFullYear()} ScholaOPS. Excellence in Operations.</p>
+          <p className="font-medium">© {new Date().getFullYear()} scholaOps. Excellence in Operations.</p>
           <div className="flex gap-8">
             <Link href="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-foreground transition-colors">Terms</Link>

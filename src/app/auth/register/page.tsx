@@ -68,7 +68,7 @@ export default function RegisterPage() {
             Create your institution
           </h1>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Set up ScholaOPS for your school in under a minute.
+            Set up scholaOps for your school in under a minute.
           </p>
         </div>
 

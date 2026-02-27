@@ -1,7 +1,7 @@
 {
-  "name": "scholasticos",
+  "name": "scholaops",
   "version": "2.0.0",
-  "description": "ScholasticOS — Production-Grade School Management SaaS",
+  "description": "scholaOps — Production-Grade School Management SaaS",
   "private": true,
   "type": "module",
   "scripts": {

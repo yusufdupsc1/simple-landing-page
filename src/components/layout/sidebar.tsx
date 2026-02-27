@@ -112,7 +112,7 @@ export function Sidebar({ session }: SidebarProps) {
             <ShieldCheck className="h-4 w-4 text-primary-foreground" />
           </div>
           <span className="font-bold text-sm tracking-tight truncate">
-            ScholaOPS
+            scholaOps
           </span>
           <Badge variant="outline" className="ml-auto text-[10px] font-mono py-0">
             v1.0

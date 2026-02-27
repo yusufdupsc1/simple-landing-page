@@ -87,7 +87,7 @@ jobs:
         env:
           DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/build"
           AUTH_SECRET: "build-secret-32-chars-minimum-here"
-          NEXT_PUBLIC_APP_URL: "https://app.scholasticos.com"
+          NEXT_PUBLIC_APP_URL: "https://app.scholaops.com"
           SKIP_ENV_VALIDATION: "true"
 
       - name: Upload build artifacts

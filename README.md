@@ -1,4 +1,4 @@
-# SholaOps 🏫
+# scholaOps 🏫
 
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js" alt="Next.js">
@@ -107,7 +107,7 @@
 ## 📁 Project Structure
 
 ```
-scholasticOS/
+scholaOps/
 ├── prisma/
 │   ├── schema.prisma        # Database schema
 │   └── seed.ts             # Database seeding
