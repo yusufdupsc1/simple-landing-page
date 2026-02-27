@@ -1,377 +1,162 @@
-# scholaOps 🏫
+# scholaOps
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js" alt="Next.js">
-  <img src="https://img.shields.io/badge/TypeScript-5.4-blue?style=for-the-badge&logo=typescript" alt="TypeScript">
-  <img src="https://img.shields.io/badge/PostgreSQL-15+-336791?style=for-the-badge&logo=postgresql" alt="PostgreSQL">
-  <img src="https://img.shields.io/badge/Prisma-5.6-2D3748?style=for-the-badge" alt="Prisma">
-  <img src="https://img.shields.io/badge/Tailwind-3.4-06B6D4?style=for-the-badge&logo=tailwind-css" alt="Tailwind">
-  <img src="https://img.shields.io/badge/Stripe-5.17-635BFF?style=for-the-badge&logo=stripe" alt="Stripe">
-</p>
+[![CI / CD](https://github.com/yusufdupsc1/ScholaOps/actions/workflows/ci.yml/badge.svg)](https://github.com/yusufdupsc1/ScholaOps/actions/workflows/ci.yml)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748)](https://www.prisma.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 
-<p align="center">
-  Production-grade school management SaaS for modern educational institutions
-</p>
+Multi-tenant school operations platform for modern institutions.
 
----
+scholaOps is a production-oriented fullstack application that manages academics, attendance, finance, users, and school communications in one system. The codebase is intentionally structured to demonstrate end-to-end engineering ownership: domain modeling, secure auth, operational readiness, and CI/CD automation.
 
-## ✨ Features
+## Why This Repository Is Strong
 
-### Core Management
+- Multi-tenant data model with institution-level isolation in Prisma.
+- Fullstack architecture using Next.js App Router, Server Actions, API routes, and middleware.
+- Role-aware access control with Auth.js v5 + JWT claims.
+- Production guardrails: strict type checks, linting, build gating, Docker runtime, and CI pipeline.
+- Security-first defaults: CSP, HSTS, permissions policy, input validation, and environment validation.
 
-- **Multi-tenant Architecture** - Multiple institutions can run on the same instance with complete data isolation
-- **Role-based Access Control** - Granular permissions for Admin, Teacher, Student, and Parent roles
-- **Real-time Attendance** - Track student attendance with instant updates
-- **Grade Management** - Comprehensive grade book with GPA calculations
-- **Fee Management** - Automated fee collection with Stripe integration
+## Product Scope
 
-### Academic Features
+- Institution management: organization profile, settings, plans.
+- Academic operations: classes, subjects, timetable, grades, attendance.
+- People and identity: admins, teachers, students, parents, staff.
+- School operations: announcements, events, analytics.
+- Finance and payments: fee tracking and Stripe checkout/webhook integration.
 
-- **Class Management** - Organize students into classes and subjects
-- **Teacher Portal** - Dedicated interface for teachers to manage their classes
-- **Student Portal** - Students can view their grades, attendance, and fees
-- **Parent Portal** - Parents can monitor their children's progress
-- **Timetable** - Interactive class scheduling system
+## System Overview
 
-### Administrative Features
+```text
+Client (Next.js App Router)
+  -> Middleware (auth + RBAC)
+  -> Server Actions / API Routes
+  -> Prisma ORM
+  -> PostgreSQL
 
-- **Analytics Dashboard** - Real-time insights with interactive charts
-- **Announcements** - System-wide and class-specific announcements
-- **Event Calendar** - School events and important dates
-- **Finance Tracking** - Complete financial overview with audit logs
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Client Layer                              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
-│  │   Web App   │  │  Mobile PWA │  │   Admin Dashboard       │ │
-│  │  (Next.js)  │  │   (Next)   │  │   (Next.js)             │ │
-│  └──────┬──────┘  └──────┬──────┘  └───────────┬─────────────┘ │
-└─────────┼────────────────┼──────────────────────┼───────────────┘
-          │                │                      │
-          └────────────────┴──────────────────────┘
-                           │
-                    ┌──────▼──────┐
-                    │  Next.js    │
-                    │  Middleware │
-                    └──────┬──────┘
-                           │
-          ┌────────────────┼────────────────┐
-          │                │                │
-    ┌─────▼─────┐   ┌──────▼──────┐  ┌─────▼─────┐
-    │  Auth     │   │  Server     │  │   API      │
-    │  (NextAuth│   │  Actions    │  │   Routes   │
-    │   v5)     │   │  (Zod)      │  │            │
-    └─────┬─────┘   └──────┬──────┘  └─────┬─────┘
-          │                │                │
-          └────────────────┼────────────────┘
-                           │
-                    ┌──────▼──────┐
-                    │  Business   │
-                    │   Logic     │
-                    └──────┬──────┘
-                           │
-    ┌───────────────────────┼───────────────────────┐
-    │                       │                       │
-┌───▼───┐           ┌──────▼──────┐        ┌─────▼─────┐
-│  DB   │           │   Redis     │        │  External  │
-│(Prisma)│           │  (Upstash) │        │  Services  │
-│ Postgres│           │  Rate Limit │        │  Stripe    │
-└────────┘           └─────────────┘        │  Upload    │
-                                             │  Thing     │
-                                             └───────────┘
+Integrations: Stripe, UploadThing, Resend
 ```
 
-### Tech Stack
+For deeper design details, see [Architecture](./docs/ARCHITECTURE.md).
 
-| Layer            | Technology                     | Version |
-| ---------------- | ------------------------------ | ------- |
-| Framework        | Next.js                        | 16.x    |
-| Language         | TypeScript                     | 5.4.x   |
-| Database         | PostgreSQL                     | 15+     |
-| ORM              | Prisma                         | 5.x     |
-| Authentication   | NextAuth.js                    | v5 Beta |
-| Styling          | Tailwind CSS                   | 3.4.x   |
-| State Management | React Server Components + Nuqs |
-| Payments         | Stripe                         | SDK v17 |
-| File Storage     | UploadThing                    | v7      |
-| Testing          | Vitest + Playwright            | Latest  |
-| Containerization | Docker                         | Latest  |
+## Tech Stack
 
----
+| Layer | Technology |
+| --- | --- |
+| Frontend | Next.js 16, React 19, Tailwind CSS 4 |
+| Backend | Next.js Server Actions, Route Handlers |
+| Data | PostgreSQL, Prisma |
+| Auth | Auth.js (NextAuth v5 beta), JWT sessions |
+| Payments | Stripe |
+| File Uploads | UploadThing |
+| Testing | Vitest, Playwright |
+| DevOps | GitHub Actions, Docker, Docker Compose |
 
-## 📁 Project Structure
-
-```
-scholaOps/
-├── prisma/
-│   ├── schema.prisma        # Database schema
-│   └── seed.ts             # Database seeding
-├── src/
-│   ├── app/                # Next.js App Router
-│   │   ├── api/            # API routes
-│   │   │   ├── auth/       # NextAuth endpoints
-│   │   │   ├── csrf/      # CSRF protection
-│   │   │   ├── uploadthing/ # File uploads
-│   │   │   └── webhooks/   # Stripe webhooks
-│   │   ├── auth/           # Authentication pages
-│   │   │   ├── login/
-│   │   │   ├── register/
-│   │   │   ├── forgot-password/
-│   │   │   └── reset-password/
-│   │   └── dashboard/      # Protected dashboard
-│   │       ├── analytics/
-│   │       ├── announcements/
-│   │       ├── attendance/
-│   │       ├── classes/
-│   │       ├── events/
-│   │       ├── finance/
-│   │       ├── grades/
-│   │       ├── portal/     # Student/Parent portals
-│   │       ├── settings/
-│   │       ├── students/
-│   │       ├── teachers/
-│   │       └── timetable/
-│   ├── components/         # React components
-│   │   ├── ui/            # Reusable UI components
-│   │   └── */             # Feature components
-│   ├── lib/               # Core utilities
-│   │   ├── auth.ts        # NextAuth configuration
-│   │   ├── db.ts          # Prisma client
-│   │   ├── env.ts         # Environment validation
-│   │   ├── email.ts       # Email service
-│   │   └── utils.ts       # Utility functions
-│   ├── server/            # Server-side code
-│   │   └── actions/       # Server Actions
-│   └── styles/            # Global styles
-├── tests/                 # Test suites
-│   ├── unit/             # Unit tests
-│   ├── integration/       # Integration tests
-│   └── e2e/              # E2E tests
-├── docker-compose.yml     # Local development
-├── vitest.config.ts       # Test configuration
-└── playwright.config.ts   # E2E configuration
-```
-
----
-
-## 🔐 Security Architecture
-
-### Authentication Flow
-
-```
-User Login → Credentials → NextAuth (JWT) → Session Token → Protected Routes
-                                                              ↓
-                                              Middleware (Token Verification)
-                                                              ↓
-                                              Role-based Access Control
-```
-
-### Security Measures
-
-- **CSRF Protection**: Custom CSRF middleware with token validation
-- **Rate Limiting**: Redis-based rate limiting (100 req/15min per IP)
-- **Input Validation**: Zod schemas on all server actions
-- **SQL Injection Prevention**: Prisma ORM with parameterized queries
-- **XSS Prevention**: Content Security Policy headers
-- **Data Isolation**: Row-level security via institution ID
-
----
-
-## 🚀 Getting Started
+## Local Development
 
 ### Prerequisites
 
-- Node.js 22.x or later
-- PostgreSQL 15+
-- Redis (optional, for rate limiting)
-- Stripe Account (for payments)
-- UploadThing Account (for file storage)
+- Node.js `>=22`
+- pnpm `10.x`
+- PostgreSQL (local or cloud)
 
-### Installation
+### Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/yusufdupsc1/scholaOps.git
-cd scholaOps
-
-# Install dependencies
+git clone https://github.com/yusufdupsc1/ScholaOps.git
+cd ScholaOps
 pnpm install
-
-# Set up environment variables
-cp .env.example .env
-
-# Configure your .env file (see Environment Variables section)
-
-# Initialize database
+cp .env.example .env.local
 pnpm db:push
-
-# Seed the database (optional - creates demo data)
-pnpm db:seed
-
-# Start development server
+pnpm db:seed # optional
 pnpm dev
 ```
 
+Open `http://localhost:3000`.
+
 ### Environment Variables
 
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/scholaOps"
+Source of truth: [.env.example](./.env.example)
 
-# NextAuth
-AUTH_SECRET="your-secret-key-min-32-chars"
-AUTH_GOOGLE_ID=""
-AUTH_GOOGLE_SECRET=""
+Key required variables:
 
-# Stripe
-STRIPE_SECRET_KEY=""
-STRIPE_WEBHOOK_SECRET=""
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+- `DATABASE_URL`
+- `AUTH_SECRET`
+- `NEXT_PUBLIC_APP_URL`
 
-# UploadThing
-UPLOADTHING_SECRET=""
-UPLOADTHING_APP_ID=""
+Optional integrations:
 
-# App URL
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
+- `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- `UPLOADTHING_SECRET`, `UPLOADTHING_APP_ID`
+- `RESEND_API_KEY`
 
----
-
-## 🧪 Testing
+## Quality Gates
 
 ```bash
-# Run unit tests
-pnpm test
-
-# Run integration tests
-pnpm test:integration
-
-# Run E2E tests
-pnpm test:e2e
-
-# Run all tests with coverage
-pnpm test:coverage
+pnpm run lint
+pnpm run type-check
+pnpm run test
+pnpm run test:e2e
+pnpm run build
 ```
 
----
+## Deployment
 
-## 📊 API Reference
+### Vercel (managed)
 
-### Server Actions
+- CI workflow includes production deploy hooks via `pnpm dlx vercel`.
+- Ensure secrets are configured in GitHub + Vercel environments.
 
-| Action                | Description                 | Auth Required |
-| --------------------- | --------------------------- | ------------- |
-| `login`               | Authenticate user           | No            |
-| `registerInstitution` | Create new institution      | No            |
-| `createStudent`       | Add new student             | Admin         |
-| `createTeacher`       | Add new teacher             | Admin         |
-| `markAttendance`      | Record attendance           | Teacher       |
-| `createGrade`         | Add student grade           | Teacher       |
-| `createFee`           | Create fee invoice          | Admin         |
-| `createCheckout`      | Initialize Stripe payment   | Auth          |
-| `updateSettings`      | Update institution settings | Admin         |
+### Docker (self-hosted)
 
----
-
-## 🔧 Development Challenges & Solutions
-
-### Challenge 1: Next.js 16 Build Errors
-
-**Problem**: Initial build failed due to deprecated config options and missing types.
-
-**Solution**:
-
-- Removed `ppr` and invalid `eslint` config from `next.config.ts`
-- Fixed TypeScript strict mode issues in server actions
-- Added proper type definitions for `ActionResult` discriminated unions
-
-### Challenge 2: UploadThing v7 API Changes
-
-**Problem**: `createNextRouteHandler` no longer exists in v7.
-
-**Solution**:
-
-```typescript
-// Old (v6)
-import { createNextRouteHandler } from "uploadthing/next";
-
-// New (v7)
-import { createRouteHandler } from "uploadthing/next";
-export const { GET, POST } = createRouteHandler({ router: ourFileRouter });
+```bash
+docker compose up -d --build
 ```
 
-### Challenge 3: Stripe API Version Mismatch
+- Uses a multi-stage Dockerfile with Next.js standalone output.
+- Includes app, Postgres, Redis, and a migration job service.
 
-**Problem**: Stripe SDK required specific API version that didn't match installed version.
+Full runbook: [Deployment Guide](./docs/DEPLOYMENT.md).
 
-**Solution**: Updated API version to `"2025-02-24.acacia"` (latest at time of development)
+## API Surface
 
-### Challenge 4: React Hydration Errors
+Representative routes:
 
-**Problem**: CSS animations caused hydration mismatches.
+- `GET /api/health` (app + DB health)
+- `POST /api/auth/[...nextauth]` (Auth.js handlers)
+- `GET/POST /api/uploadthing` (file uploads)
+- `POST /api/webhooks/stripe` (payment webhooks)
 
-**Solution**: Removed client-side animation classes that differ between server/client renders, or use `suppressHydrationWarning`.
+Primary domain logic lives in:
 
-### Challenge 5: Auth.js CSRF in Development
+- [`src/server/actions`](./src/server/actions)
 
-**Problem**: CSRF token errors during local development.
+## Repository Structure
 
-**Solution**: NextAuth v5 handles CSRF automatically for Server Actions. Simplified CSRF middleware to avoid unnecessary complexity in development.
+```text
+src/
+  app/            # App Router pages + API routes
+  components/     # UI and feature components
+  lib/            # Shared libs (auth, db, env, utils)
+  server/actions/ # Core business actions
+prisma/           # Data model and seed scripts
+tests/            # Unit, integration, and e2e suites
+.github/          # CI/CD workflows
+```
 
----
+## Documentation Index
 
-## 📈 Performance Optimizations
+- [Architecture](./docs/ARCHITECTURE.md)
+- [Deployment](./docs/DEPLOYMENT.md)
+- [Security Policy](./SECURITY.md)
+- [Contributing](./CONTRIBUTING.md)
 
-### Implemented
+## Security
 
-- **Static Generation**: Static pages for auth, terms, privacy
-- **Server Components**: Default RSC for reduced client bundle
-- **Image Optimization**: Next.js Image component with AVIF/WebP
-- **Database Indexing**: Indexes on frequently queried fields
-- **Query Optimization**: Prisma `include` and `select` for minimal data transfer
+Security practices and disclosure process are documented in [SECURITY.md](./SECURITY.md).
 
-### Recommended for Production
+## License
 
-- Edge caching with Vercel ISR
-- Database connection pooling with PgBouncer
-- CDN for static assets
-- Redis caching for frequently accessed data
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org) - The React Framework
-- [Prisma](https://prisma.io) - Next-generation ORM
-- [Tailwind CSS](https://tailwindcss.com) - A utility-first CSS framework
-- [NextAuth.js](https://next-auth.js.org) - Authentication for Next.js
-- [Stripe](https://stripe.com) - Payment infrastructure
-- [UploadThing](https://uploadthing.com) - File uploads made easy
-
----
-
-<p align="center">
-  Built with ❤️ by <a href="https://github.com/yusufdupsc1">yusufdupsc1</a>
-</p>
+This project is licensed under the [MIT License](./LICENSE).
