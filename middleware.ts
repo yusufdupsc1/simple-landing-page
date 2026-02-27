@@ -21,7 +21,11 @@ const ADMIN_ROUTES = [
   "/dashboard/users",
 ];
 
-const AUTH_SECRET = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+const AUTH_SECRETS = [
+  process.env.AUTH_SECRET,
+  process.env.NEXTAUTH_SECRET,
+].filter((secret): secret is string => Boolean(secret));
+const AUTH_SECRET = AUTH_SECRETS.length > 1 ? AUTH_SECRETS : AUTH_SECRETS[0];
 const AUTH_DEBUG = process.env.AUTH_DEBUG === "1";
 const SESSION_COOKIE_CANDIDATES = [
   "__Secure-authjs.session-token",
@@ -86,7 +90,7 @@ export default async function middleware(req: NextRequest) {
     if (AUTH_DEBUG) {
       console.log("[auth-debug] middleware redirect", {
         pathname,
-        hasAuthSecret: Boolean(AUTH_SECRET),
+        hasAuthSecret: AUTH_SECRETS.length > 0,
         isSecureCookie,
         presentCookies,
         tokenResolved: false,
@@ -102,7 +106,7 @@ export default async function middleware(req: NextRequest) {
   if (AUTH_DEBUG) {
     console.log("[auth-debug] middleware pass", {
       pathname,
-      hasAuthSecret: Boolean(AUTH_SECRET),
+      hasAuthSecret: AUTH_SECRETS.length > 0,
       isSecureCookie,
       presentCookies,
       tokenResolved: true,

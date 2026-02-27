@@ -4,6 +4,11 @@ import Google from "next-auth/providers/google";
 import * as bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 
+const AUTH_SECRETS = [
+  process.env.AUTH_SECRET,
+  process.env.NEXTAUTH_SECRET,
+].filter((secret): secret is string => Boolean(secret));
+
 const providers: any[] = [
   Credentials({
     name: "Credentials",
@@ -63,7 +68,7 @@ if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
 }
 
 const authConfig: any = {
-  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  secret: AUTH_SECRETS.length > 1 ? AUTH_SECRETS : AUTH_SECRETS[0],
   session: { strategy: "jwt" },
   pages: { signIn: "/auth/login" },
   providers,
