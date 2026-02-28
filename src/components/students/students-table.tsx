@@ -286,38 +286,43 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
           </thead>
           <tbody>
             {students.length ? (
-              students.map((student) => (
-                <tr key={student.id} className="border-t border-border/60">
-                  <td className="py-2 font-medium">
-                    <Link href={`/dashboard/students?search=${encodeURIComponent(student.studentId)}`} className="hover:underline">
-                      {student.firstName} {student.lastName}
-                    </Link>
-                  </td>
-                  <td className="py-2">{student.studentId}</td>
-                  <td className="py-2">{student.class?.name ?? "-"}</td>
-                  <td className="py-2">{student.email ?? "-"}</td>
-                  <td className="py-2">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                        STATUS_COLORS[student.status] ?? "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {student.status.replace("_", " ")}
-                    </span>
-                  </td>
-                  <td className="py-2">{student.createdAt ? formatDate(student.createdAt) : "-"}</td>
-                  <td className="py-2">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button type="button" size="sm" variant="outline" onClick={() => openEditor(student)} disabled={pending}>
-                        <Edit3 className="mr-1 h-3.5 w-3.5" /> Edit
-                      </Button>
-                      <Button type="button" size="sm" variant="destructive" onClick={() => handleDelete(student)} disabled={pending}>
-                        <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+              students.map((student) => {
+                const statusKey = student.status.trim().toUpperCase();
+                const statusLabel = statusKey.replace("_", " ");
+
+                return (
+                  <tr key={student.id} className="border-t border-border/60">
+                    <td className="py-2 font-medium">
+                      <Link href={`/dashboard/students?search=${encodeURIComponent(student.studentId)}`} className="hover:underline">
+                        {student.firstName} {student.lastName}
+                      </Link>
+                    </td>
+                    <td className="py-2">{student.studentId}</td>
+                    <td className="py-2">{student.class?.name ?? "-"}</td>
+                    <td className="py-2">{student.email ?? "-"}</td>
+                    <td className="py-2">
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                          STATUS_COLORS[statusKey] ?? "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {statusLabel}
+                      </span>
+                    </td>
+                    <td className="py-2">{student.createdAt ? formatDate(student.createdAt) : "-"}</td>
+                    <td className="py-2">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button type="button" size="sm" variant="outline" onClick={() => openEditor(student)} disabled={pending}>
+                          <Edit3 className="mr-1 h-3.5 w-3.5" /> Edit
+                        </Button>
+                        <Button type="button" size="sm" variant="destructive" onClick={() => handleDelete(student)} disabled={pending}>
+                          <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td className="py-3 text-muted-foreground" colSpan={7}>
