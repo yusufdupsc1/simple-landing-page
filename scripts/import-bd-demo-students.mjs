@@ -13,6 +13,17 @@ const csvPath =
   "/home/neo/Downloads/BD_School_60_Students_Demo_Data_2026.csv";
 
 const institutionSlug = process.env.DEMO_INSTITUTION_SLUG || "scholaops-demo";
+const TARGET_STUDENTS = 60;
+const STUDENTS_PER_CLASS = 10;
+
+const FIXED_CLASSES = [
+  { name: "Pre-Primary", grade: "PP", section: "A" },
+  { name: "Class One", grade: "1", section: "A" },
+  { name: "Class Two", grade: "2", section: "A" },
+  { name: "Class Three", grade: "3", section: "A" },
+  { name: "Class Four", grade: "4", section: "A" },
+  { name: "Class Five", grade: "5", section: "A" },
+];
 
 function parseCsv(content) {
   const lines = content
@@ -40,14 +51,14 @@ function parseCsv(content) {
 }
 
 function normalizeGender(value) {
-  const v = value.trim().toLowerCase();
+  const v = String(value || "").trim().toLowerCase();
   if (v === "male") return Gender.MALE;
   if (v === "female") return Gender.FEMALE;
   return null;
 }
 
 function normalizeStatus(value) {
-  const v = value.trim().toLowerCase();
+  const v = String(value || "").trim().toLowerCase();
   if (v === "active") return StudentStatus.ACTIVE;
   if (v === "inactive") return StudentStatus.INACTIVE;
   if (v === "graduated") return StudentStatus.GRADUATED;
@@ -58,7 +69,7 @@ function normalizeStatus(value) {
 }
 
 function safeEmailFromName(name, suffix) {
-  const normalized = name
+  const normalized = String(name || "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ".")
     .replace(/^\.+|\.+$/g, "")
@@ -67,48 +78,80 @@ function safeEmailFromName(name, suffix) {
   return `${normalized || "guardian"}.${suffix}@noreply.scholaops.local`;
 }
 
-function normalizeSection(section) {
-  const clean = section.trim().toUpperCase();
-  return clean || "A";
-}
-
-async function cleanInstitutionStudentData(institutionId) {
+async function cleanInstitutionData(institutionId) {
   const students = await db.student.findMany({
     where: { institutionId },
     select: { id: true },
   });
-
   const studentIds = students.map((s) => s.id);
-  if (!studentIds.length) {
-    return;
-  }
 
-  const fees = await db.fee.findMany({
-    where: {
-      institutionId,
-      studentId: { in: studentIds },
-    },
+  const fees = studentIds.length
+    ? await db.fee.findMany({
+        where: {
+          institutionId,
+          studentId: { in: studentIds },
+        },
+        select: { id: true },
+      })
+    : [];
+  const feeIds = fees.map((f) => f.id);
+
+  const classes = await db.class.findMany({
+    where: { institutionId },
     select: { id: true },
   });
-
-  const feeIds = fees.map((f) => f.id);
+  const classIds = classes.map((c) => c.id);
 
   await db.$transaction(async (tx) => {
     if (feeIds.length) {
       await tx.payment.deleteMany({ where: { feeId: { in: feeIds } } });
     }
 
-    await tx.studentRecord.deleteMany({ where: { studentId: { in: studentIds } } });
-    await tx.attendance.deleteMany({ where: { studentId: { in: studentIds } } });
-    await tx.grade.deleteMany({ where: { studentId: { in: studentIds } } });
-    await tx.parent.deleteMany({ where: { studentId: { in: studentIds } } });
+    if (studentIds.length) {
+      await tx.studentRecord.deleteMany({ where: { studentId: { in: studentIds } } });
+      await tx.attendance.deleteMany({ where: { studentId: { in: studentIds } } });
+      await tx.grade.deleteMany({ where: { studentId: { in: studentIds } } });
+      await tx.parent.deleteMany({ where: { studentId: { in: studentIds } } });
+    }
 
     if (feeIds.length) {
       await tx.fee.deleteMany({ where: { id: { in: feeIds } } });
     }
 
-    await tx.student.deleteMany({ where: { id: { in: studentIds } } });
+    if (classIds.length) {
+      await tx.timetable.deleteMany({ where: { classId: { in: classIds } } });
+    }
+
+    if (studentIds.length) {
+      await tx.student.deleteMany({ where: { id: { in: studentIds } } });
+    }
+
+    if (classIds.length) {
+      await tx.class.deleteMany({ where: { id: { in: classIds } } });
+    }
   });
+}
+
+async function ensureFixedClasses(institutionId, academicYear) {
+  const classIds = [];
+
+  for (const cls of FIXED_CLASSES) {
+    const created = await db.class.create({
+      data: {
+        institutionId,
+        name: cls.name,
+        grade: cls.grade,
+        section: cls.section,
+        academicYear,
+        capacity: 50,
+        isActive: true,
+      },
+    });
+
+    classIds.push(created.id);
+  }
+
+  return classIds;
 }
 
 async function main() {
@@ -129,75 +172,56 @@ async function main() {
   const csvContent = fs.readFileSync(absoluteCsvPath, "utf8").replace(/^\uFEFF/, "");
   const rows = parseCsv(csvContent);
 
-  if (rows.length === 0) {
-    throw new Error("CSV has no data rows");
+  if (rows.length < TARGET_STUDENTS) {
+    throw new Error(`CSV needs at least ${TARGET_STUDENTS} rows, found ${rows.length}`);
   }
 
-  console.log(`\nCleaning previous student data for ${institution.name}...`);
-  await cleanInstitutionStudentData(institution.id);
+  const selectedRows = rows.slice(0, TARGET_STUDENTS);
+  if (selectedRows.length !== FIXED_CLASSES.length * STUDENTS_PER_CLASS) {
+    throw new Error(
+      `Import requires ${FIXED_CLASSES.length} classes x ${STUDENTS_PER_CLASS} students = ${TARGET_STUDENTS}`,
+    );
+  }
+
+  console.log(`\nCleaning old student/class data for ${institution.name}...`);
+  await cleanInstitutionData(institution.id);
   console.log("Done.\n");
 
   const academicYear = institution.settings?.academicYear || "2026-2027";
-  const classMap = new Map();
-
-  for (const row of rows) {
-    const section = normalizeSection(row.Section);
-    const grade = String(row.Grade || "").trim();
-    const className = `Grade ${grade}${section}`;
-    const key = `${grade}-${section}`;
-
-    if (!classMap.has(key)) {
-      const classroom = await db.class.upsert({
-        where: {
-          institutionId_grade_section_academicYear: {
-            institutionId: institution.id,
-            grade,
-            section,
-            academicYear,
-          },
-        },
-        update: {
-          name: className,
-          isActive: true,
-        },
-        create: {
-          institutionId: institution.id,
-          name: className,
-          grade,
-          section,
-          academicYear,
-          capacity: 60,
-          isActive: true,
-        },
-      });
-
-      classMap.set(key, classroom.id);
-    }
-  }
+  const classIds = await ensureFixedClasses(institution.id, academicYear);
 
   let inserted = 0;
 
-  for (const row of rows) {
-    const section = normalizeSection(row.Section);
-    const grade = String(row.Grade || "").trim();
-    const classId = classMap.get(`${grade}-${section}`) || null;
+  for (let index = 0; index < selectedRows.length; index += 1) {
+    const row = selectedRows[index];
+    const classIndex = Math.floor(index / STUDENTS_PER_CLASS);
+    const classId = classIds[classIndex];
 
-    const fullName = String(row.Full_Name || "").trim() || `${row.First_Name || ""} ${row.Last_Name || ""}`.trim();
+    const fullName =
+      String(row.Full_Name || "").trim() ||
+      `${row.First_Name || ""} ${row.Last_Name || ""}`.trim();
+
     const guardianName = String(row.Guardian_Name || "Guardian").trim();
     const [guardianFirstName, ...guardianLastParts] = guardianName.split(/\s+/);
     const guardianLastName = guardianLastParts.join(" ") || "Guardian";
+
+    const studentId = String(row.Student_ID || "").trim() || `STU-CSV-${index + 1}`;
 
     const student = await db.student.create({
       data: {
         institutionId: institution.id,
         classId,
-        studentId: String(row.Student_ID || "").trim(),
-        firstName: String(row.First_Name || "").trim() || fullName.split(" ")[0] || "Student",
-        lastName: String(row.Last_Name || "").trim() || fullName.split(" ").slice(1).join(" ") || "Name",
-        gender: normalizeGender(String(row.Gender || "")),
+        studentId,
+        firstName:
+          String(row.First_Name || "").trim() || fullName.split(" ")[0] || "Student",
+        lastName:
+          String(row.Last_Name || "").trim() ||
+          fullName.split(" ").slice(1).join(" ") ||
+          "Name",
+        gender: normalizeGender(row.Gender),
         dateOfBirth: row.Date_of_Birth ? new Date(row.Date_of_Birth) : null,
         enrollmentDate: row.Admission_Date ? new Date(row.Admission_Date) : new Date(),
-        status: normalizeStatus(String(row.Status || "")),
+        status: normalizeStatus(row.Status),
         bloodGroup: String(row.Blood_Group || "") || null,
         phone: String(row.Guardian_Phone || "") || null,
         city: String(row.District || "") || null,
@@ -220,6 +244,7 @@ async function main() {
   }
 
   console.log(`Imported ${inserted} students from ${absoluteCsvPath}`);
+  console.log(`Class distribution: ${STUDENTS_PER_CLASS} x ${FIXED_CLASSES.length}`);
   console.log(`Institution: ${institution.name} (${institutionSlug})\n`);
 }
 

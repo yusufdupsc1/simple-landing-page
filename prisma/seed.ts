@@ -48,6 +48,7 @@ async function main() {
   console.log("🌱 Seeding scholaOps database...\n");
   const enableDemoPlaceholders =
     (process.env.ENABLE_DEMO_PLACEHOLDERS ?? "false") === "true";
+  const seedDemoStudents = (process.env.SEED_DEMO_STUDENTS ?? "false") === "true";
 
   // ── Institution ──────────────────────────────
   const institution = await db.institution.upsert({
@@ -218,161 +219,165 @@ async function main() {
   }
   console.log(`✅ Teachers: ${teachers.length}`);
 
-  // ── Students ─────────────────────────────────
-  const firstNames = [
-    "Ayaan",
-    "Arisha",
-    "Tanvir",
-    "Mahi",
-    "Nabil",
-    "Sadia",
-    "Rafi",
-    "Nafisa",
-    "Samiha",
-    "Tahmid",
-    "Farhan",
-    "Mehjabin",
-    "Raiyan",
-    "Tasnim",
-    "Adnan",
-    "Mim",
-    "Sajid",
-    "Anika",
-  ];
-  const lastNames = [
-    "Rahman",
-    "Ahmed",
-    "Hossain",
-    "Islam",
-    "Karim",
-    "Khan",
-    "Chowdhury",
-    "Sarker",
-    "Akter",
-    "Begum",
-  ];
+  if (seedDemoStudents) {
+    // ── Students ─────────────────────────────────
+    const firstNames = [
+      "Ayaan",
+      "Arisha",
+      "Tanvir",
+      "Mahi",
+      "Nabil",
+      "Sadia",
+      "Rafi",
+      "Nafisa",
+      "Samiha",
+      "Tahmid",
+      "Farhan",
+      "Mehjabin",
+      "Raiyan",
+      "Tasnim",
+      "Adnan",
+      "Mim",
+      "Sajid",
+      "Anika",
+    ];
+    const lastNames = [
+      "Rahman",
+      "Ahmed",
+      "Hossain",
+      "Islam",
+      "Karim",
+      "Khan",
+      "Chowdhury",
+      "Sarker",
+      "Akter",
+      "Begum",
+    ];
 
-  let studentCount = 0;
-  for (let c = 0; c < classes.length; c++) {
-    for (let s = 0; s < 15; s++) {
-      const firstName = firstNames[(c * 15 + s) % firstNames.length];
-      const lastName = lastNames[(c * 15 + s) % lastNames.length];
-      const sid = `STU-2024-${String(studentCount + 1).padStart(4, "0")}`;
+    let studentCount = 0;
+    for (let c = 0; c < classes.length; c++) {
+      for (let s = 0; s < 10; s++) {
+        const firstName = firstNames[(c * 10 + s) % firstNames.length];
+        const lastName = lastNames[(c * 10 + s) % lastNames.length];
+        const sid = `STU-2024-${String(studentCount + 1).padStart(4, "0")}`;
 
-      await db.student.upsert({
-        where: { institutionId_studentId: { institutionId: institution.id, studentId: sid } },
-        update: {},
-        create: {
-          studentId: sid,
-          firstName,
-          lastName,
-          email: `${firstName.toUpperCase()}.${lastName.toUpperCase()}@student.school.edu`,
-          gender: s % 2 === 0 ? Gender.MALE : Gender.FEMALE,
-          dateOfBirth: new Date(2006 + (c % 4), s % 12, (s % 28) + 1),
-          status: StudentStatus.ACTIVE,
-          classId: classes[c].id,
-          institutionId: institution.id,
-        },
-      });
-      studentCount++;
+        await db.student.upsert({
+          where: { institutionId_studentId: { institutionId: institution.id, studentId: sid } },
+          update: {},
+          create: {
+            studentId: sid,
+            firstName,
+            lastName,
+            email: `${firstName.toUpperCase()}.${lastName.toUpperCase()}@student.school.edu`,
+            gender: s % 2 === 0 ? Gender.MALE : Gender.FEMALE,
+            dateOfBirth: new Date(2006 + (c % 4), s % 12, (s % 28) + 1),
+            status: StudentStatus.ACTIVE,
+            classId: classes[c].id,
+            institutionId: institution.id,
+          },
+        });
+        studentCount++;
+      }
     }
-  }
-  console.log(`✅ Students: ${studentCount}`);
+    console.log(`✅ Students: ${studentCount}`);
 
-  // ── Attendance (last 7 days) ─────────────────
-  const students = await db.student.findMany({
-    where: { institutionId: institution.id },
-    take: 30,
-  });
+    // ── Attendance (last 7 days) ─────────────────
+    const students = await db.student.findMany({
+      where: { institutionId: institution.id },
+      take: 30,
+    });
 
-  for (let d = 6; d >= 0; d--) {
-    const date = new Date();
-    date.setDate(date.getDate() - d);
-    date.setHours(0, 0, 0, 0);
+    for (let d = 6; d >= 0; d--) {
+      const date = new Date();
+      date.setDate(date.getDate() - d);
+      date.setHours(0, 0, 0, 0);
 
-    // Skip weekends
-    if (date.getDay() === 0 || date.getDay() === 6) continue;
+      // Skip weekends
+      if (date.getDay() === 0 || date.getDay() === 6) continue;
 
+      for (const student of students) {
+        const rand = Math.random();
+        const status =
+          rand > 0.9
+            ? AttendanceStatus.ABSENT
+            : rand > 0.85
+              ? AttendanceStatus.LATE
+              : AttendanceStatus.PRESENT;
+
+        await db.attendance.upsert({
+          where: { studentId_date: { studentId: student.id, date } },
+          update: {},
+          create: {
+            date,
+            status,
+            studentId: student.id,
+            classId: student.classId!,
+            institutionId: institution.id,
+          },
+        });
+      }
+    }
+    console.log(`✅ Attendance records seeded`);
+
+    // ── Grades ───────────────────────────────────
     for (const student of students) {
+      for (const subject of subjects) {
+        const score = Math.floor(55 + Math.random() * 45);
+        await db.grade.create({
+          data: {
+            institutionId: institution.id,
+            studentId: student.id,
+            subjectId: subject.id,
+            score,
+            maxScore: 100,
+            percentage: score,
+            letterGrade:
+              score >= 80
+                ? "A+"
+                : score >= 70
+                  ? "A"
+                  : score >= 60
+                    ? "A-"
+                    : score >= 50
+                      ? "B"
+                      : "C",
+            term: "Term 1 2025",
+            remarks: score >= 60 ? "Good progress" : "Needs improvement",
+          },
+        });
+      }
+    }
+    console.log(`✅ Grades seeded for ${students.length} students`);
+
+    // ── Fees ─────────────────────────────────────
+    const allStudents = await db.student.findMany({
+      where: { institutionId: institution.id },
+      take: 50,
+    });
+
+    for (const student of allStudents) {
       const rand = Math.random();
       const status =
-        rand > 0.9
-          ? AttendanceStatus.ABSENT
-          : rand > 0.85
-            ? AttendanceStatus.LATE
-            : AttendanceStatus.PRESENT;
+        rand > 0.7 ? FeeStatus.PAID : rand > 0.4 ? FeeStatus.PARTIAL : FeeStatus.UNPAID;
 
-      await db.attendance.upsert({
-        where: { studentId_date: { studentId: student.id, date } },
-        update: {},
-        create: {
-          date,
+      await db.fee.create({
+        data: {
+          title: "Tuition Fee — Term 1 2024",
+          amount: 1500,
+          dueDate: new Date("2024-09-15"),
+          term: "Term 1",
+          academicYear: "2024-2025",
+          feeType: FeeType.TUITION,
           status,
           studentId: student.id,
-          classId: student.classId!,
           institutionId: institution.id,
         },
       });
     }
+    console.log(`✅ Fees seeded for ${allStudents.length} students`);
+  } else {
+    console.log("ℹ️ Student/attendance/grade/fee demo seeding skipped (set SEED_DEMO_STUDENTS=true to enable)");
   }
-  console.log(`✅ Attendance records seeded`);
-
-  // ── Grades ───────────────────────────────────
-  for (const student of students) {
-    for (const subject of subjects) {
-      const score = Math.floor(55 + Math.random() * 45);
-      await db.grade.create({
-        data: {
-          institutionId: institution.id,
-          studentId: student.id,
-          subjectId: subject.id,
-          score,
-          maxScore: 100,
-          percentage: score,
-          letterGrade:
-            score >= 80
-              ? "A+"
-              : score >= 70
-                ? "A"
-                : score >= 60
-                  ? "A-"
-                  : score >= 50
-                    ? "B"
-                    : "C",
-          term: "Term 1 2025",
-          remarks: score >= 60 ? "Good progress" : "Needs improvement",
-        },
-      });
-    }
-  }
-  console.log(`✅ Grades seeded for ${students.length} students`);
-
-  // ── Fees ─────────────────────────────────────
-  const allStudents = await db.student.findMany({
-    where: { institutionId: institution.id },
-    take: 50,
-  });
-
-  for (const student of allStudents) {
-    const rand = Math.random();
-    const status =
-      rand > 0.7 ? FeeStatus.PAID : rand > 0.4 ? FeeStatus.PARTIAL : FeeStatus.UNPAID;
-
-    await db.fee.create({
-      data: {
-        title: "Tuition Fee — Term 1 2024",
-        amount: 1500,
-        dueDate: new Date("2024-09-15"),
-        term: "Term 1",
-        academicYear: "2024-2025",
-        feeType: FeeType.TUITION,
-        status,
-        studentId: student.id,
-        institutionId: institution.id,
-      },
-    });
-  }
-  console.log(`✅ Fees seeded for ${allStudents.length} students`);
 
   // ── Events ───────────────────────────────────
   const events = [
