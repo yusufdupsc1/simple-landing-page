@@ -45,6 +45,15 @@ interface Props {
   currentPage: number;
 }
 
+const STATUS_COLORS: Record<string, string> = {
+  ACTIVE: "bg-green-500/10 text-green-600",
+  INACTIVE: "bg-red-500/10 text-red-600",
+  GRADUATED: "bg-blue-500/10 text-blue-600",
+  SUSPENDED: "bg-yellow-500/10 text-yellow-600",
+  EXPELLED: "bg-destructive/10 text-destructive",
+  TRANSFERRED: "bg-muted text-muted-foreground",
+};
+
 type EditState = {
   id: string;
   firstName: string;
@@ -287,7 +296,15 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                   <td className="py-2">{student.studentId}</td>
                   <td className="py-2">{student.class?.name ?? "-"}</td>
                   <td className="py-2">{student.email ?? "-"}</td>
-                  <td className="py-2">{student.status}</td>
+                  <td className="py-2">
+                    <span
+                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                        STATUS_COLORS[student.status] ?? "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {student.status.replace("_", " ")}
+                    </span>
+                  </td>
                   <td className="py-2">{student.createdAt ? formatDate(student.createdAt) : "-"}</td>
                   <td className="py-2">
                     <div className="flex items-center justify-end gap-2">
