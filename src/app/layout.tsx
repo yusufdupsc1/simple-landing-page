@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "@/styles/globals.css";
 import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { ServiceWorkerRegistration } from "@/components/pwa/sw-register";
+import { TabLoadingIndicator } from "@/components/layout/tab-loading-indicator";
 
 const geistSans = localFont({
   src: "../assets/fonts/GeistLike-Regular.ttf",
@@ -81,6 +82,7 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased">
         <ServiceWorkerRegistration />
+        <TabLoadingIndicator />
         <OfflineBanner />
         {children}
       </body>
