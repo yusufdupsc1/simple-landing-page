@@ -22,6 +22,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "https://app.scholaops.com",
   ),
+  manifest: "/manifest.webmanifest",
   title: {
     default: "scholaOps — Precision School Management",
     template: "%s | scholaOps",
@@ -38,9 +39,18 @@ export const metadata: Metadata = {
   authors: [{ name: "scholaOps" }],
   creator: "scholaOps",
   icons: {
-    icon: [{ url: "/favicon.ico", type: "image/x-icon" }],
-    shortcut: ["/favicon.ico"],
-    apple: [{ url: "/favicon.ico" }],
+    icon: [
+      { url: "/icons/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
+    shortcut: ["/icons/favicon-32.png", "/favicon.ico"],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "scholaOps",
   },
   openGraph: {
     type: "website",

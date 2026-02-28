@@ -1,8 +1,21 @@
-const STATIC_CACHE = "scholaops-static-v1";
+const STATIC_CACHE = "scholaops-static-v2";
 const RUNTIME_CACHE = "scholaops-runtime-v1";
 const DASHBOARD_CACHE = "scholaops-dashboard-v1";
 
-const STATIC_URLS = ["/", "/privacy", "/terms", "/offline", "/favicon.ico"];
+const STATIC_URLS = [
+  "/",
+  "/privacy",
+  "/terms",
+  "/offline",
+  "/favicon.ico",
+  "/icons/favicon-16.png",
+  "/icons/favicon-32.png",
+  "/icons/apple-touch-icon.png",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/maskable-icon-192.png",
+  "/icons/maskable-icon-512.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
