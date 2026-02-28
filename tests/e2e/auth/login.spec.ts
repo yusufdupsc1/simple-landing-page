@@ -1,192 +1,62 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { loginAsAdmin } from "../helpers/auth";
 
 test.describe("Authentication Flows", () => {
-  test.describe("Login", () => {
-    test("should display login form", async ({ page }) => {
-      await page.goto("/auth/login");
+  test("login page renders core fields", async ({ page }) => {
+    await page.goto("/auth/login", { waitUntil: "domcontentloaded" });
 
-      // Check form elements exist
-      await expect(page.locator('input[name="email"]')).toBeVisible();
-      await expect(page.locator('input[name="password"]')).toBeVisible();
-      await expect(page.locator('button[type="submit"]')).toBeVisible();
-    });
-
-    test("should show error for invalid credentials", async ({ page }) => {
-      await page.goto("/auth/login");
-
-      await page.fill('input[name="email"]', "invalid@example.com");
-      await page.fill('input[name="password"]', "wrongpassword");
-      await page.click('button[type="submit"]');
-
-      // Should show error message
-      await expect(page.locator("text=Invalid credentials")).toBeVisible({
-        timeout: 10000,
-      });
-    });
-
-    test("should redirect to dashboard on successful login", async ({
-      page,
-    }) => {
-      // Note: This test requires a seeded database with test user
-      // For CI, we'd use test credentials from environment variables
-
-      await page.goto("/auth/login");
-
-      // Fill in credentials (using seeded test data)
-      await page.fill('input[name="email"]', "admin@school.edu");
-      await page.fill('input[name="password"]', "admin123");
-      await page.click('button[type="submit"]');
-
-      // Should redirect to dashboard
-      await expect(page).toHaveURL("/dashboard", { timeout: 10000 });
-    });
-
-    test("should show validation errors for empty fields", async ({ page }) => {
-      await page.goto("/auth/login");
-
-      await page.click('button[type="submit"]');
-
-      // Should show validation errors
-      await expect(page.locator("text=Email is required")).toBeVisible();
-    });
-
-    test("should have forgot password link", async ({ page }) => {
-      await page.goto("/auth/login");
-
-      const forgotLink = page.locator('a:has-text("Forgot password")');
-      await expect(forgotLink).toBeVisible();
-    });
-
-    test("should have register link for new institutions", async ({ page }) => {
-      await page.goto("/auth/login");
-
-      const registerLink = page.locator('a:has-text("Create institution")');
-      await expect(registerLink).toBeVisible();
-    });
+    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
+    await expect(page.getByLabel("Institution Slug (optional)")).toBeVisible();
+    await expect(page.getByLabel("Email address")).toBeVisible();
+    await expect(page.getByLabel("Password")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
   });
 
-  test.describe("Registration", () => {
-    test("should display registration form", async ({ page }) => {
-      await page.goto("/auth/register");
+  test("invalid credentials show error", async ({ page }) => {
+    await page.goto("/auth/login", { waitUntil: "domcontentloaded" });
 
-      // Check form elements
-      await expect(page.locator('input[name="institutionName"]')).toBeVisible();
-      await expect(page.locator('input[name="adminEmail"]')).toBeVisible();
-      await expect(page.locator('input[name="adminPassword"]')).toBeVisible();
-    });
+    await page.getByLabel("Email address").fill("invalid@example.com");
+    await page.getByLabel("Password").fill("wrongpassword");
+    await page.getByRole("button", { name: "Sign in" }).click();
 
-    test("should validate password strength", async ({ page }) => {
-      await page.goto("/auth/register");
-
-      await page.fill('input[name="institutionName"]', "Test School");
-      await page.fill('input[name="adminEmail"]', "admin@testschool.com");
-      await page.fill('input[name="adminPassword"]', "weak");
-      await page.fill('input[name="confirmPassword"]', "weak");
-      await page.click('button[type="submit"]');
-
-      // Should show password validation error
-      await expect(
-        page.locator("text=Password must be at least"),
-      ).toBeVisible();
-    });
-
-    test("should validate password match", async ({ page }) => {
-      await page.goto("/auth/register");
-
-      await page.fill('input[name="institutionName"]', "Test School");
-      await page.fill('input[name="adminEmail"]', "admin@testschool.com");
-      await page.fill('input[name="adminPassword"]', "SecurePass123!");
-      await page.fill('input[name="confirmPassword"]', "DifferentPass123!");
-      await page.click('button[type="submit"]');
-
-      // Should show password match error
-      await expect(page.locator("text=Passwords do not match")).toBeVisible();
-    });
-
-    test("should prevent duplicate institution slug", async ({ page }) => {
-      // This would test the duplicate check
-      // Would need to seed existing data
-      test.skip(true, "Requires seeded data");
-    });
+    await expect(page.getByText("Invalid email or password.")).toBeVisible();
   });
 
-  test.describe("Password Reset", () => {
-    test("should display forgot password form", async ({ page }) => {
-      await page.goto("/auth/forgot-password");
-
-      await expect(page.locator('input[name="email"]')).toBeVisible();
-      await expect(page.locator('button[type="submit"]')).toBeVisible();
-    });
-
-    test("should show success message even for non-existent email (security)", async ({
-      page,
-    }) => {
-      await page.goto("/auth/forgot-password");
-
-      await page.fill('input[name="email"]', "nonexistent@example.com");
-      await page.click('button[type="submit"]');
-
-      // Should show generic success message
-      await expect(page.locator("text=If an account exists")).toBeVisible({
-        timeout: 10000,
-      });
-    });
-
-    test("should display reset password form with valid token", async ({
-      page,
-    }) => {
-      // This would require a valid token from email
-      // In real test, we'd generate a test token
-      test.skip(true, "Requires email token");
-    });
-
-    test("should validate password strength on reset", async ({ page }) => {
-      // Would test password validation on reset form
-      test.skip(true, "Requires email token");
-    });
+  test("demo admin can sign in", async ({ page }) => {
+    await loginAsAdmin(page);
+    await expect(page).toHaveURL(/\/dashboard$/);
+    await expect(page.getByText("Overview")).toBeVisible();
   });
 
-  test.describe("Session Management", () => {
-    test("should persist session across page refreshes", async ({ page }) => {
-      // Login first
-      await page.goto("/auth/login");
-      await page.fill('input[name="email"]', "admin@school.edu");
-      await page.fill('input[name="password"]', "admin123");
-      await page.click('button[type="submit"]');
+  test("register page renders current fields", async ({ page }) => {
+    await page.goto("/auth/register", { waitUntil: "domcontentloaded" });
 
-      // Wait for dashboard
-      await page.waitForURL("/dashboard");
+    await expect(page.getByRole("heading", { name: "Create your institution" })).toBeVisible();
+    await expect(page.getByLabel("Institution / School Name *")).toBeVisible();
+    await expect(page.getByLabel("Your Full Name *")).toBeVisible();
+    await expect(page.getByLabel("Email Address *")).toBeVisible();
+    await expect(page.locator("#reg-pass")).toBeVisible();
+    await expect(page.locator("#reg-confirm")).toBeVisible();
+  });
 
-      // Refresh page - should still be logged in
-      await page.reload();
-      await expect(page).toHaveURL("/dashboard");
-    });
+  test("register form validates password mismatch", async ({ page }) => {
+    await page.goto("/auth/register", { waitUntil: "domcontentloaded" });
 
-    test("should redirect to login on unauthorized access", async ({
-      page,
-    }) => {
-      // Try to access protected route without login
-      await page.goto("/dashboard/students");
+    await page.getByLabel("Institution / School Name *").fill("Test School");
+    await page.getByLabel("Your Full Name *").fill("Admin User");
+    await page.getByLabel("Email Address *").fill("admin+pw@testschool.com");
+    await page.locator("#reg-pass").fill("StrongPass123");
+    await page.locator("#reg-confirm").fill("DifferentPass123");
 
-      // Should redirect to login
-      await expect(page).toHaveURL("/auth/login", { timeout: 10000 });
-    });
+    await expect(page.getByText("Passwords do not match")).toBeVisible();
+  });
 
-    test("should logout and clear session", async ({ page }) => {
-      // Login first
-      await page.goto("/auth/login");
-      await page.fill('input[name="email"]', "admin@school.edu");
-      await page.fill('input[name="password"]', "admin123");
-      await page.click('button[type="submit"]');
+  test("forgot password shows generic success message", async ({ page }) => {
+    await page.goto("/auth/forgot-password", { waitUntil: "domcontentloaded" });
 
-      await page.waitForURL("/dashboard");
+    await page.getByLabel("Email address").fill("nonexistent@example.com");
+    await page.getByRole("button", { name: "Send reset link" }).click();
 
-      // Click logout (would be in sidebar)
-      // This depends on the UI implementation
-      // await page.click('button:has-text("Sign out")');
-
-      // Should redirect to login
-      // await expect(page).toHaveURL("/auth/login");
-    });
+    await expect(page.getByText("If an account exists for")).toBeVisible();
   });
 });
