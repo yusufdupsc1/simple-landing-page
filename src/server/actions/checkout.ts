@@ -32,7 +32,13 @@ type ActionResult<T = void> =
 async function getAuthContext() {
   const session = await auth();
   const user = session?.user as
-    | { id?: string; institutionId?: string; role?: string; email?: string | null }
+    | {
+        id?: string;
+        institutionId?: string;
+        role?: string;
+        email?: string | null;
+        phone?: string | null;
+      }
     | undefined;
 
   if (!user?.id || !user.institutionId || !user.role) {
@@ -43,7 +49,14 @@ async function getAuthContext() {
     institutionId: user.institutionId,
     role: user.role,
     email: user.email?.trim().toLowerCase() ?? "",
+    phone: user.phone?.trim() ?? "",
   };
+}
+
+function phoneTail(value?: string) {
+  const digits = (value ?? "").replace(/\D/g, "");
+  if (!digits) return "";
+  return digits.length > 10 ? digits.slice(-10) : digits;
 }
 
 function resolvePortalReturnPath(role: string) {
@@ -61,7 +74,9 @@ async function resolveAuthorizedFee(input: {
   institutionId: string;
   role: string;
   email: string;
+  phone?: string;
 }) {
+  const phoneLike = phoneTail(input.phone);
   if (isPrivilegedRole(input.role)) {
     return db.fee.findFirst({
       where: { id: input.feeId, institutionId: input.institutionId },
@@ -82,7 +97,12 @@ async function resolveAuthorizedFee(input: {
         id: input.feeId,
         institutionId: input.institutionId,
         student: {
-          email: { equals: input.email, mode: "insensitive" },
+          OR: [
+            ...(input.email
+              ? [{ email: { equals: input.email, mode: "insensitive" as const } }]
+              : []),
+            ...(phoneLike ? [{ phone: { contains: phoneLike } }] : []),
+          ],
         },
       },
       include: {
@@ -103,7 +123,14 @@ async function resolveAuthorizedFee(input: {
         institutionId: input.institutionId,
         student: {
           parents: {
-            some: { email: { equals: input.email, mode: "insensitive" } },
+            some: {
+              OR: [
+                ...(input.email
+                  ? [{ email: { equals: input.email, mode: "insensitive" as const } }]
+                  : []),
+                ...(phoneLike ? [{ phone: { contains: phoneLike } }] : []),
+              ],
+            },
           },
         },
       },
@@ -284,12 +311,12 @@ export async function createCheckoutSession(
       };
     }
 
-    const { institutionId, userId, role, email } = await getAuthContext();
+    const { institutionId, userId, role, email, phone } = await getAuthContext();
     if (!isPrivilegedRole(role) && !["STUDENT", "PARENT"].includes(role)) {
       return { success: false, error: "You are not allowed to initiate fee payments." };
     }
-    if (!isPrivilegedRole(role) && !email) {
-      return { success: false, error: "Your account email is required for scoped payments." };
+    if (!isPrivilegedRole(role) && !email && !phone) {
+      return { success: false, error: "Your account email or phone is required for scoped payments." };
     }
 
     const fee = await resolveAuthorizedFee({
@@ -297,6 +324,7 @@ export async function createCheckoutSession(
       institutionId,
       role,
       email,
+      phone,
     });
 
     if (!fee) {

@@ -6,7 +6,7 @@ test.describe("Authentication Flows", () => {
     await page.goto("/auth/login", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
-    await expect(page.getByLabel("Institution Slug (optional)")).toBeVisible();
+    await expect(page.getByLabel("Institution Slug (optional for Admin)")).toBeVisible();
     await expect(page.getByLabel("Email address")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
     await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
@@ -19,7 +19,7 @@ test.describe("Authentication Flows", () => {
     await page.getByLabel("Password").fill("wrongpassword");
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    await expect(page.getByText("Invalid email or password.")).toBeVisible();
+    await expect(page.getByText("Invalid credentials or account is not approved.")).toBeVisible();
   });
 
   test("demo admin can sign in", async ({ page }) => {

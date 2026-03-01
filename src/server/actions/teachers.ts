@@ -14,6 +14,7 @@ import {
   toIsoDate,
   toNullableNumber,
 } from "@/lib/server/serializers";
+import { isPrivilegedOrStaff } from "@/lib/server/role-scope";
 
 const TeacherSchema = z.object({
   firstName: z.string().min(1, "First name is required").max(50),
@@ -54,7 +55,7 @@ type ActionResult<T = void> =
 async function getAuthContext() {
   const session = await auth();
   const user = session?.user as
-    | { id?: string; institutionId?: string; role?: string }
+    | { id?: string; institutionId?: string; role?: string; email?: string | null }
     | undefined;
 
   if (!user?.id || !user.institutionId || !user.role) {
@@ -64,6 +65,7 @@ async function getAuthContext() {
     userId: user.id,
     institutionId: user.institutionId,
     role: user.role,
+    email: user.email,
   };
 }
 
@@ -77,7 +79,10 @@ export async function createTeacher(
   formData: TeacherFormData,
 ): Promise<ActionResult<{ id: string; teacherId: string; credential?: ProvisionedCredential | null }>> {
   try {
-    const { institutionId, userId } = await getAuthContext();
+    const { institutionId, userId, role } = await getAuthContext();
+    if (!isPrivilegedOrStaff(role)) {
+      return { success: false, error: "Insufficient permissions" };
+    }
     const parsed = TeacherSchema.safeParse(formData);
 
     if (!parsed.success) {
@@ -191,7 +196,10 @@ export async function updateTeacher(
   formData: TeacherFormData,
 ): Promise<ActionResult> {
   try {
-    const { institutionId, userId } = await getAuthContext();
+    const { institutionId, userId, role } = await getAuthContext();
+    if (!isPrivilegedOrStaff(role)) {
+      return { success: false, error: "Insufficient permissions" };
+    }
     const parsed = TeacherSchema.safeParse(formData);
 
     if (!parsed.success) {
@@ -314,7 +322,7 @@ export async function getTeachers({
   search?: string;
   status?: string;
 }) {
-  const { institutionId } = await getAuthContext();
+  const { institutionId, role, userId, email } = await getAuthContext();
   const normalizedStatus =
     status === "ALL" ||
     VALID_TEACHER_STATUSES.includes(
@@ -325,6 +333,16 @@ export async function getTeachers({
 
   const where: Record<string, unknown> = {
     institutionId,
+    ...(role === "TEACHER"
+      ? {
+          OR: [
+            { userId },
+            ...(email
+              ? [{ email: { equals: email.trim().toLowerCase(), mode: "insensitive" } }]
+              : []),
+          ],
+        }
+      : {}),
     ...(normalizedStatus !== "ALL" && { status: normalizedStatus }),
     ...(search && {
       OR: [

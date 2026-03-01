@@ -54,6 +54,11 @@ const envSchema = z.object({
     .union([z.literal("true"), z.literal("false")])
     .default("true")
     .transform((value) => value === "true"),
+
+  // Auth OTP (Twilio Verify)
+  TWILIO_ACCOUNT_SID: z.string().optional(),
+  TWILIO_AUTH_TOKEN: z.string().optional(),
+  TWILIO_VERIFY_SERVICE_SID: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

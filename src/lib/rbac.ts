@@ -64,18 +64,18 @@ const STAFF_PERMISSIONS: PermissionMap = {
 };
 
 const STUDENT_PARENT_PERMISSIONS: PermissionMap = {
-  students: ["read"],
-  teachers: ["read"],
-  classes: ["read"],
-  attendance: ["read"],
-  grades: ["read"],
-  finance: ["read"],
-  events: ["read"],
-  announcements: ["read"],
+  students: [],
+  teachers: [],
+  classes: [],
+  attendance: [],
+  grades: [],
+  finance: [],
+  events: [],
+  announcements: [],
   settings: [],
-  security: ["read"],
-  realtime: ["read"],
-  push: ["create", "read"],
+  security: [],
+  realtime: [],
+  push: [],
 };
 
 const POLICIES: Record<Role, PermissionMap> = {

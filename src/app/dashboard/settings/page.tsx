@@ -13,7 +13,7 @@ export default async function SettingsPage() {
   const session = await auth();
   const user = session?.user as { institutionId?: string; role?: string } | undefined;
 
-  if (!user?.role || !["SUPER_ADMIN", "ADMIN"].includes(user.role)) {
+  if (!user?.role || !["SUPER_ADMIN", "ADMIN", "PRINCIPAL"].includes(user.role)) {
     redirect("/dashboard");
   }
 
@@ -26,7 +26,11 @@ export default async function SettingsPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <SettingsClient institution={institution} settings={settings} />
+      <SettingsClient
+        institution={institution}
+        settings={settings}
+        viewerRole={user.role}
+      />
     </div>
   );
 }

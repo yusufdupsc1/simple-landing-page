@@ -3,6 +3,9 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import * as bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { normalizeEmail, normalizePhone } from "@/lib/identity";
+import { normalizeScope, roleWhereForScope } from "@/lib/auth-scope";
+import { verifyOtpChallenge } from "@/server/services/otp";
 
 const AUTH_SECRETS = [
   process.env.AUTH_SECRET,
@@ -74,6 +77,7 @@ async function provisionDemoUserIfNeeded(email: string, password: string) {
       password: hashedPassword,
       role: demoUser.role,
       isActive: true,
+      approvalStatus: "APPROVED",
       emailVerified: new Date(),
       institutionId: institution.id,
     },
@@ -83,6 +87,7 @@ async function provisionDemoUserIfNeeded(email: string, password: string) {
       password: hashedPassword,
       role: demoUser.role,
       isActive: true,
+      approvalStatus: "APPROVED",
       emailVerified: new Date(),
       institutionId: institution.id,
     },
@@ -156,6 +161,7 @@ async function upsertGoogleUserContext(user: {
         name: user.name?.trim() || localPart,
         image: user.image ?? null,
         role: "SUPER_ADMIN",
+        approvalStatus: "APPROVED",
         emailVerified: new Date(),
         isActive: true,
         institutionId: institution.id,
@@ -181,17 +187,116 @@ async function upsertGoogleUserContext(user: {
 const providers: any[] = [
   Credentials({
     name: "Credentials",
-    credentials: {
-      institution: { label: "Institution", type: "text" },
-      scope: { label: "Scope", type: "text" },
-      email: { label: "Email", type: "email" },
-      password: { label: "Password", type: "password" },
-    },
+      credentials: {
+        institution: { label: "Institution", type: "text" },
+        scope: { label: "Scope", type: "text" },
+        loginMode: { label: "Login Mode", type: "text" },
+        email: { label: "Email", type: "email" },
+        phone: { label: "Phone", type: "tel" },
+        otpCode: { label: "OTP Code", type: "text" },
+        otpChallengeId: { label: "OTP Challenge", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
     async authorize(credentials) {
       const institutionInput = credentials?.institution;
       const scopeInput = credentials?.scope;
+      const loginModeInput = credentials?.loginMode;
       const email = credentials?.email;
+      const phoneInput = credentials?.phone;
+      const otpCodeInput = credentials?.otpCode;
+      const otpChallengeInput = credentials?.otpChallengeId;
       const password = credentials?.password;
+
+      const normalizedInstitution =
+        typeof institutionInput === "string"
+          ? institutionInput.trim().toLowerCase()
+          : "";
+      const normalizedScope = normalizeScope(
+        typeof scopeInput === "string" ? scopeInput : "ADMIN",
+      );
+      const loginMode =
+        typeof loginModeInput === "string" &&
+        loginModeInput.trim().toUpperCase() === "PHONE_OTP"
+          ? "PHONE_OTP"
+          : "PASSWORD";
+      const userRoleFilter = roleWhereForScope(normalizedScope);
+
+      if (normalizedScope !== "ADMIN" && !normalizedInstitution) {
+        return null;
+      }
+
+      if (loginMode === "PHONE_OTP") {
+        if (
+          typeof phoneInput !== "string" ||
+          typeof otpCodeInput !== "string" ||
+          typeof otpChallengeInput !== "string"
+        ) {
+          return null;
+        }
+
+        if (!normalizedInstitution) {
+          return null;
+        }
+
+        const normalizedPhone = normalizePhone(phoneInput);
+        if (!normalizedPhone) {
+          return null;
+        }
+
+        const institution = await db.institution.findFirst({
+          where: {
+            slug: { equals: normalizedInstitution, mode: "insensitive" },
+            isActive: true,
+          },
+          select: { id: true, name: true, slug: true },
+        });
+
+        if (!institution) return null;
+
+        const otpResult = await verifyOtpChallenge({
+          challengeId: otpChallengeInput.trim(),
+          institutionId: institution.id,
+          phone: normalizedPhone,
+          scope: normalizedScope,
+          code: otpCodeInput.trim(),
+        });
+
+        if (!otpResult.success) {
+          return null;
+        }
+
+        const user = await db.user.findFirst({
+          where: {
+            institutionId: institution.id,
+            role: userRoleFilter,
+            phone: normalizedPhone,
+            isActive: true,
+            approvalStatus: "APPROVED",
+          },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            role: true,
+            institutionId: true,
+          },
+        });
+
+        if (!user) return null;
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          role: user.role,
+          institutionId: user.institutionId,
+          institutionName: institution.name,
+          institutionSlug: institution.slug,
+          phone: normalizedPhone,
+        };
+      }
 
       if (
         !email ||
@@ -202,22 +307,13 @@ const providers: any[] = [
         return null;
       }
 
-      const normalizedInstitution =
-        typeof institutionInput === "string"
-          ? institutionInput.trim().toLowerCase()
-          : "";
-      const normalizedScope =
-        typeof scopeInput === "string" ? scopeInput.trim().toUpperCase() : "ADMIN";
-      const normalizedEmail = email.trim().toLowerCase();
-      const userRoleFilter =
-        normalizedScope === "ADMIN"
-          ? { in: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"] }
-          : { equals: normalizedScope };
-
+      const normalizedEmail = normalizeEmail(email);
       let user = await db.user.findFirst({
         where: {
           email: { equals: normalizedEmail, mode: "insensitive" },
           role: userRoleFilter,
+          isActive: true,
+          approvalStatus: "APPROVED",
           ...(normalizedInstitution && {
             institution: {
               slug: { equals: normalizedInstitution, mode: "insensitive" },
@@ -227,37 +323,23 @@ const providers: any[] = [
         include: { institution: { select: { name: true, slug: true } } },
       });
 
-      // Backward compatibility for accounts stored with mixed-case email.
-      if (!user) {
-        user = await db.user.findFirst({
-          where: {
-            email: { equals: normalizedEmail, mode: "insensitive" },
-            role: userRoleFilter,
-            ...(normalizedInstitution && {
-              institution: {
-                slug: { equals: normalizedInstitution, mode: "insensitive" },
-              },
-            }),
-          },
-          include: { institution: { select: { name: true, slug: true } } },
-        });
-      }
-
-      if (user?.password && user.isActive && user.institution) {
-        if (!user.institution.slug) return null;
+      if (user?.password && user.institution?.slug) {
         const isValid = await bcrypt.compare(password, user.password);
-        if (isValid) {
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            role: user.role,
-            institutionId: user.institutionId,
-            institutionName: user.institution.name,
-            institutionSlug: user.institution.slug,
-          };
+        if (!isValid) {
+          return null;
         }
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          role: user.role,
+          institutionId: user.institutionId,
+          institutionName: user.institution.name,
+          institutionSlug: user.institution.slug,
+          phone: user.phone,
+        };
       }
 
       if (normalizedInstitution && normalizedInstitution !== DEMO_INSTITUTION.slug) {
@@ -279,6 +361,7 @@ const providers: any[] = [
         institutionId: user.institutionId,
         institutionName: user.institution.name,
         institutionSlug: user.institution.slug,
+        phone: user.phone,
       };
     },
   }),
@@ -317,6 +400,7 @@ const authConfig: any = {
         (user as any).institutionId = dbUser.institutionId;
         (user as any).institutionName = dbUser.institution.name;
         (user as any).institutionSlug = dbUser.institution.slug;
+        (user as any).phone = dbUser.phone;
         return true;
       } catch (error) {
         console.error("[AUTH_GOOGLE_SIGNIN]", error);
@@ -330,12 +414,14 @@ const authConfig: any = {
           institutionId?: string;
           institutionName?: string;
           institutionSlug?: string;
+          phone?: string | null;
         };
 
         (token as any).role = typedUser.role;
         (token as any).institutionId = typedUser.institutionId;
         (token as any).institutionName = typedUser.institutionName;
         (token as any).institutionSlug = typedUser.institutionSlug;
+        (token as any).phone = typedUser.phone;
       }
 
       if (!(token as any).institutionId && token.email) {
@@ -349,6 +435,7 @@ const authConfig: any = {
           (token as any).institutionId = dbUser.institutionId;
           (token as any).institutionName = dbUser.institution.name;
           (token as any).institutionSlug = dbUser.institution.slug;
+          (token as any).phone = dbUser.phone;
         }
       }
 
@@ -368,6 +455,9 @@ const authConfig: any = {
         (session.user as { institutionSlug?: string }).institutionSlug = (
           token as any
         ).institutionSlug as string;
+        (session.user as { phone?: string | null }).phone = (
+          token as any
+        ).phone as string | null;
       }
       return session;
     },

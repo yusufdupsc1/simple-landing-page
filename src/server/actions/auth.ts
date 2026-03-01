@@ -121,6 +121,7 @@ export async function registerInstitution(
           name: adminName,
           password: passwordHash,
           role: "SUPER_ADMIN",
+          approvalStatus: "APPROVED",
           institutionId: institution.id,
           emailVerified: new Date(),
         },

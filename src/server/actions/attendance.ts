@@ -11,6 +11,11 @@ import {
   toIsoDate,
 } from "@/lib/server/serializers";
 import { createDomainEvent, publishDomainEvent } from "@/server/events/publish";
+import {
+  buildStudentVisibilityWhere,
+  getTeacherClassScope,
+  isPrivilegedOrStaff,
+} from "@/lib/server/role-scope";
 
 const AttendanceEntrySchema = z.object({
   studentId: z.string(),
@@ -38,7 +43,13 @@ type ActionResult<T = void> =
 async function getAuthContext() {
   const session = await auth();
   const user = session?.user as
-    | { id?: string; institutionId?: string; role?: string }
+    | {
+        id?: string;
+        institutionId?: string;
+        role?: string;
+        email?: string | null;
+        phone?: string | null;
+      }
     | undefined;
 
   if (!user?.id || !user.institutionId || !user.role) {
@@ -48,6 +59,8 @@ async function getAuthContext() {
     userId: user.id,
     institutionId: user.institutionId,
     role: user.role,
+    email: user.email,
+    phone: user.phone,
   };
 }
 
@@ -55,7 +68,7 @@ export async function markAttendance(
   formData: MarkAttendanceData,
 ): Promise<ActionResult> {
   try {
-    const { institutionId, userId } = await getAuthContext();
+    const { institutionId, userId, role, email, phone } = await getAuthContext();
     const parsed = MarkAttendanceSchema.safeParse(formData);
 
     if (!parsed.success) {
@@ -73,11 +86,39 @@ export async function markAttendance(
     const date = new Date(data.date);
     date.setHours(0, 0, 0, 0);
 
+    if (!isPrivilegedOrStaff(role) && role !== "TEACHER") {
+      return { success: false, error: "Insufficient permissions" };
+    }
+
+    if (role === "TEACHER") {
+      const classIds = await getTeacherClassScope({
+        institutionId,
+        userId,
+        email,
+        phone,
+      });
+      if (!classIds.includes(data.classId)) {
+        return { success: false, error: "You can only mark attendance for assigned classes." };
+      }
+    }
+
     // Verify class belongs to institution
     const cls = await db.class.findFirst({
       where: { id: data.classId, institutionId },
     });
     if (!cls) return { success: false, error: "Class not found" };
+
+    const studentIds = data.entries.map((entry) => entry.studentId);
+    const validStudents = await db.student.count({
+      where: {
+        institutionId,
+        classId: data.classId,
+        id: { in: studentIds },
+      },
+    });
+    if (validStudents !== studentIds.length) {
+      return { success: false, error: "Some students are not in the selected class." };
+    }
 
     // Upsert attendance records
     await db.$transaction(async (tx) => {
@@ -148,14 +189,44 @@ export async function getAttendanceForClass({
   classId: string;
   date: string;
 }) {
-  const { institutionId } = await getAuthContext();
+  const { institutionId, role, userId, email, phone } = await getAuthContext();
 
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
 
+  let allowedClassId = classId;
+  let studentFilter: Record<string, unknown> = {};
+
+  if (role === "TEACHER") {
+    const classIds = await getTeacherClassScope({
+      institutionId,
+      userId,
+      email,
+      phone,
+    });
+    if (!classIds.includes(classId)) {
+      return [];
+    }
+  } else if (!isPrivilegedOrStaff(role)) {
+    const visibility = await buildStudentVisibilityWhere({
+      institutionId,
+      role,
+      userId,
+      email,
+      phone,
+    });
+    studentFilter = visibility;
+    allowedClassId = classId || "";
+  }
+
   const [students, attendance] = await Promise.all([
     db.student.findMany({
-      where: { classId, institutionId, status: "ACTIVE" },
+      where: {
+        institutionId,
+        status: "ACTIVE",
+        ...(allowedClassId ? { classId: allowedClassId } : {}),
+        ...studentFilter,
+      },
       select: {
         id: true,
         studentId: true,
@@ -188,16 +259,60 @@ export async function getAttendanceSummary({
   startDate: string;
   endDate: string;
 }) {
-  const { institutionId } = await getAuthContext();
+  const { institutionId, role, userId, email, phone } = await getAuthContext();
 
-  const where: Record<string, unknown> = {
+  let where: Record<string, unknown> = {
     institutionId,
     date: {
       gte: new Date(startDate),
       lte: new Date(endDate),
     },
-    ...(classId && { classId }),
   };
+
+  if (role === "TEACHER") {
+    const classIds = await getTeacherClassScope({
+      institutionId,
+      userId,
+      email,
+      phone,
+    });
+    const scopedClassIds = classId
+      ? classIds.filter((id) => id === classId)
+      : classIds;
+    if (scopedClassIds.length === 0) {
+      return {
+        total: 0,
+        present: 0,
+        absent: 0,
+        late: 0,
+        excused: 0,
+        presentRate: 0,
+        breakdown: [],
+      };
+    }
+    where = {
+      ...where,
+      classId: { in: scopedClassIds },
+    };
+  } else if (!isPrivilegedOrStaff(role)) {
+    const visibility = await buildStudentVisibilityWhere({
+      institutionId,
+      role,
+      userId,
+      email,
+      phone,
+    });
+    where = {
+      ...where,
+      ...(classId ? { classId } : {}),
+      student: visibility,
+    };
+  } else {
+    where = {
+      ...where,
+      ...(classId && { classId }),
+    };
+  }
 
   const data = await db.attendance.groupBy({
     by: ["status"],
@@ -234,18 +349,56 @@ export async function getAttendanceTrend({
   classId?: string;
   days?: number;
 }) {
-  const { institutionId } = await getAuthContext();
+  const { institutionId, role, userId, email, phone } = await getAuthContext();
 
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
+  let where: Record<string, unknown> = {
+    institutionId,
+    date: { gte: startDate },
+  };
+
+  if (role === "TEACHER") {
+    const classIds = await getTeacherClassScope({
+      institutionId,
+      userId,
+      email,
+      phone,
+    });
+    const scopedClassIds = classId
+      ? classIds.filter((id) => id === classId)
+      : classIds;
+    if (scopedClassIds.length === 0) {
+      return [];
+    }
+    where = {
+      ...where,
+      classId: { in: scopedClassIds },
+    };
+  } else if (!isPrivilegedOrStaff(role)) {
+    const visibility = await buildStudentVisibilityWhere({
+      institutionId,
+      role,
+      userId,
+      email,
+      phone,
+    });
+    where = {
+      ...where,
+      ...(classId ? { classId } : {}),
+      student: visibility,
+    };
+  } else {
+    where = {
+      ...where,
+      ...(classId && { classId }),
+    };
+  }
+
   const data = await db.attendance.groupBy({
     by: ["date", "status"],
-    where: {
-      institutionId,
-      date: { gte: startDate },
-      ...(classId && { classId }),
-    },
+    where,
     _count: true,
     orderBy: { date: "asc" },
   });

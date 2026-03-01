@@ -5,6 +5,7 @@ import { requireApiPermission } from "@/lib/api/guard";
 import { apiError, apiOk } from "@/lib/api/response";
 import { logApiError } from "@/lib/logger";
 import { StudentRecordListQuerySchema } from "@/lib/contracts/v1/students-records";
+import { canAccessStudentId } from "@/lib/server/role-scope";
 import { listStudentRecords } from "@/server/services/student-records/generate";
 
 export const runtime = "nodejs";
@@ -20,6 +21,20 @@ export async function GET(req: NextRequest, context: RouteContext) {
 
   try {
     const { id } = await context.params;
+    const allowed = await canAccessStudentId(
+      {
+        userId: auth.ctx.userId,
+        institutionId: auth.ctx.institutionId,
+        role: auth.ctx.role,
+        email: auth.ctx.email,
+        phone: auth.ctx.phone,
+      },
+      id,
+    );
+    if (!allowed) {
+      return apiError(403, "FORBIDDEN", "You are not allowed to view this student's records");
+    }
+
     const query = StudentRecordListQuerySchema.parse({
       periodType: req.nextUrl.searchParams.get("periodType") ?? undefined,
       q: req.nextUrl.searchParams.get("q") ?? "",

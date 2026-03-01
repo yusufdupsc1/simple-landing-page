@@ -11,6 +11,8 @@ import {
 const PUBLIC_ROUTES = [
   "/auth/login",
   "/auth/register",
+  "/auth/request-access",
+  "/auth/pending-approval",
   "/auth/forgot-password",
   "/auth/reset-password",
   "/auth/error",

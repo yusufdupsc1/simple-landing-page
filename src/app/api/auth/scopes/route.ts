@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
       name: true,
       slug: true,
       users: {
-        where: { isActive: true },
+        where: { isActive: true, approvalStatus: "APPROVED" },
         select: { role: true },
       },
     },
@@ -68,4 +68,3 @@ export async function GET(req: NextRequest) {
     counts,
   });
 }
-

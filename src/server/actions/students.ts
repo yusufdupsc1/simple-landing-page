@@ -11,6 +11,7 @@ import {
   provisionRoleUser,
   type ProvisionedCredential,
 } from "@/server/services/user-provisioning";
+import { buildStudentVisibilityWhere, isPrivilegedOrStaff } from "@/lib/server/role-scope";
 
 // ─── Schemas ───────────────────────────────
 const StudentSchema = z.object({
@@ -54,7 +55,7 @@ type ActionResult<T = void> =
 async function getAuthContext() {
   const session = await auth();
   const user = session?.user as
-    | { id?: string; institutionId?: string; role?: string }
+    | { id?: string; institutionId?: string; role?: string; email?: string | null; phone?: string | null }
     | undefined;
 
   if (!user?.id || !user.institutionId || !user.role) {
@@ -64,6 +65,8 @@ async function getAuthContext() {
     userId: user.id,
     institutionId: user.institutionId,
     role: user.role,
+    email: user.email,
+    phone: user.phone,
   };
 }
 
@@ -86,7 +89,10 @@ export async function createStudent(
   }>
 > {
   try {
-    const { institutionId, userId } = await getAuthContext();
+    const { institutionId, userId, role } = await getAuthContext();
+    if (!isPrivilegedOrStaff(role)) {
+      return { success: false, error: "Insufficient permissions" };
+    }
     const parsed = StudentSchema.safeParse(formData);
 
     if (!parsed.success) {
@@ -211,7 +217,10 @@ export async function updateStudent(
   formData: StudentFormData,
 ): Promise<ActionResult> {
   try {
-    const { institutionId, userId } = await getAuthContext();
+    const { institutionId, userId, role } = await getAuthContext();
+    if (!isPrivilegedOrStaff(role)) {
+      return { success: false, error: "Insufficient permissions" };
+    }
     const parsed = StudentSchema.safeParse(formData);
 
     if (!parsed.success) {
@@ -330,7 +339,7 @@ export async function getStudents({
   classId?: string;
   status?: string;
 }) {
-  const { institutionId } = await getAuthContext();
+  const { institutionId, role, userId, email, phone } = await getAuthContext();
   const normalizedStatus =
     status === "ALL" ||
     VALID_STUDENT_STATUSES.includes(
@@ -341,6 +350,13 @@ export async function getStudents({
 
   const where: Record<string, unknown> = {
     institutionId,
+    ...(await buildStudentVisibilityWhere({
+      institutionId,
+      role,
+      userId,
+      email,
+      phone,
+    })),
     ...(normalizedStatus !== "ALL" && { status: normalizedStatus }),
     ...(classId && { classId }),
     ...(search && {

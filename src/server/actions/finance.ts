@@ -12,6 +12,7 @@ import {
   toNumber,
 } from "@/lib/server/serializers";
 import { createDomainEvent, publishDomainEvent } from "@/server/events/publish";
+import { buildStudentVisibilityWhere, isPrivilegedOrStaff } from "@/lib/server/role-scope";
 
 const FeeSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -69,7 +70,13 @@ type ActionResult<T = void> =
 async function getAuthContext() {
   const session = await auth();
   const user = session?.user as
-    | { id?: string; institutionId?: string; role?: string }
+    | {
+        id?: string;
+        institutionId?: string;
+        role?: string;
+        email?: string | null;
+        phone?: string | null;
+      }
     | undefined;
 
   if (!user?.id || !user.institutionId || !user.role) {
@@ -79,6 +86,8 @@ async function getAuthContext() {
     userId: user.id,
     institutionId: user.institutionId,
     role: user.role,
+    email: user.email,
+    phone: user.phone,
   };
 }
 
@@ -272,7 +281,15 @@ export async function getFees({
   status?: string;
   term?: string;
 }) {
-  const { institutionId } = await getAuthContext();
+  const { institutionId, role, userId, email, phone } = await getAuthContext();
+  const studentVisibility = await buildStudentVisibilityWhere({
+    institutionId,
+    role,
+    userId,
+    email,
+    phone,
+  });
+  const scopedWhere = isPrivilegedOrStaff(role) ? {} : { student: studentVisibility };
   const normalizedStatus = VALID_FEE_STATUSES.includes(
     status as (typeof VALID_FEE_STATUSES)[number],
   )
@@ -281,6 +298,7 @@ export async function getFees({
 
   const where: Record<string, unknown> = {
     institutionId,
+    ...scopedWhere,
     ...(normalizedStatus && { status: normalizedStatus }),
     ...(term && { term }),
     ...(search && {
@@ -344,26 +362,35 @@ export async function getFees({
 }
 
 export async function getFinanceSummary() {
-  const { institutionId } = await getAuthContext();
+  const { institutionId, role, userId, email, phone } = await getAuthContext();
+  const studentVisibility = await buildStudentVisibilityWhere({
+    institutionId,
+    role,
+    userId,
+    email,
+    phone,
+  });
+  const feeScope = isPrivilegedOrStaff(role) ? {} : { student: studentVisibility };
+  const paymentScope = isPrivilegedOrStaff(role) ? {} : { fee: { student: studentVisibility } };
 
   const [totalFees, paidFees, pendingFees, overdueCount] = await Promise.all([
     db.fee.aggregate({
-      where: { institutionId },
+      where: { institutionId, ...feeScope },
       _sum: { amount: true },
       _count: true,
     }),
     db.fee.aggregate({
-      where: { institutionId, status: "PAID" },
+      where: { institutionId, status: "PAID", ...feeScope },
       _sum: { amount: true },
       _count: true,
     }),
     db.fee.aggregate({
-      where: { institutionId, status: { in: ["UNPAID", "PARTIAL"] } },
+      where: { institutionId, status: { in: ["UNPAID", "PARTIAL"] }, ...feeScope },
       _sum: { amount: true },
       _count: true,
     }),
     db.fee.count({
-      where: { institutionId, status: "OVERDUE" },
+      where: { institutionId, status: "OVERDUE", ...feeScope },
     }),
   ]);
 
@@ -373,6 +400,7 @@ export async function getFinanceSummary() {
     by: ["paidAt"],
     where: {
       institutionId,
+      ...paymentScope,
       paidAt: {
         gte: new Date(`${year}-01-01`),
         lte: new Date(`${year}-12-31`),

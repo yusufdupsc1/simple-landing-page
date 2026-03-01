@@ -4,6 +4,7 @@ import { requireApiPermission } from "@/lib/api/guard";
 import { apiError, apiOk } from "@/lib/api/response";
 import { logApiError } from "@/lib/logger";
 import { StudentReportGenerateSchema } from "@/lib/contracts/v1/students-records";
+import { canAccessStudentId } from "@/lib/server/role-scope";
 import {
   generateStudentRecord,
   mapTemplateToRecordType,
@@ -18,6 +19,20 @@ export async function POST(req: NextRequest) {
 
   try {
     const payload = StudentReportGenerateSchema.parse(await req.json());
+    const allowed = await canAccessStudentId(
+      {
+        userId: auth.ctx.userId,
+        institutionId: auth.ctx.institutionId,
+        role: auth.ctx.role,
+        email: auth.ctx.email,
+        phone: auth.ctx.phone,
+      },
+      payload.studentId,
+    );
+    if (!allowed) {
+      return apiError(403, "FORBIDDEN", "You are not allowed to generate records for this student");
+    }
+
     const recordType = mapTemplateToRecordType(payload.template);
 
     const result = await generateStudentRecord({

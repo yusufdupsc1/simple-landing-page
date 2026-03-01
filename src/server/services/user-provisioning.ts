@@ -62,14 +62,15 @@ export async function provisionRoleUser(input: ProvisionInput): Promise<Provisio
     const generatedPassword = buildStarterPassword(input.passwordSeed);
     const hash = await bcrypt.hash(generatedPassword, 12);
 
-    await input.tx.user.update({
-      where: { id: existing.id },
-      data: {
-        password: hash,
-        isActive: true,
-        emailVerified: new Date(),
-      },
-    });
+      await input.tx.user.update({
+        where: { id: existing.id },
+        data: {
+          password: hash,
+          isActive: true,
+          approvalStatus: "APPROVED",
+          emailVerified: new Date(),
+        },
+      });
 
     return {
       userId: existing.id,
@@ -90,6 +91,7 @@ export async function provisionRoleUser(input: ProvisionInput): Promise<Provisio
       password: hash,
       role: input.role,
       isActive: true,
+      approvalStatus: "APPROVED",
       emailVerified: new Date(),
       institutionId: input.institutionId,
     },
@@ -105,4 +107,3 @@ export async function provisionRoleUser(input: ProvisionInput): Promise<Provisio
     },
   };
 }
-

@@ -16,14 +16,30 @@ interface PageProps {
   searchParams: Promise<{ payment?: string; gateway?: string }>;
 }
 
-async function getParentData(institutionId: string, userEmail?: string | null) {
+function phoneTail(value?: string | null) {
+  const digits = (value ?? "").replace(/\D/g, "");
+  if (!digits) return "";
+  return digits.length > 10 ? digits.slice(-10) : digits;
+}
+
+async function getParentData(
+  institutionId: string,
+  userEmail?: string | null,
+  userPhone?: string | null,
+) {
   const normalizedEmail = userEmail?.trim().toLowerCase();
-  if (!normalizedEmail) return null;
+  const normalizedPhoneTail = phoneTail(userPhone);
+  if (!normalizedEmail && !normalizedPhoneTail) return null;
 
   const parentLinks = await db.parent.findMany({
     where: {
-      email: { equals: normalizedEmail, mode: "insensitive" },
       student: { institutionId },
+      OR: [
+        ...(normalizedEmail
+          ? [{ email: { equals: normalizedEmail, mode: "insensitive" as const } }]
+          : []),
+        ...(normalizedPhoneTail ? [{ phone: { contains: normalizedPhoneTail } }] : []),
+      ],
     },
     include: {
       student: {
@@ -75,7 +91,7 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const session = await auth();
   const user = session?.user as
-    | { institutionId?: string; role?: string; email?: string | null }
+    | { institutionId?: string; role?: string; email?: string | null; phone?: string | null }
     | undefined;
 
   if (!user?.institutionId) {
@@ -88,9 +104,9 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
 
   const data = await safeLoader(
     "DASHBOARD_PARENT_PORTAL",
-    () => getParentData(user.institutionId, user.email),
+    () => getParentData(user.institutionId, user.email, user.phone),
     null,
-    { institutionId: user.institutionId, userEmail: user.email },
+    { institutionId: user.institutionId, userEmail: user.email, userPhone: user.phone },
   );
 
   if (!data) {

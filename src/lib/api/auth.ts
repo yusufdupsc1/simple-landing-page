@@ -9,6 +9,7 @@ export interface ApiAuthContext {
   institutionId: string;
   role: Role;
   email?: string;
+  phone?: string;
 }
 
 function getAuthSecrets() {
@@ -23,6 +24,7 @@ async function fromSession(): Promise<ApiAuthContext | null> {
     | {
         id?: string;
         email?: string;
+        phone?: string | null;
         institutionId?: string;
         role?: Role;
       }
@@ -35,6 +37,7 @@ async function fromSession(): Promise<ApiAuthContext | null> {
     institutionId: user.institutionId,
     role: user.role,
     email: user.email,
+    phone: user.phone ?? undefined,
   };
 }
 
@@ -63,13 +66,14 @@ async function fromBearer(req: NextRequest): Promise<ApiAuthContext | null> {
           institutionId,
           role,
           email: payload.email,
+          phone: (payload.phone as string | undefined) ?? undefined,
         };
       }
 
       if (payload.email && typeof payload.email === "string") {
         const dbUser = await db.user.findUnique({
           where: { email: payload.email },
-          select: { id: true, institutionId: true, role: true, email: true },
+          select: { id: true, institutionId: true, role: true, email: true, phone: true },
         });
 
         if (dbUser) {
@@ -78,6 +82,7 @@ async function fromBearer(req: NextRequest): Promise<ApiAuthContext | null> {
             institutionId: dbUser.institutionId,
             role: dbUser.role,
             email: dbUser.email,
+            phone: dbUser.phone ?? undefined,
           };
         }
       }

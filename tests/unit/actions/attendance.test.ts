@@ -16,6 +16,7 @@ vi.mock("@/lib/db", () => ({
     },
     student: {
       findMany: vi.fn(),
+      count: vi.fn(),
     },
     class: {
       findFirst: vi.fn(),
@@ -49,6 +50,7 @@ describe("Attendance Server Actions", () => {
 
   it("marks attendance for entries", async () => {
     (db.class.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "class-1" });
+    (db.student.count as ReturnType<typeof vi.fn>).mockResolvedValue(2);
 
     const result = await markAttendance({
       classId: "class-1",

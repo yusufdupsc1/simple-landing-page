@@ -48,6 +48,8 @@ model Institution {
   events         Event[]
   announcements  Announcement[]
   studentRecords StudentRecord[]
+  accessRequests AccessRequest[]
+  otpChallenges  PhoneOtpChallenge[]
   settings       InstitutionSettings?
 
   @@index([slug])
@@ -79,6 +81,8 @@ model InstitutionSettings {
   coSignatoryTitle   String?
   certificateFooter  String?
   certificateLogoUrl String?
+  publicReportsEnabled     Boolean @default(false)
+  publicReportsDescription String?
 
   updatedAt DateTime @updatedAt
 
@@ -99,10 +103,12 @@ model User {
   id            String    @id @default(cuid())
   name          String?
   email         String    @unique
+  phone         String?   @unique
   emailVerified DateTime?
   image         String?
   password      String?
   role          Role      @default(STAFF)
+  approvalStatus ApprovalStatus @default(APPROVED)
   isActive      Boolean   @default(true)
   lastLoginAt   DateTime?
   createdAt     DateTime  @default(now())
@@ -118,6 +124,9 @@ model User {
   // App relations
   teacherProfile Teacher?
   auditLogs      AuditLog[]
+  accessRequestsApproved AccessRequest[] @relation("AccessRequestApprovedUser")
+  accessRequestsReviewed AccessRequest[] @relation("AccessRequestReviewedBy")
+  otpChallenges          PhoneOtpChallenge[]
 
   @@index([institutionId])
   @@index([email])
@@ -171,6 +180,31 @@ enum Role {
   PRINCIPAL
   TEACHER
   STAFF
+  STUDENT
+  PARENT
+}
+
+enum ApprovalStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+enum AccessRequestScope {
+  TEACHER
+  STUDENT
+  PARENT
+}
+
+enum AccessRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LoginScope {
+  ADMIN
+  TEACHER
   STUDENT
   PARENT
 }
@@ -632,6 +666,56 @@ model StudentRecord {
   @@index([institutionId, studentId])
   @@index([periodType, periodLabel])
   @@map("student_records")
+}
+
+model AccessRequest {
+  id              String             @id @default(cuid())
+  institutionId   String
+  institution     Institution        @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  requestedScope  AccessRequestScope
+  status          AccessRequestStatus @default(PENDING)
+  fullName        String
+  email           String?
+  phone           String?
+  passwordHash    String
+  rejectionReason String?
+  metadata        Json?
+  requestedAt     DateTime           @default(now())
+  reviewedAt      DateTime?
+  approvedUserId  String?
+  approvedUser    User?              @relation("AccessRequestApprovedUser", fields: [approvedUserId], references: [id])
+  reviewedByUserId String?
+  reviewedByUser   User?             @relation("AccessRequestReviewedBy", fields: [reviewedByUserId], references: [id])
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([institutionId, status, requestedScope])
+  @@index([email])
+  @@index([phone])
+  @@map("access_requests")
+}
+
+model PhoneOtpChallenge {
+  id            String      @id @default(cuid())
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  scope         LoginScope
+  phone         String
+  twilioSid     String?
+  codeHash      String
+  attempts      Int         @default(0)
+  maxAttempts   Int         @default(5)
+  expiresAt     DateTime
+  resendAfter   DateTime?
+  consumedAt    DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([institutionId, phone, createdAt])
+  @@index([userId])
+  @@map("phone_otp_challenges")
 }
 
 // ─────────────────────────────────────────────

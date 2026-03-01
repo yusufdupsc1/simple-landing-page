@@ -25,6 +25,7 @@ export async function GET() {
         "/api/v1/realtime/announcements",
         "/api/v1/realtime/notifications",
         "/api/v1/security/2fa",
+        "/api/v1/security/access-requests",
         "/api/v1/push/subscribe",
       ],
     },
