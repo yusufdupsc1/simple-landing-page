@@ -20,6 +20,14 @@ RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Build-time env placeholders (runtime secrets must still be provided at container run).
+ARG DATABASE_URL="postgresql://postgres:postgres@localhost:5432/build"
+ARG AUTH_SECRET="build-secret-32-chars-minimum-here"
+ARG NEXT_PUBLIC_APP_URL="http://localhost:3000"
+ENV DATABASE_URL=$DATABASE_URL
+ENV AUTH_SECRET=$AUTH_SECRET
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+
 # Generate Prisma client
 RUN pnpm exec prisma generate
 
@@ -27,7 +35,7 @@ RUN pnpm exec prisma generate
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-RUN pnpm run build
+RUN pnpm exec next build --webpack
 
 # Production runner
 FROM base AS runner

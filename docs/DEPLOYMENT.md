@@ -50,6 +50,26 @@ Also configure app runtime variables in Vercel project settings.
 docker build -t scholaops:latest .
 ```
 
+### GitHub Actions container publishing (GHCR + Docker Hub)
+
+The CI pipeline now always pushes to GHCR and only pushes to Docker Hub when credentials are configured.
+
+Required repository secrets for Docker Hub push:
+
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN` (recommended: Docker Hub access token, not account password)
+
+Notes:
+
+- Image names are normalized to lowercase automatically in CI (prevents invalid tag failures).
+- If Docker Hub secrets are missing, CI logs a notice and skips Docker Hub push without failing the workflow.
+- GHCR push still runs using `GITHUB_TOKEN`.
+
+Example resulting images:
+
+- `ghcr.io/<owner>/<repo>:latest`
+- `<dockerhub-username>/<repo>:latest` (if Docker Hub secrets are present)
+
 ### Run full stack
 
 ```bash
