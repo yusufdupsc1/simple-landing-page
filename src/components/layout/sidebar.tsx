@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   GraduationCap,
   UserRound,
+  ArchiveRestore,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -99,7 +100,7 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
       },
       {
         label: "Subjects",
-        href: "/dashboard/classes?tab=subjects",
+        href: "/dashboard/subjects",
         icon: Bookmark,
         roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"],
       },
@@ -125,6 +126,12 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
   {
     label: "System",
     items: [
+      {
+        label: "Inactive Control",
+        href: "/dashboard/control/inactive",
+        icon: ArchiveRestore,
+        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"],
+      },
       {
         label: "Settings",
         href: "/dashboard/settings",

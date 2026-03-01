@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { showMacDeleteToast } from "@/components/ui/macos-toast";
+import { showMacDeleteToast, showMacStatusToast } from "@/components/ui/macos-toast";
 import {
     createTeacher,
     updateTeacher,
@@ -183,7 +183,11 @@ export function TeachersClient({ teachers, subjects, total, pages, currentPage }
         startTransition(async () => {
             const res = await setTeacherStatus(teacher.id, targetStatus);
             if (res.success) {
-                toast.success(`Teacher marked ${targetStatus.toLowerCase()}`);
+                showMacStatusToast({
+                    entity: "Teacher",
+                    status: targetStatus,
+                    name: `${teacher.firstName} ${teacher.lastName}`,
+                });
                 router.refresh();
             } else {
                 toast.error(res.error);

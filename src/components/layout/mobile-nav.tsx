@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, GraduationCap, Users, Calendar, ClipboardCheck, School, Bell } from "lucide-react";
+import { LayoutDashboard, GraduationCap, Users, Calendar, ClipboardCheck, School, Bell, ArchiveRestore } from "lucide-react";
 import type { Session } from "next-auth";
 import { cn } from "@/lib/utils";
 
 function getItems(role?: string) {
+  const isPrivileged = ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"].includes(role ?? "");
   if (role === "STUDENT") {
     return [
       { href: "/dashboard/portal/student", label: "Portal", icon: LayoutDashboard },
@@ -29,6 +30,15 @@ function getItems(role?: string) {
       { href: "/dashboard/attendance", label: "Attendance", icon: ClipboardCheck },
       { href: "/dashboard/grades", label: "Grades", icon: School },
       { href: "/dashboard/events", label: "Events", icon: Calendar },
+    ];
+  }
+
+  if (isPrivileged) {
+    return [
+      { href: "/dashboard", label: "Home", icon: LayoutDashboard },
+      { href: "/dashboard/students", label: "Students", icon: GraduationCap },
+      { href: "/dashboard/teachers", label: "Teachers", icon: Users },
+      { href: "/dashboard/control/inactive", label: "Control", icon: ArchiveRestore },
     ];
   }
 

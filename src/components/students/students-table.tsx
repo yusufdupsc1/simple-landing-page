@@ -7,7 +7,7 @@ import { Edit3, Plus, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 import { setStudentStatus } from "@/server/actions/students";
-import { showMacDeleteToast } from "@/components/ui/macos-toast";
+import { showMacDeleteToast, showMacStatusToast } from "@/components/ui/macos-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -286,7 +286,11 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
         targetStatus as "ACTIVE" | "INACTIVE",
       );
       if (res.success) {
-        toast.success(`Student marked ${targetStatus.toLowerCase()}`);
+        showMacStatusToast({
+          entity: "Student",
+          status: targetStatus,
+          name: `${student.firstName} ${student.lastName}`,
+        });
         router.refresh();
       } else {
         toast.error(res.error);

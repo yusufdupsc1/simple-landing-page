@@ -319,6 +319,7 @@ export async function deleteStudent(id: string): Promise<ActionResult> {
     });
 
     revalidatePath("/dashboard/students");
+    revalidatePath("/dashboard/control/inactive");
     return { success: true };
   } catch (error) {
     console.error("[DELETE_STUDENT]", error);
@@ -363,6 +364,7 @@ export async function setStudentStatus(
     });
 
     revalidatePath("/dashboard/students");
+    revalidatePath("/dashboard/control/inactive");
     return { success: true };
   } catch (error) {
     console.error("[SET_STUDENT_STATUS]", error);

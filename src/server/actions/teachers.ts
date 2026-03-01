@@ -305,6 +305,7 @@ export async function deleteTeacher(id: string): Promise<ActionResult> {
     });
 
     revalidatePath("/dashboard/teachers");
+    revalidatePath("/dashboard/control/inactive");
     return { success: true };
   } catch (error) {
     console.error("[DELETE_TEACHER]", error);
@@ -350,6 +351,7 @@ export async function setTeacherStatus(
     });
 
     revalidatePath("/dashboard/teachers");
+    revalidatePath("/dashboard/control/inactive");
     return { success: true };
   } catch (error) {
     console.error("[SET_TEACHER_STATUS]", error);

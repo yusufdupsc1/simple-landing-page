@@ -1,14 +1,15 @@
 // src/app/dashboard/classes/page.tsx
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { getClasses, getSubjects } from "@/server/actions/classes";
+import { getClasses } from "@/server/actions/classes";
 import { getTeachers } from "@/server/actions/teachers";
-import { ClassesClient } from "@/components/classes/classes-client";
+import { ClassesOnlyClient } from "@/components/classes/classes-only-client";
 import { TableSkeleton } from "@/components/ui/skeletons";
 import { safeLoader } from "@/lib/server/safe-loader";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Classes & Subjects" };
+export const metadata: Metadata = { title: "Classes" };
 export const dynamic = "force-dynamic";
 
 interface PageProps {
@@ -25,17 +26,15 @@ export default async function ClassesPage({ searchParams }: PageProps) {
   const search = params.search || "";
   const tab = params.tab || "classes";
 
+  if (tab === "subjects") {
+    redirect("/dashboard/subjects");
+  }
+
   const classData = await safeLoader(
     "DASHBOARD_CLASSES_DATA",
     () => getClasses({ page, search }),
     { classes: [], total: 0, pages: 1, page },
     { institutionId, page },
-  );
-  const subjects = await safeLoader(
-    "DASHBOARD_CLASSES_SUBJECTS",
-    () => getSubjects(),
-    [],
-    { institutionId },
   );
   const teachers = await safeLoader(
     "DASHBOARD_CLASSES_TEACHERS",
@@ -47,14 +46,12 @@ export default async function ClassesPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6 animate-fade-in">
       <Suspense fallback={<TableSkeleton />}>
-        <ClassesClient
+        <ClassesOnlyClient
           classes={classData.classes}
-          subjects={subjects}
           teachers={teachers.teachers}
           total={classData.total}
           pages={classData.pages}
           currentPage={page}
-          activeTab={tab}
         />
       </Suspense>
     </div>

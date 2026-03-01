@@ -26,6 +26,7 @@ const ADMIN_ROUTES = [
   "/dashboard/settings",
   "/dashboard/finance",
   "/dashboard/users",
+  "/dashboard/control",
 ];
 
 const AUTH_SECRETS = [

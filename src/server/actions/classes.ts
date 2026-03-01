@@ -202,10 +202,56 @@ export async function deleteClass(id: string): Promise<ActionResult> {
     });
 
     revalidatePath("/dashboard/classes");
+    revalidatePath("/dashboard/control/inactive");
     return { success: true };
   } catch (error) {
     console.error("[DELETE_CLASS]", error);
     return { success: false, error: "Failed to delete class." };
+  }
+}
+
+export async function setClassActive(
+  id: string,
+  isActive: boolean,
+): Promise<ActionResult> {
+  try {
+    const { institutionId, role, userId } = await getAuthContext();
+
+    if (!["SUPER_ADMIN", "ADMIN", "PRINCIPAL"].includes(role)) {
+      return { success: false, error: "Insufficient permissions" };
+    }
+
+    const existing = await db.class.findFirst({
+      where: { id, institutionId },
+      select: { id: true, isActive: true, name: true },
+    });
+    if (!existing) {
+      return { success: false, error: "Class not found" };
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.class.update({
+        where: { id },
+        data: { isActive },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: isActive ? "ACTIVATE" : "DEACTIVATE",
+          entity: "Class",
+          entityId: id,
+          oldValues: { isActive: existing.isActive, name: existing.name },
+          newValues: { isActive, name: existing.name },
+          userId,
+        },
+      });
+    });
+
+    revalidatePath("/dashboard/classes");
+    revalidatePath("/dashboard/control/inactive");
+    return { success: true };
+  } catch (error) {
+    console.error("[SET_CLASS_ACTIVE]", error);
+    return { success: false, error: "Failed to update class status." };
   }
 }
 
@@ -426,10 +472,56 @@ export async function deleteSubject(id: string): Promise<ActionResult> {
     });
 
     revalidatePath("/dashboard/classes");
+    revalidatePath("/dashboard/control/inactive");
     return { success: true };
   } catch (error) {
     console.error("[DELETE_SUBJECT]", error);
     return { success: false, error: "Failed to delete subject." };
+  }
+}
+
+export async function setSubjectActive(
+  id: string,
+  isActive: boolean,
+): Promise<ActionResult> {
+  try {
+    const { institutionId, role, userId } = await getAuthContext();
+
+    if (!["SUPER_ADMIN", "ADMIN", "PRINCIPAL"].includes(role)) {
+      return { success: false, error: "Insufficient permissions" };
+    }
+
+    const existing = await db.subject.findFirst({
+      where: { id, institutionId },
+      select: { id: true, isActive: true, name: true },
+    });
+    if (!existing) {
+      return { success: false, error: "Subject not found" };
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.subject.update({
+        where: { id },
+        data: { isActive },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: isActive ? "ACTIVATE" : "DEACTIVATE",
+          entity: "Subject",
+          entityId: id,
+          oldValues: { isActive: existing.isActive, name: existing.name },
+          newValues: { isActive, name: existing.name },
+          userId,
+        },
+      });
+    });
+
+    revalidatePath("/dashboard/classes");
+    revalidatePath("/dashboard/control/inactive");
+    return { success: true };
+  } catch (error) {
+    console.error("[SET_SUBJECT_ACTIVE]", error);
+    return { success: false, error: "Failed to update subject status." };
   }
 }
 
