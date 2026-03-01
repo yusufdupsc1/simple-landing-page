@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-    createClass, updateClass, deleteClass, createSubject, updateSubject,
+    createClass, updateClass, deleteClass, createSubject, updateSubject, deleteSubject,
     type ClassFormData, type SubjectFormData,
 } from "@/server/actions/classes";
 
@@ -181,6 +181,19 @@ export function ClassesClient({ classes, subjects, teachers, total, pages, curre
         });
     };
 
+    const handleDeleteSubject = (id: string, name: string) => {
+        if (!confirm(`Deactivate subject "${name}"?`)) return;
+        startTransition(async () => {
+            const res = await deleteSubject(id);
+            if (res.success) {
+                toast.success("Subject deactivated");
+                router.refresh();
+            } else {
+                toast.error(res.error);
+            }
+        });
+    };
+
     return (
         <>
             <PageHeader title="Classes & Subjects" description="Manage academic classes and subjects">
@@ -297,9 +310,19 @@ export function ClassesClient({ classes, subjects, teachers, total, pages, curre
                                             </div>
                                         </td>
                                         <td className="px-4 py-3">
-                                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditSubject(s); setDialogType("subject"); setOpen(true); }}>
-                                                <Pencil className="h-3.5 w-3.5" />
-                                            </Button>
+                                            <div className="flex gap-1">
+                                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditSubject(s); setDialogType("subject"); setOpen(true); }}>
+                                                    <Pencil className="h-3.5 w-3.5" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-7 w-7 text-destructive hover:text-destructive"
+                                                    onClick={() => handleDeleteSubject(s.id, s.name)}
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </Button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

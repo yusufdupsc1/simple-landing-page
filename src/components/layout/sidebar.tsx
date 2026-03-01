@@ -2,7 +2,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 import {
@@ -17,8 +18,10 @@ import {
   LogOut,
   School,
   BookOpen,
+  Bookmark,
   FileText,
   ChevronRight,
+  ChevronDown,
   ShieldCheck,
   GraduationCap,
   UserRound,
@@ -43,6 +46,11 @@ interface NavItem {
   icon: React.ElementType;
   badge?: string;
   roles?: string[];
+  children?: Array<{
+    label: string;
+    href: string;
+    roles?: string[];
+  }>;
 }
 
 const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
@@ -69,12 +77,24 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
   {
     label: "Academic",
     items: [
-      { label: "Students", href: "/dashboard/students", icon: GraduationCap, roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"] },
       {
-        label: "Student Reports",
-        href: "/dashboard/students/reports",
-        icon: FileText,
-        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"],
+        label: "Students",
+        href: "/dashboard/students",
+        icon: GraduationCap,
+        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"],
+        children: [
+          {
+            label: "Student Reports",
+            href: "/dashboard/students/reports",
+            roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"],
+          },
+        ],
+      },
+      {
+        label: "Subjects",
+        href: "/dashboard/classes?tab=subjects",
+        icon: Bookmark,
+        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"],
       },
       { label: "Teachers", href: "/dashboard/teachers", icon: Users, roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"] },
       { label: "Classes", href: "/dashboard/classes", icon: BookOpen, roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"] },
@@ -110,6 +130,7 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
 
 export function Sidebar({ session }: SidebarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const userRole = (session.user as any)?.role ?? "";
   const userInitials = (session.user.name ?? "User")
     ?.split(" ")
@@ -119,9 +140,37 @@ export function Sidebar({ session }: SidebarProps) {
     .slice(0, 2) ?? "U";
 
   const isActive = (href: string) => {
+    if (href.includes("?")) {
+      const [pathOnly, rawQuery] = href.split("?", 2);
+      if (!pathOnly || pathname !== pathOnly) return false;
+      const queryParams = new URLSearchParams(rawQuery ?? "");
+      for (const [key, value] of queryParams.entries()) {
+        if (searchParams.get(key) !== value) {
+          return false;
+        }
+      }
+      return true;
+    }
     if (href === "/dashboard") return pathname === "/dashboard";
-    return pathname.startsWith(href);
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
+
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+
+  const groupedExpanded = (() => {
+    const next = { ...expandedGroups };
+    for (const section of NAV_SECTIONS) {
+      for (const item of section.items) {
+        if (!item.children?.length) continue;
+        const hasActiveChild = item.children.some((child) => isActive(child.href));
+        const key = item.href;
+        if (typeof next[key] === "undefined") {
+          next[key] = hasActiveChild || isActive(item.href);
+        }
+      }
+    }
+    return next;
+  })();
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -170,37 +219,105 @@ export function Sidebar({ session }: SidebarProps) {
                   {section.label}
                 </p>
                 <div className="space-y-0.5">
-                  {visibleItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      prefetch={false}
-                      className={cn(
-                        "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium transition-all duration-150",
-                        isActive(item.href)
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                      )}
-                    >
-                      <item.icon
-                        className={cn(
-                          "h-4 w-4 flex-shrink-0",
-                          isActive(item.href)
-                            ? "text-primary"
-                            : "text-muted-foreground"
-                        )}
-                      />
-                      <span className="truncate">{item.label}</span>
-                      {item.badge && (
-                        <span className="ml-auto font-mono text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded">
-                          {item.badge}
-                        </span>
-                      )}
-                      {isActive(item.href) && (
-                        <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                      )}
-                    </Link>
-                  ))}
+                  {visibleItems.map((item) => {
+                    const hasChildren = Boolean(item.children?.length);
+                    const visibleChildren = (item.children ?? []).filter(
+                      (child) => !child.roles || child.roles.includes(userRole),
+                    );
+                    const hasActiveChild = visibleChildren.some((child) => isActive(child.href));
+                    const active = isActive(item.href) || hasActiveChild;
+
+                    if (!hasChildren || visibleChildren.length === 0) {
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          prefetch={false}
+                          className={cn(
+                            "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium transition-all duration-150",
+                            active
+                              ? "bg-primary/10 text-primary"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                        >
+                          <item.icon
+                            className={cn(
+                              "h-4 w-4 flex-shrink-0",
+                              active
+                                ? "text-primary"
+                                : "text-muted-foreground"
+                            )}
+                          />
+                          <span className="truncate">{item.label}</span>
+                          {item.badge && (
+                            <span className="ml-auto font-mono text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded">
+                              {item.badge}
+                            </span>
+                          )}
+                          {active && (
+                            <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                          )}
+                        </Link>
+                      );
+                    }
+
+                    const expanded = groupedExpanded[item.href];
+
+                    return (
+                      <div key={item.href} className="space-y-1">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedGroups((prev) => ({
+                              ...prev,
+                              [item.href]: !expanded,
+                            }))
+                          }
+                          className={cn(
+                            "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-all duration-150",
+                            active
+                              ? "bg-primary/10 text-primary"
+                              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                          )}
+                        >
+                          <item.icon
+                            className={cn(
+                              "h-4 w-4 flex-shrink-0",
+                              active ? "text-primary" : "text-muted-foreground",
+                            )}
+                          />
+                          <span className="truncate">{item.label}</span>
+                          <ChevronDown
+                            className={cn(
+                              "ml-auto h-3.5 w-3.5 transition-transform",
+                              expanded ? "rotate-0" : "-rotate-90",
+                            )}
+                          />
+                        </button>
+
+                        {expanded ? (
+                          <div className="space-y-0.5 pl-8">
+                            {visibleChildren.map((child) => (
+                              <Link
+                                key={child.href}
+                                href={child.href}
+                                prefetch={false}
+                                className={cn(
+                                  "flex items-center rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                                  isActive(child.href)
+                                    ? "bg-primary/10 text-primary"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                                )}
+                              >
+                                <FileText className="mr-1.5 h-3.5 w-3.5" />
+                                {child.label}
+                              </Link>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );

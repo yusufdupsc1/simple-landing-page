@@ -39,6 +39,10 @@ function isDataPdfUrl(value: string) {
   return /^data:application\/pdf;base64,/i.test(value);
 }
 
+function isSupportedUrl(value: string) {
+  return /^(https?:\/\/|\/|blob:)/i.test(value);
+}
+
 function toBlobUrl(value: string): string | null {
   if (!isDataPdfUrl(value)) return value;
 
@@ -84,20 +88,26 @@ export function ReportPreview({
 
   const activePreviewId = manualPreviewId ?? previewRecordId ?? null;
   const previewRecord = activePreviewId ? recordById[activePreviewId] ?? null : null;
-  const previewBlobUrl = useMemo(() => {
-    if (!previewRecord || !isDataPdfUrl(previewRecord.fileUrl)) return null;
-    return toBlobUrl(previewRecord.fileUrl);
+  const previewUrl = useMemo(() => {
+    if (!previewRecord) return null;
+    if (isDataPdfUrl(previewRecord.fileUrl)) {
+      return toBlobUrl(previewRecord.fileUrl);
+    }
+    return isSupportedUrl(previewRecord.fileUrl) ? previewRecord.fileUrl : null;
   }, [previewRecord]);
-  const previewUrl = previewBlobUrl ?? previewRecord?.fileUrl ?? null;
 
   useEffect(() => {
     return () => {
-      if (previewBlobUrl?.startsWith("blob:")) URL.revokeObjectURL(previewBlobUrl);
+      if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     };
-  }, [previewBlobUrl]);
+  }, [previewUrl]);
 
   function openInNewTab(record: StudentRecordItem) {
-    const resolved = toBlobUrl(record.fileUrl);
+    const resolved = isDataPdfUrl(record.fileUrl)
+      ? toBlobUrl(record.fileUrl)
+      : isSupportedUrl(record.fileUrl)
+        ? record.fileUrl
+        : null;
     if (!resolved) return;
 
     window.open(resolved, "_blank", "noopener,noreferrer");
@@ -107,7 +117,11 @@ export function ReportPreview({
   }
 
   function downloadRecord(record: StudentRecordItem) {
-    const resolved = toBlobUrl(record.fileUrl);
+    const resolved = isDataPdfUrl(record.fileUrl)
+      ? toBlobUrl(record.fileUrl)
+      : isSupportedUrl(record.fileUrl)
+        ? record.fileUrl
+        : null;
     if (!resolved) return;
 
     const link = document.createElement("a");
@@ -123,7 +137,7 @@ export function ReportPreview({
   }
 
   return (
-    <section className="rounded-xl border border-border bg-card p-4">
+    <section className="rounded-2xl border border-border/70 bg-card p-4 shadow-sm md:p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="text-base font-semibold">Generated Records</h2>
         {selectedStudentName ? <p className="text-sm text-muted-foreground">{selectedStudentName}</p> : null}
@@ -136,11 +150,11 @@ export function ReportPreview({
       ) : (
         <div className="space-y-4">
           {groups.map(([groupKey, items]) => (
-            <div key={groupKey} className="rounded-lg border border-border p-3">
-              <p className="mb-3 text-sm font-medium">{groupKey.replace(":", " - ")}</p>
+            <div key={groupKey} className="rounded-xl border border-border/80 bg-muted/10 p-3">
+              <p className="mb-3 text-sm font-semibold">{groupKey.replace(":", " - ")}</p>
               <div className="space-y-2">
                 {items.map((record) => (
-                  <div key={record.id} className="flex flex-col gap-2 rounded-md border border-border/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div key={record.id} className="flex flex-col gap-2 rounded-lg border border-border/70 bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{record.title}</p>
                       <p className="text-xs text-muted-foreground">
@@ -168,6 +182,7 @@ export function ReportPreview({
                         size="sm"
                         variant="outline"
                         onClick={() => downloadRecord(record)}
+                        disabled={!isDataPdfUrl(record.fileUrl) && !isSupportedUrl(record.fileUrl)}
                       >
                         <Download className="mr-1 h-3.5 w-3.5" /> Download
                       </Button>
@@ -200,7 +215,7 @@ export function ReportPreview({
           onPreviewRecordHandled?.();
         }}
       >
-        <DialogContent className="w-[min(96vw,72rem)] max-w-5xl p-4 sm:p-5">
+        <DialogContent className="w-[min(96vw,74rem)] max-w-6xl p-4 sm:p-5">
           <DialogHeader>
             <DialogTitle>{previewRecord?.title ?? "Record Preview"}</DialogTitle>
             <DialogDescription>
@@ -210,13 +225,19 @@ export function ReportPreview({
 
           {previewRecord ? (
             <div className="space-y-3">
-              <div className="h-[70svh] overflow-hidden rounded-lg border border-border">
+              <div className="h-[72svh] overflow-hidden rounded-xl border border-border bg-muted/15">
                 {previewUrl ? (
-                  <iframe
-                    title={`${previewRecord.title} Preview`}
-                    src={previewUrl}
+                  <object
+                    data={previewUrl}
+                    type="application/pdf"
                     className="h-full w-full"
-                  />
+                  >
+                    <iframe
+                      title={`${previewRecord.title} Preview`}
+                      src={previewUrl}
+                      className="h-full w-full"
+                    />
+                  </object>
                 ) : (
                   <div className="flex h-full items-center justify-center px-4 text-center text-sm text-muted-foreground">
                     Unable to render preview. Use open/download below.

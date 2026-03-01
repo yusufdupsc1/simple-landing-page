@@ -42,6 +42,7 @@ const VALID_TEACHER_STATUSES = [
   "RESIGNED",
   "TERMINATED",
 ] as const;
+type TeacherStatus = (typeof VALID_TEACHER_STATUSES)[number];
 
 type ActionResult<T = void> =
   | { success: true; data?: T; error?: never }
@@ -308,6 +309,51 @@ export async function deleteTeacher(id: string): Promise<ActionResult> {
   } catch (error) {
     console.error("[DELETE_TEACHER]", error);
     return { success: false, error: "Failed to deactivate teacher." };
+  }
+}
+
+export async function setTeacherStatus(
+  id: string,
+  status: Extract<TeacherStatus, "ACTIVE" | "INACTIVE">,
+): Promise<ActionResult> {
+  try {
+    const { institutionId, role, userId } = await getAuthContext();
+
+    if (!["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"].includes(role)) {
+      return { success: false, error: "Insufficient permissions" };
+    }
+
+    const teacher = await db.teacher.findFirst({
+      where: { id, institutionId },
+      select: { id: true, status: true },
+    });
+    if (!teacher) {
+      return { success: false, error: "Teacher not found" };
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.teacher.update({
+        where: { id },
+        data: { status },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          action: status === "ACTIVE" ? "ACTIVATE" : "DEACTIVATE",
+          entity: "Teacher",
+          entityId: id,
+          oldValues: { status: teacher.status },
+          newValues: { status },
+          userId,
+        },
+      });
+    });
+
+    revalidatePath("/dashboard/teachers");
+    return { success: true };
+  } catch (error) {
+    console.error("[SET_TEACHER_STATUS]", error);
+    return { success: false, error: "Failed to update teacher status." };
   }
 }
 

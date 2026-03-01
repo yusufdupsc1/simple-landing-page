@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,8 +54,18 @@ export function ReportToolbar({
   const classLabelFallback = BANGLADESHI_CLASS_OPTIONS;
 
   return (
-    <section className="rounded-xl border border-border bg-card p-4">
-      <div className="grid gap-4 lg:grid-cols-2">
+    <section className="rounded-2xl border border-border/70 bg-gradient-to-b from-card to-card/90 p-4 shadow-sm md:p-5">
+      <div className="mb-4 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
+        <Sparkles className="mt-0.5 h-4 w-4 text-primary" />
+        <div>
+          <p className="text-sm font-semibold text-foreground">Certificate Studio</p>
+          <p className="text-xs text-muted-foreground">
+            Choose class, template, and period to generate production-ready student documents.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
         <div className="space-y-1.5">
           <Label>Class Filter</Label>
           <Select value={classFilter} onValueChange={onClassFilterChange}>
@@ -119,10 +129,15 @@ export function ReportToolbar({
         </div>
       </div>
 
-      <div className="mt-4">
-        <Button type="button" onClick={onGenerate} disabled={generating || !selectedStudent} className="w-full sm:w-auto">
+      <div className="mt-5">
+        <Button
+          type="button"
+          onClick={onGenerate}
+          disabled={generating || !selectedStudent}
+          className="w-full sm:w-auto"
+        >
           {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-          Generate PDF
+          {generating ? "Generating..." : "Generate PDF"}
         </Button>
       </div>
     </section>

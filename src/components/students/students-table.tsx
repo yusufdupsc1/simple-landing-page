@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Edit3, Plus, Trash2 } from "lucide-react";
+import { Edit3, Plus, ToggleLeft, ToggleRight, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
+import { setStudentStatus } from "@/server/actions/students";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -273,6 +274,22 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
     });
   }
 
+  function handleToggleActive(student: Student) {
+    const targetStatus = student.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    startTransition(async () => {
+      const res = await setStudentStatus(
+        student.id,
+        targetStatus as "ACTIVE" | "INACTIVE",
+      );
+      if (res.success) {
+        toast.success(`Student marked ${targetStatus.toLowerCase()}`);
+        router.refresh();
+      } else {
+        toast.error(res.error);
+      }
+    });
+  }
+
   return (
     <section className="rounded-xl border border-border bg-card p-4">
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -328,6 +345,25 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                       <div className="flex items-center justify-end gap-2">
                         <Button type="button" size="sm" variant="outline" onClick={() => openEditor(student)} disabled={pending}>
                           <Edit3 className="mr-1 h-3.5 w-3.5" /> Edit
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleToggleActive(student)}
+                          disabled={pending}
+                        >
+                          {student.status === "ACTIVE" ? (
+                            <>
+                              <ToggleRight className="mr-1 h-3.5 w-3.5 text-green-600" />
+                              Inactive
+                            </>
+                          ) : (
+                            <>
+                              <ToggleLeft className="mr-1 h-3.5 w-3.5 text-muted-foreground" />
+                              Active
+                            </>
+                          )}
                         </Button>
                         <Button type="button" size="sm" variant="destructive" onClick={() => handleDelete(student)} disabled={pending}>
                           <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete

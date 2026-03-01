@@ -395,6 +395,44 @@ export async function updateSubject(
   }
 }
 
+export async function deleteSubject(id: string): Promise<ActionResult> {
+  try {
+    const { institutionId, role, userId } = await getAuthContext();
+
+    if (!["SUPER_ADMIN", "ADMIN", "PRINCIPAL"].includes(role)) {
+      return { success: false, error: "Insufficient permissions" };
+    }
+
+    const existing = await db.subject.findFirst({
+      where: { id, institutionId },
+      select: { id: true, name: true },
+    });
+    if (!existing) return { success: false, error: "Subject not found" };
+
+    await db.$transaction(async (tx) => {
+      await tx.subject.update({
+        where: { id },
+        data: { isActive: false },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: "DEACTIVATE",
+          entity: "Subject",
+          entityId: id,
+          oldValues: { name: existing.name },
+          userId,
+        },
+      });
+    });
+
+    revalidatePath("/dashboard/classes");
+    return { success: true };
+  } catch (error) {
+    console.error("[DELETE_SUBJECT]", error);
+    return { success: false, error: "Failed to delete subject." };
+  }
+}
+
 export async function getSubjects(search = "") {
   const { institutionId } = await getAuthContext();
 

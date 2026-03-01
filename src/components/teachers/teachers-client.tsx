@@ -4,7 +4,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Pencil, UserX, Mail, Phone, BookOpen } from "lucide-react";
+import { Plus, Pencil, UserX, Mail, Phone, BookOpen, ToggleLeft, ToggleRight } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { SearchInput } from "@/components/ui/search-input";
 import { DataTablePagination } from "@/components/ui/data-table-pagination";
@@ -13,7 +13,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createTeacher, updateTeacher, deleteTeacher, type TeacherFormData } from "@/server/actions/teachers";
+import {
+    createTeacher,
+    updateTeacher,
+    deleteTeacher,
+    setTeacherStatus,
+    type TeacherFormData,
+} from "@/server/actions/teachers";
 import { formatCurrency } from "@/lib/utils";
 
 type Subject = { id: string; name: string; code: string };
@@ -171,6 +177,19 @@ export function TeachersClient({ teachers, subjects, total, pages, currentPage }
         });
     };
 
+    const handleToggleActive = (teacher: Teacher) => {
+        const targetStatus = teacher.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+        startTransition(async () => {
+            const res = await setTeacherStatus(teacher.id, targetStatus);
+            if (res.success) {
+                toast.success(`Teacher marked ${targetStatus.toLowerCase()}`);
+                router.refresh();
+            } else {
+                toast.error(res.error);
+            }
+        });
+    };
+
     return (
         <>
             <PageHeader title="Teachers" total={total} totalLabel="teachers">
@@ -243,6 +262,20 @@ export function TeachersClient({ teachers, subjects, total, pages, currentPage }
                                         <div className="flex items-center gap-1">
                                             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditTeacher(t); setOpen(true); }} disabled={pending}>
                                                 <Pencil className="h-3.5 w-3.5" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-7 w-7"
+                                                onClick={() => handleToggleActive(t)}
+                                                disabled={pending}
+                                                title={t.status === "ACTIVE" ? "Set Inactive" : "Set Active"}
+                                            >
+                                                {t.status === "ACTIVE" ? (
+                                                    <ToggleRight className="h-3.5 w-3.5 text-green-600" />
+                                                ) : (
+                                                    <ToggleLeft className="h-3.5 w-3.5 text-muted-foreground" />
+                                                )}
                                             </Button>
                                             <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => handleDelete(t.id, `${t.firstName} ${t.lastName}`)} disabled={pending}>
                                                 <UserX className="h-3.5 w-3.5" />

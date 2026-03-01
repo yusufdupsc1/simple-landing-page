@@ -41,6 +41,7 @@ const VALID_STUDENT_STATUSES = [
   "EXPELLED",
   "TRANSFERRED",
 ] as const;
+type StudentStatus = (typeof VALID_STUDENT_STATUSES)[number];
 
 type ActionResult<T = void> =
   | { success: true; data?: T; error?: never }
@@ -322,6 +323,50 @@ export async function deleteStudent(id: string): Promise<ActionResult> {
   } catch (error) {
     console.error("[DELETE_STUDENT]", error);
     return { success: false, error: "Failed to delete student." };
+  }
+}
+
+export async function setStudentStatus(
+  id: string,
+  status: Extract<StudentStatus, "ACTIVE" | "INACTIVE">,
+): Promise<ActionResult> {
+  try {
+    const { institutionId, role, userId } = await getAuthContext();
+
+    if (!["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"].includes(role)) {
+      return { success: false, error: "Insufficient permissions" };
+    }
+
+    const student = await db.student.findFirst({
+      where: { id, institutionId },
+      select: { id: true, status: true },
+    });
+    if (!student) {
+      return { success: false, error: "Student not found" };
+    }
+
+    await db.$transaction(async (tx) => {
+      await tx.student.update({
+        where: { id },
+        data: { status },
+      });
+      await tx.auditLog.create({
+        data: {
+          action: status === "ACTIVE" ? "ACTIVATE" : "DEACTIVATE",
+          entity: "Student",
+          entityId: id,
+          oldValues: { status: student.status },
+          newValues: { status },
+          userId,
+        },
+      });
+    });
+
+    revalidatePath("/dashboard/students");
+    return { success: true };
+  } catch (error) {
+    console.error("[SET_STUDENT_STATUS]", error);
+    return { success: false, error: "Failed to update student status." };
   }
 }
 

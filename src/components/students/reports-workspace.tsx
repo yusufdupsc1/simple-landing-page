@@ -116,7 +116,7 @@ export function ReportsWorkspace({ classes }: ReportsWorkspaceProps) {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[380px_1fr]">
+    <div className="grid gap-4 lg:grid-cols-[420px_1fr]">
       <ReportToolbar
         classes={classes}
         classFilter={classFilter}
