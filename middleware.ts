@@ -7,9 +7,9 @@ import {
   roleAllowedDashboardPrefixes,
   isPrivilegedRole,
 } from "@/lib/role-routing";
+import { normalizeLocale, type SupportedLocale } from "@/lib/i18n/getDict";
 
 const LOCALE_COOKIE = "locale";
-const SUPPORTED_LOCALES = ["bn", "en"] as const;
 
 const PUBLIC_ROUTES = [
   "/auth/login",
@@ -46,17 +46,18 @@ const SESSION_COOKIE_CANDIDATES = [
 ];
 
 function resolveLocale(req: NextRequest) {
-  const cookieLocale = req.cookies.get(LOCALE_COOKIE)?.value?.toLowerCase();
-  if (cookieLocale && SUPPORTED_LOCALES.includes(cookieLocale as "bn" | "en")) {
-    return cookieLocale as "bn" | "en";
+  const cookieLocale = req.cookies.get(LOCALE_COOKIE)?.value;
+  if (cookieLocale) {
+    return normalizeLocale(cookieLocale);
   }
 
   const acceptLanguage = req.headers.get("accept-language")?.toLowerCase() ?? "";
   if (acceptLanguage.includes("bn")) return "bn";
-  return "en";
+  // Bangladesh-first default until user explicitly switches to English.
+  return "bn";
 }
 
-function withLocaleCookie(response: NextResponse, locale: "bn" | "en") {
+function withLocaleCookie(response: NextResponse, locale: SupportedLocale) {
   response.cookies.set(LOCALE_COOKIE, locale, {
     httpOnly: false,
     sameSite: "lax",
