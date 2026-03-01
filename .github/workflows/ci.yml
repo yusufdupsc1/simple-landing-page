@@ -158,9 +158,20 @@ jobs:
             echo "dockerhub_enabled=false" >> "$GITHUB_OUTPUT"
           fi
         env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-          DOCKERHUB_IMAGE: ${{ secrets.DOCKERHUB_IMAGE }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME || vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN || vars.DOCKERHUB_TOKEN }}
+          DOCKERHUB_IMAGE: ${{ secrets.DOCKERHUB_IMAGE || vars.DOCKERHUB_IMAGE }}
+
+      - name: Docker Hub config presence check
+        run: |
+          [ -n "${DOCKERHUB_USERNAME}" ] && echo "::notice::DOCKERHUB_USERNAME detected" || echo "::warning::DOCKERHUB_USERNAME missing"
+          [ -n "${DOCKERHUB_TOKEN}" ] && echo "::notice::DOCKERHUB_TOKEN detected" || echo "::warning::DOCKERHUB_TOKEN missing"
+          [ -n "${DOCKERHUB_IMAGE}" ] && echo "::notice::DOCKERHUB_IMAGE override detected" || echo "::notice::DOCKERHUB_IMAGE not set (using repo name fallback)"
+          echo "::notice::resolved dockerhub image: ${{ steps.vars.outputs.dockerhub_image }}"
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME || vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN || vars.DOCKERHUB_TOKEN }}
+          DOCKERHUB_IMAGE: ${{ secrets.DOCKERHUB_IMAGE || vars.DOCKERHUB_IMAGE }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
