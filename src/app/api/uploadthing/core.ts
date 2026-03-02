@@ -93,7 +93,7 @@ export const ourFileRouter = {
       const { userId, institutionId } = await handleAuth();
       return { userId, institutionId };
     })
-    .onUploadComplete(async ({ metadata, file }) => {
+    .onUploadComplete(async ({ file }) => {
       return { url: file.url, key: file.key };
     }),
 } satisfies FileRouter;

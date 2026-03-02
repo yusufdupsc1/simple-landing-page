@@ -43,6 +43,7 @@ model Institution {
   subjects       Subject[]
   grades         Grade[]
   attendance     Attendance[]
+  feeCategories  FeeCategory[]
   fees           Fee[]
   payments       Payment[]
   events         Event[]
@@ -294,12 +295,20 @@ model Student {
   studentId   String // Human-readable ID e.g. "STU-2024-001"
   firstName   String
   lastName    String
+  studentNameBn String?
+  studentNameEn String?
   email       String?
   phone       String?
   dateOfBirth DateTime?
   gender      Gender?
   photo       String?
+  guardianName String?
+  rollNo      String?
   address     String?
+  village     String?
+  ward        String?
+  upazila     String?
+  district    String?
   city        String?
   country     String?
   fatherName  String?
@@ -482,6 +491,22 @@ enum AttendanceStatus {
 // ─────────────────────────────────────────────
 // FINANCE
 // ─────────────────────────────────────────────
+
+model FeeCategory {
+  id        String   @id @default(cuid())
+  name      String
+  feeType   FeeType  @default(MISC)
+  isPreset  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@unique([institutionId, name])
+  @@index([institutionId])
+  @@map("fee_categories")
+}
 
 model Fee {
   id           String    @id @default(cuid())

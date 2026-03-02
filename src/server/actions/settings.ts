@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { GOVT_PRIMARY_FEE_PRESETS } from "@/lib/finance/fee-presets";
 
 const InstitutionSettingsSchema = z.object({
   academicYear: z.string().min(1, "Academic year is required"),
@@ -36,8 +37,25 @@ const InstitutionProfileSchema = z.object({
   currency: z.string().default("BDT"),
 });
 
+const FeeCategorySchema = z.object({
+  name: z.string().min(1, "Category name is required").max(80),
+  feeType: z
+    .enum([
+      "TUITION",
+      "TRANSPORT",
+      "LIBRARY",
+      "LABORATORY",
+      "SPORTS",
+      "EXAMINATION",
+      "UNIFORM",
+      "MISC",
+    ])
+    .default("MISC"),
+});
+
 export type InstitutionSettingsData = z.infer<typeof InstitutionSettingsSchema>;
 export type InstitutionProfileData = z.infer<typeof InstitutionProfileSchema>;
+export type FeeCategoryData = z.infer<typeof FeeCategorySchema>;
 
 type ActionResult<T = void> =
   | { success: true; data?: T; error?: never }
@@ -47,6 +65,21 @@ type ActionResult<T = void> =
       fieldErrors?: Record<string, string[]>;
       data?: never;
     };
+
+async function ensureBangladeshFeeCategoryPresets(institutionId: string) {
+  const existing = await db.feeCategory.count({ where: { institutionId } });
+  if (existing > 0) return;
+
+  await db.feeCategory.createMany({
+    data: GOVT_PRIMARY_FEE_PRESETS.map((preset) => ({
+      name: preset.titleEn,
+      feeType: preset.feeType,
+      isPreset: true,
+      institutionId,
+    })),
+    skipDuplicates: true,
+  });
+}
 
 async function getAuthContext() {
   const session = await auth();
@@ -75,7 +108,9 @@ export async function getInstitutionSettings() {
 
   if (!user?.institutionId) throw new Error("Unauthorized");
 
-  const [institution, settings] = await Promise.all([
+  await ensureBangladeshFeeCategoryPresets(user.institutionId);
+
+  const [institution, settings, feeCategories] = await Promise.all([
     db.institution.findUnique({
       where: { id: user.institutionId },
       select: {
@@ -97,9 +132,19 @@ export async function getInstitutionSettings() {
     db.institutionSettings.findUnique({
       where: { institutionId: user.institutionId },
     }),
+    db.feeCategory.findMany({
+      where: { institutionId: user.institutionId },
+      select: {
+        id: true,
+        name: true,
+        feeType: true,
+        isPreset: true,
+      },
+      orderBy: { createdAt: "asc" },
+    }),
   ]);
 
-  return { institution, settings };
+  return { institution, settings, feeCategories };
 }
 
 export async function updateInstitutionProfile(
@@ -233,5 +278,92 @@ export async function updateInstitutionSettings(
   } catch (error) {
     console.error("[UPDATE_INSTITUTION_SETTINGS]", error);
     return { success: false, error: "Failed to update settings." };
+  }
+}
+
+export async function createFeeCategory(
+  formData: FeeCategoryData,
+): Promise<ActionResult<{ id: string; name: string; feeType: string }>> {
+  try {
+    const { institutionId } = await getAuthContext();
+    const parsed = FeeCategorySchema.safeParse(formData);
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: "Validation failed",
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<
+          string,
+          string[]
+        >,
+      };
+    }
+
+    const category = await db.feeCategory.create({
+      data: {
+        institutionId,
+        name: parsed.data.name.trim(),
+        feeType: parsed.data.feeType,
+      },
+      select: {
+        id: true,
+        name: true,
+        feeType: true,
+      },
+    });
+
+    revalidatePath("/dashboard/settings");
+    return { success: true, data: category };
+  } catch (error) {
+    console.error("[CREATE_FEE_CATEGORY]", error);
+    return { success: false, error: "Failed to create fee category." };
+  }
+}
+
+export async function updateFeeCategory(
+  categoryId: string,
+  formData: FeeCategoryData,
+): Promise<ActionResult<{ id: string; name: string; feeType: string }>> {
+  try {
+    const { institutionId } = await getAuthContext();
+    const parsed = FeeCategorySchema.safeParse(formData);
+
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: "Validation failed",
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<
+          string,
+          string[]
+        >,
+      };
+    }
+
+    const existing = await db.feeCategory.findFirst({
+      where: { id: categoryId, institutionId },
+      select: { id: true },
+    });
+    if (!existing) {
+      return { success: false, error: "Fee category not found." };
+    }
+
+    const category = await db.feeCategory.update({
+      where: { id: categoryId },
+      data: {
+        name: parsed.data.name.trim(),
+        feeType: parsed.data.feeType,
+      },
+      select: {
+        id: true,
+        name: true,
+        feeType: true,
+      },
+    });
+
+    revalidatePath("/dashboard/settings");
+    return { success: true, data: category };
+  } catch (error) {
+    console.error("[UPDATE_FEE_CATEGORY]", error);
+    return { success: false, error: "Failed to update fee category." };
   }
 }

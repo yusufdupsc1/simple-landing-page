@@ -2,16 +2,20 @@
 
 import { Bell } from "lucide-react";
 import type { Session } from "next-auth";
-import { LanguageToggle } from "@/components/i18n/language-toggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { useT } from "@/lib/i18n/client";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
 export function TopBar({ session }: { session: Session }) {
   const { t } = useT();
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
 
   return (
     <header className="safe-top sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border/80 bg-background/80 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/60 sm:px-6">
       <div className="min-w-0">
-        <p className="text-xs text-muted-foreground">{t("institution")}</p>
+        <p className="text-xs text-muted-foreground">
+          {govtPrimaryMode ? t("school_name") : t("institution")}
+        </p>
         <p className="truncate text-sm font-semibold">
           {(session.user as { institutionName?: string }).institutionName ?? "Dhadash"}
         </p>

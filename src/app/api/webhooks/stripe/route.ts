@@ -18,24 +18,6 @@ const getStripe = () => {
 
 const getWebhookSecret = () => env.STRIPE_WEBHOOK_SECRET || "";
 
-type WebhookEvent = Stripe.Checkout.Session | Stripe.PaymentIntent;
-
-interface AuditLogData {
-  action: string;
-  entity: string;
-  entityId: string;
-  newValues?: Record<string, unknown>;
-  userId: string;
-}
-
-async function createAuditLog(data: AuditLogData) {
-  try {
-    await db.auditLog.create({ data });
-  } catch (error) {
-    console.error("[AUDIT_LOG_ERROR]", error);
-  }
-}
-
 export async function POST(req: Request) {
   try {
     if (!env.STRIPE_SECRET_KEY) {

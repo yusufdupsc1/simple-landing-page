@@ -1,11 +1,34 @@
-import { featureItems } from "@/components/landing/landing-data";
+"use client";
+
+import { CreditCard, FileText, MessageSquareText } from "lucide-react";
+import { useT } from "@/lib/i18n/client";
 
 export function FeatureGrid() {
+  const { t } = useT();
+
+  const featureItems = [
+    {
+      title: t("landing_feature_fee_receipt_title"),
+      description: t("landing_feature_fee_receipt_description"),
+      icon: CreditCard,
+    },
+    {
+      title: t("landing_feature_report_card_title"),
+      description: t("landing_feature_report_card_description"),
+      icon: FileText,
+    },
+    {
+      title: t("landing_feature_sms_notice_title"),
+      description: t("landing_feature_sms_notice_description"),
+      icon: MessageSquareText,
+    },
+  ];
+
   return (
     <section id="features" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
-      <h2 className="text-2xl font-bold text-text sm:text-3xl">Govt Primary Core Modules</h2>
+      <h2 className="text-2xl font-bold text-text sm:text-3xl">{t("landing_features_title")}</h2>
       <p className="mt-2 max-w-2xl text-sm text-muted-text sm:text-base">
-        বাস্তব সরকারি প্রাথমিক স্কুল অফিস workflow অনুযায়ী তৈরি।
+        {t("landing_features_description")}
       </p>
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {featureItems.map((item) => (

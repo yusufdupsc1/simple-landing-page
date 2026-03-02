@@ -17,10 +17,10 @@ export default async function SettingsPage() {
     redirect("/dashboard");
   }
 
-  const { institution, settings } = await safeLoader(
+  const { institution, settings, feeCategories } = await safeLoader(
     "DASHBOARD_SETTINGS_DATA",
     () => getInstitutionSettings(),
-    { institution: null, settings: null },
+    { institution: null, settings: null, feeCategories: [] },
     { institutionId: user.institutionId },
   );
 
@@ -29,6 +29,7 @@ export default async function SettingsPage() {
       <SettingsClient
         institution={institution}
         settings={settings}
+        feeCategories={feeCategories}
         viewerRole={user.role}
       />
     </div>

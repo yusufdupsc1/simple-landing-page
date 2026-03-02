@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { createStudent, getStudents } from "@/server/actions/students";
-import { StudentCreateSchema } from "@/lib/contracts/v1/students";
 import { requireApiPermission } from "@/lib/api/guard";
 import { apiError, apiOk } from "@/lib/api/response";
 import { logApiError } from "@/lib/logger";
@@ -46,11 +45,13 @@ export async function POST(req: NextRequest) {
   if (auth.response) return auth.response;
 
   try {
-    const payload = StudentCreateSchema.parse(await req.json());
-    const result = await createStudent(payload);
+    const payload = await req.json();
+    const locale = req.cookies.get("locale")?.value ?? req.headers.get("accept-language") ?? "en";
+    const result = await createStudent(payload, locale);
 
     if (!result.success) {
-      return apiError(400, "VALIDATION_ERROR", result.error);
+      const fieldErrors = "fieldErrors" in result ? result.fieldErrors : undefined;
+      return apiError(400, "VALIDATION_ERROR", result.error, fieldErrors);
     }
 
     return apiOk(result.data ?? null, undefined, { status: 201 });

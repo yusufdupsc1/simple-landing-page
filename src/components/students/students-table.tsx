@@ -11,6 +11,8 @@ import { showMacDeleteToast, showMacStatusToast } from "@/components/ui/macos-to
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useT } from "@/lib/i18n/client";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 import {
   Dialog,
   DialogContent,
@@ -24,11 +26,19 @@ type Student = {
   studentId: string;
   firstName: string;
   lastName: string;
+  studentNameBn?: string | null;
+  studentNameEn?: string | null;
   email: string | null;
   phone?: string | null;
   dateOfBirth?: string | null;
   gender?: string | null;
+  guardianName?: string | null;
+  rollNo?: string | null;
   address?: string | null;
+  village?: string | null;
+  ward?: string | null;
+  upazila?: string | null;
+  district?: string | null;
   city?: string | null;
   country?: string | null;
   fatherName?: string | null;
@@ -63,6 +73,8 @@ const STATUS_COLORS: Record<string, string> = {
 
 type EditState = {
   id: string;
+  studentNameBn: string;
+  studentNameEn: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -70,7 +82,14 @@ type EditState = {
   dateOfBirth: string;
   gender: "MALE" | "FEMALE" | "OTHER" | "";
   classId: string;
+  section: string;
+  rollNo: string;
+  guardianName: string;
   address: string;
+  village: string;
+  ward: string;
+  upazila: string;
+  district: string;
   city: string;
   country: string;
   fatherName: string;
@@ -81,6 +100,8 @@ type EditState = {
 };
 
 type CreateState = {
+  studentNameBn: string;
+  studentNameEn: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -88,7 +109,14 @@ type CreateState = {
   dateOfBirth: string;
   gender: "MALE" | "FEMALE" | "OTHER" | "";
   classId: string;
+  section: string;
+  rollNo: string;
+  guardianName: string;
   address: string;
+  village: string;
+  ward: string;
+  upazila: string;
+  district: string;
   city: string;
   country: string;
   parentFirstName: string;
@@ -108,8 +136,21 @@ function toDateInputValue(value?: string | null) {
   return value.slice(0, 10);
 }
 
+const GOVT_PRIMARY_ADMISSION_GRADES = new Set(["1", "2", "3", "4", "5"]);
+
+function splitEnglishName(fullName: string) {
+  const cleaned = fullName.trim().replace(/\s+/g, " ");
+  if (!cleaned) return { firstName: "", lastName: "" };
+  const parts = cleaned.split(" ");
+  const firstName = parts.shift() ?? "";
+  const lastName = parts.join(" ") || ".";
+  return { firstName, lastName };
+}
+
 function getInitialCreateState(): CreateState {
   return {
+    studentNameBn: "",
+    studentNameEn: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -117,7 +158,14 @@ function getInitialCreateState(): CreateState {
     dateOfBirth: "",
     gender: "",
     classId: "",
+    section: "",
+    rollNo: "",
+    guardianName: "",
     address: "",
+    village: "",
+    ward: "",
+    upazila: "",
+    district: "",
     city: "",
     country: "Bangladesh",
     parentFirstName: "",
@@ -134,17 +182,27 @@ function getInitialCreateState(): CreateState {
 }
 
 export function StudentsTable({ students, classes, total, pages, currentPage }: Props) {
+  const { t } = useT();
   const router = useRouter();
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
   const [pending, startTransition] = useTransition();
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState<CreateState>(getInitialCreateState());
   const [editing, setEditing] = useState<EditState | null>(null);
 
-  const classOptions = useMemo(() => classes, [classes]);
+  const classOptions = useMemo(
+    () =>
+      govtPrimaryMode
+        ? classes.filter((cls) => GOVT_PRIMARY_ADMISSION_GRADES.has(cls.grade))
+        : classes,
+    [classes, govtPrimaryMode],
+  );
 
   function openEditor(student: Student) {
     setEditing({
       id: student.id,
+      studentNameBn: student.studentNameBn ?? "",
+      studentNameEn: student.studentNameEn ?? `${student.firstName} ${student.lastName}`.trim(),
       firstName: student.firstName,
       lastName: student.lastName,
       email: student.email ?? "",
@@ -156,7 +214,14 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
         | "OTHER"
         | "",
       classId: student.classId ?? "",
+      section: student.class?.section ?? "",
+      rollNo: student.rollNo ?? "",
+      guardianName: student.guardianName ?? "",
       address: student.address ?? "",
+      village: student.village ?? "",
+      ward: student.ward ?? "",
+      upazila: student.upazila ?? "",
+      district: student.district ?? "",
       city: student.city ?? "",
       country: student.country ?? "",
       fatherName: student.fatherName ?? "",
@@ -175,36 +240,82 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
     setCreating((prev) => ({ ...prev, [key]: value }));
   }
 
+  function handleCreateClassChange(classId: string) {
+    const selectedClass = classOptions.find((cls) => cls.id === classId);
+    setCreating((prev) => ({
+      ...prev,
+      classId,
+      section: selectedClass?.section ?? "",
+    }));
+  }
+
+  function handleEditClassChange(classId: string) {
+    const selectedClass = classOptions.find((cls) => cls.id === classId);
+    setEditing((prev) =>
+      prev
+        ? {
+            ...prev,
+            classId,
+            section: selectedClass?.section ?? "",
+          }
+        : prev,
+    );
+  }
+
   function resetCreateForm() {
     setCreating(getInitialCreateState());
   }
 
   async function handleCreate() {
-    if (
-      !creating.firstName.trim() ||
-      !creating.lastName.trim() ||
+    if (govtPrimaryMode) {
+      if (
+        !creating.studentNameEn.trim() ||
+        !creating.birthRegNo.trim() ||
+        !creating.dateOfBirth.trim() ||
+        !creating.guardianName.trim() ||
+        !creating.guardianPhone.trim() ||
+        !creating.classId ||
+        !creating.rollNo.trim()
+      ) {
+        toast.error(t("student_admission_required_fields"));
+        return;
+      }
+    } else if (
+      !creating.studentNameEn.trim() ||
       !creating.fatherName.trim() ||
       !creating.motherName.trim() ||
       !creating.guardianPhone.trim()
     ) {
-      toast.error("First/Last name, Father name, Mother name and Guardian phone are required");
+      toast.error(t("student_required_identity_fields"));
       return;
     }
 
     startTransition(async () => {
       try {
+        const resolvedNameEn =
+          creating.studentNameEn.trim() ||
+          `${creating.firstName} ${creating.lastName}`.trim();
+        const nameParts = splitEnglishName(resolvedNameEn);
         const res = await fetch("/api/v1/students", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
-            firstName: creating.firstName.trim(),
-            lastName: creating.lastName.trim(),
+            studentNameBn: creating.studentNameBn.trim(),
+            studentNameEn: resolvedNameEn,
+            firstName: nameParts.firstName,
+            lastName: nameParts.lastName,
             email: creating.email.trim(),
             phone: creating.phone.trim(),
             dateOfBirth: creating.dateOfBirth || undefined,
             gender: creating.gender || undefined,
             classId: creating.classId || undefined,
+            rollNo: creating.rollNo.trim(),
+            guardianName: creating.guardianName.trim(),
             address: creating.address.trim(),
+            village: creating.village.trim(),
+            ward: creating.ward.trim(),
+            upazila: creating.upazila.trim(),
+            district: creating.district.trim(),
             city: creating.city.trim(),
             country: creating.country.trim(),
             parentFirstName: creating.parentFirstName.trim(),
@@ -251,31 +362,55 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
 
   async function handleSave() {
     if (!editing) return;
-    if (
-      !editing.firstName.trim() ||
-      !editing.lastName.trim() ||
+    if (govtPrimaryMode) {
+      if (
+        !editing.studentNameEn.trim() ||
+        !editing.birthRegNo.trim() ||
+        !editing.dateOfBirth.trim() ||
+        !editing.guardianName.trim() ||
+        !editing.guardianPhone.trim() ||
+        !editing.classId ||
+        !editing.rollNo.trim()
+      ) {
+        toast.error(t("student_admission_required_fields"));
+        return;
+      }
+    } else if (
+      !editing.studentNameEn.trim() ||
       !editing.fatherName.trim() ||
       !editing.motherName.trim() ||
       !editing.guardianPhone.trim()
     ) {
-      toast.error("First/Last name, Father name, Mother name and Guardian phone are required");
+      toast.error(t("student_required_identity_fields"));
       return;
     }
 
     startTransition(async () => {
       try {
+        const resolvedNameEn =
+          editing.studentNameEn.trim() ||
+          `${editing.firstName} ${editing.lastName}`.trim();
+        const nameParts = splitEnglishName(resolvedNameEn);
         const res = await fetch(`/api/v1/students/${editing.id}`, {
           method: "PUT",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
-            firstName: editing.firstName,
-            lastName: editing.lastName,
+            studentNameBn: editing.studentNameBn.trim(),
+            studentNameEn: resolvedNameEn,
+            firstName: nameParts.firstName,
+            lastName: nameParts.lastName,
             email: editing.email,
             phone: editing.phone,
             dateOfBirth: editing.dateOfBirth || undefined,
             gender: editing.gender || undefined,
             classId: editing.classId || undefined,
+            rollNo: editing.rollNo,
+            guardianName: editing.guardianName,
             address: editing.address,
+            village: editing.village,
+            ward: editing.ward,
+            upazila: editing.upazila,
+            district: editing.district,
             city: editing.city,
             country: editing.country,
             fatherName: editing.fatherName,
@@ -350,7 +485,7 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
   }
 
   return (
-    <section className="rounded-xl border border-border bg-card p-4">
+    <section className="rounded-lg border border-border bg-card p-4">
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-0.5">
           <p className="text-sm text-muted-foreground">Showing {students.length} of {total}</p>
@@ -362,16 +497,16 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
         </Button>
       </div>
       <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-        <table className="w-full min-w-[760px] text-left text-sm">
+        <table className="table-dense w-full min-w-[760px] text-left text-sm">
           <thead>
             <tr className="text-muted-foreground">
-              <th className="pb-2">Student</th>
-              <th className="pb-2 whitespace-nowrap">ID</th>
-              <th className="pb-2 whitespace-nowrap">Class</th>
-              <th className="pb-2">Email</th>
-              <th className="pb-2 whitespace-nowrap">Status</th>
-              <th className="pb-2 whitespace-nowrap">Joined</th>
-              <th className="pb-2 whitespace-nowrap text-right">Actions</th>
+              <th className="whitespace-nowrap">Student</th>
+              <th className="whitespace-nowrap">ID</th>
+              <th className="whitespace-nowrap">Class</th>
+              <th>Email</th>
+              <th className="whitespace-nowrap">Status</th>
+              <th className="whitespace-nowrap">Joined</th>
+              <th className="whitespace-nowrap text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -381,16 +516,16 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                 const statusLabel = statusKey.replace("_", " ");
 
                 return (
-                  <tr key={student.id} className="border-t border-border/60">
-                    <td className="py-2 font-medium">
-                      <Link href={`/dashboard/students?search=${encodeURIComponent(student.studentId)}`} className="hover:underline">
+                  <tr key={student.id}>
+                    <td className="font-medium">
+                      <Link href={`/dashboard/students/${student.id}`} className="hover:underline">
                         {student.firstName} {student.lastName}
                       </Link>
                     </td>
-                    <td className="py-2">{student.studentId}</td>
-                    <td className="py-2">{student.class?.name ?? "-"}</td>
-                    <td className="py-2">{student.email ?? "-"}</td>
-                    <td className="py-2">
+                    <td>{student.studentId}</td>
+                    <td>{student.class?.name ?? "-"}</td>
+                    <td>{student.email ?? "-"}</td>
+                    <td>
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
                           STATUS_COLORS[statusKey] ?? "bg-muted text-muted-foreground"
@@ -399,8 +534,8 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                         {statusLabel}
                       </span>
                     </td>
-                    <td className="py-2">{student.createdAt ? formatDate(student.createdAt) : "-"}</td>
-                    <td className="py-2">
+                    <td>{student.createdAt ? formatDate(student.createdAt) : "-"}</td>
+                    <td>
                       <div className="flex items-center justify-end gap-2">
                         <Button type="button" size="sm" variant="outline" onClick={() => openEditor(student)} disabled={pending}>
                           <Edit3 className="mr-1 h-3.5 w-3.5" /> Edit
@@ -434,7 +569,7 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
               })
             ) : (
               <tr>
-                <td className="py-3 text-muted-foreground" colSpan={7}>
+                <td className="text-muted-foreground" colSpan={7}>
                   No students found.
                 </td>
               </tr>
@@ -459,12 +594,12 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
           <div className="space-y-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="create-firstName">First Name *</Label>
-                <Input id="create-firstName" value={creating.firstName} onChange={(e) => updateCreate("firstName", e.target.value)} />
+                <Label htmlFor="create-studentNameEn">{t("student_name_en")} *</Label>
+                <Input id="create-studentNameEn" value={creating.studentNameEn} onChange={(e) => updateCreate("studentNameEn", e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="create-lastName">Last Name *</Label>
-                <Input id="create-lastName" value={creating.lastName} onChange={(e) => updateCreate("lastName", e.target.value)} />
+                <Label htmlFor="create-studentNameBn">{t("student_name_bn")} ({t("optional")})</Label>
+                <Input id="create-studentNameBn" value={creating.studentNameBn} onChange={(e) => updateCreate("studentNameBn", e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="create-email">Email</Label>
@@ -475,41 +610,85 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                 <Input id="create-phone" value={creating.phone} onChange={(e) => updateCreate("phone", e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="create-dob">Date of Birth</Label>
+                <Label htmlFor="create-birthRegNo">{t("birth_reg_no")}{govtPrimaryMode ? " *" : ""}</Label>
+                <Input id="create-birthRegNo" value={creating.birthRegNo} onChange={(e) => updateCreate("birthRegNo", e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-dob">{t("date_of_birth")}{govtPrimaryMode ? " *" : ""}</Label>
                 <Input id="create-dob" type="date" value={creating.dateOfBirth} onChange={(e) => updateCreate("dateOfBirth", e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="create-gender">Gender</Label>
+                <Label htmlFor="create-gender">{t("gender")}</Label>
                 <select
                   id="create-gender"
                   className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                   value={creating.gender}
                   onChange={(e) => updateCreate("gender", e.target.value as CreateState["gender"])}
                 >
-                  <option value="">Select gender</option>
+                  <option value="">{t("select_gender")}</option>
                   <option value="MALE">Male</option>
                   <option value="FEMALE">Female</option>
                   <option value="OTHER">Other</option>
                 </select>
               </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="create-class">Class</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-class">{t("class")}{govtPrimaryMode ? " *" : ""}</Label>
                 <select
                   id="create-class"
                   className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                   value={creating.classId}
-                  onChange={(e) => updateCreate("classId", e.target.value)}
+                  onChange={(e) => handleCreateClassChange(e.target.value)}
                 >
                   <option value="">Unassigned</option>
                   {classOptions.map((cls) => (
                     <option key={cls.id} value={cls.id}>
-                      {cls.name}
+                      {cls.grade} - {cls.name}
                     </option>
                   ))}
                 </select>
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-section">{t("section")}</Label>
+                <Input id="create-section" value={creating.section} readOnly />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-roll">{t("roll")}{govtPrimaryMode ? " *" : ""}</Label>
+                <Input id="create-roll" value={creating.rollNo} onChange={(e) => updateCreate("rollNo", e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-guardianName">{t("guardian_name")}{govtPrimaryMode ? " *" : ""}</Label>
+                <Input id="create-guardianName" value={creating.guardianName} onChange={(e) => updateCreate("guardianName", e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-guardianPhone">{t("guardian_phone")} *</Label>
+                <Input id="create-guardianPhone" value={creating.guardianPhone} onChange={(e) => updateCreate("guardianPhone", e.target.value)} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-fatherName">{t("father_name")}{govtPrimaryMode ? ` (${t("optional")})` : " *"}</Label>
+                <Input id="create-fatherName" value={creating.fatherName} onChange={(e) => updateCreate("fatherName", e.target.value)} required={!govtPrimaryMode} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-motherName">{t("mother_name")}{govtPrimaryMode ? ` (${t("optional")})` : " *"}</Label>
+                <Input id="create-motherName" value={creating.motherName} onChange={(e) => updateCreate("motherName", e.target.value)} required={!govtPrimaryMode} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-village">{t("village")}</Label>
+                <Input id="create-village" value={creating.village} onChange={(e) => updateCreate("village", e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-ward">{t("ward")}</Label>
+                <Input id="create-ward" value={creating.ward} onChange={(e) => updateCreate("ward", e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-upazila">{t("upazila")}</Label>
+                <Input id="create-upazila" value={creating.upazila} onChange={(e) => updateCreate("upazila", e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="create-district">{t("district")}</Label>
+                <Input id="create-district" value={creating.district} onChange={(e) => updateCreate("district", e.target.value)} />
+              </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="create-address">Address</Label>
+                <Label htmlFor="create-address">{t("address")}</Label>
                 <Input id="create-address" value={creating.address} onChange={(e) => updateCreate("address", e.target.value)} />
               </div>
               <div className="space-y-1.5">
@@ -521,44 +700,8 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                 <Input id="create-country" value={creating.country} onChange={(e) => updateCreate("country", e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="create-fatherName">Father Name *</Label>
-                <Input id="create-fatherName" value={creating.fatherName} onChange={(e) => updateCreate("fatherName", e.target.value)} required />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="create-motherName">Mother Name *</Label>
-                <Input id="create-motherName" value={creating.motherName} onChange={(e) => updateCreate("motherName", e.target.value)} required />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="create-guardianPhone">Guardian Phone *</Label>
-                <Input id="create-guardianPhone" value={creating.guardianPhone} onChange={(e) => updateCreate("guardianPhone", e.target.value)} required />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="create-birthRegNo">Birth Reg No</Label>
-                <Input id="create-birthRegNo" value={creating.birthRegNo} onChange={(e) => updateCreate("birthRegNo", e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="create-nidNo">NID (optional)</Label>
+                <Label htmlFor="create-nidNo">{t("nid_no")} ({t("optional")})</Label>
                 <Input id="create-nidNo" value={creating.nidNo} onChange={(e) => updateCreate("nidNo", e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="create-parentFirstName">Guardian First Name</Label>
-                <Input id="create-parentFirstName" value={creating.parentFirstName} onChange={(e) => updateCreate("parentFirstName", e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="create-parentLastName">Guardian Last Name</Label>
-                <Input id="create-parentLastName" value={creating.parentLastName} onChange={(e) => updateCreate("parentLastName", e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="create-parentEmail">Guardian Email</Label>
-                <Input id="create-parentEmail" type="email" value={creating.parentEmail} onChange={(e) => updateCreate("parentEmail", e.target.value)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="create-parentPhone">Guardian Phone</Label>
-                <Input id="create-parentPhone" value={creating.parentPhone} onChange={(e) => updateCreate("parentPhone", e.target.value)} />
-              </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <Label htmlFor="create-parentRelation">Guardian Relation</Label>
-                <Input id="create-parentRelation" value={creating.parentRelation} onChange={(e) => updateCreate("parentRelation", e.target.value)} />
               </div>
             </div>
 
@@ -585,12 +728,12 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
             <div className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="edit-firstName">First Name</Label>
-                  <Input id="edit-firstName" value={editing.firstName} onChange={(e) => updateEdit("firstName", e.target.value)} />
+                  <Label htmlFor="edit-studentNameEn">{t("student_name_en")} *</Label>
+                  <Input id="edit-studentNameEn" value={editing.studentNameEn} onChange={(e) => updateEdit("studentNameEn", e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="edit-lastName">Last Name</Label>
-                  <Input id="edit-lastName" value={editing.lastName} onChange={(e) => updateEdit("lastName", e.target.value)} />
+                  <Label htmlFor="edit-studentNameBn">{t("student_name_bn")} ({t("optional")})</Label>
+                  <Input id="edit-studentNameBn" value={editing.studentNameBn} onChange={(e) => updateEdit("studentNameBn", e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="edit-email">Email</Label>
@@ -601,41 +744,85 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                   <Input id="edit-phone" value={editing.phone} onChange={(e) => updateEdit("phone", e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="edit-dob">Date of Birth</Label>
+                  <Label htmlFor="edit-birthRegNo">{t("birth_reg_no")}{govtPrimaryMode ? " *" : ""}</Label>
+                  <Input id="edit-birthRegNo" value={editing.birthRegNo} onChange={(e) => updateEdit("birthRegNo", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-dob">{t("date_of_birth")}{govtPrimaryMode ? " *" : ""}</Label>
                   <Input id="edit-dob" type="date" value={editing.dateOfBirth} onChange={(e) => updateEdit("dateOfBirth", e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="edit-gender">Gender</Label>
+                  <Label htmlFor="edit-gender">{t("gender")}</Label>
                   <select
                     id="edit-gender"
                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     value={editing.gender}
                     onChange={(e) => updateEdit("gender", e.target.value as EditState["gender"])}
                   >
-                    <option value="">Select gender</option>
+                    <option value="">{t("select_gender")}</option>
                     <option value="MALE">Male</option>
                     <option value="FEMALE">Female</option>
                     <option value="OTHER">Other</option>
                   </select>
                 </div>
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="edit-class">Class</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-class">{t("class")}{govtPrimaryMode ? " *" : ""}</Label>
                   <select
                     id="edit-class"
                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                     value={editing.classId}
-                    onChange={(e) => updateEdit("classId", e.target.value)}
+                    onChange={(e) => handleEditClassChange(e.target.value)}
                   >
                     <option value="">Unassigned</option>
                     {classOptions.map((cls) => (
                       <option key={cls.id} value={cls.id}>
-                        {cls.name}
+                        {cls.grade} - {cls.name}
                       </option>
                     ))}
                   </select>
                 </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-section">{t("section")}</Label>
+                  <Input id="edit-section" value={editing.section} readOnly />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-roll">{t("roll")}{govtPrimaryMode ? " *" : ""}</Label>
+                  <Input id="edit-roll" value={editing.rollNo} onChange={(e) => updateEdit("rollNo", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-guardianName">{t("guardian_name")}{govtPrimaryMode ? " *" : ""}</Label>
+                  <Input id="edit-guardianName" value={editing.guardianName} onChange={(e) => updateEdit("guardianName", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-guardianPhone">{t("guardian_phone")} *</Label>
+                  <Input id="edit-guardianPhone" value={editing.guardianPhone} onChange={(e) => updateEdit("guardianPhone", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-fatherName">{t("father_name")}{govtPrimaryMode ? ` (${t("optional")})` : " *"}</Label>
+                  <Input id="edit-fatherName" value={editing.fatherName} onChange={(e) => updateEdit("fatherName", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-motherName">{t("mother_name")}{govtPrimaryMode ? ` (${t("optional")})` : " *"}</Label>
+                  <Input id="edit-motherName" value={editing.motherName} onChange={(e) => updateEdit("motherName", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-village">{t("village")}</Label>
+                  <Input id="edit-village" value={editing.village} onChange={(e) => updateEdit("village", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-ward">{t("ward")}</Label>
+                  <Input id="edit-ward" value={editing.ward} onChange={(e) => updateEdit("ward", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-upazila">{t("upazila")}</Label>
+                  <Input id="edit-upazila" value={editing.upazila} onChange={(e) => updateEdit("upazila", e.target.value)} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="edit-district">{t("district")}</Label>
+                  <Input id="edit-district" value={editing.district} onChange={(e) => updateEdit("district", e.target.value)} />
+                </div>
                 <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="edit-address">Address</Label>
+                  <Label htmlFor="edit-address">{t("address")}</Label>
                   <Input id="edit-address" value={editing.address} onChange={(e) => updateEdit("address", e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
@@ -647,23 +834,7 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                   <Input id="edit-country" value={editing.country} onChange={(e) => updateEdit("country", e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="edit-fatherName">Father Name *</Label>
-                  <Input id="edit-fatherName" value={editing.fatherName} onChange={(e) => updateEdit("fatherName", e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="edit-motherName">Mother Name *</Label>
-                  <Input id="edit-motherName" value={editing.motherName} onChange={(e) => updateEdit("motherName", e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="edit-guardianPhone">Guardian Phone *</Label>
-                  <Input id="edit-guardianPhone" value={editing.guardianPhone} onChange={(e) => updateEdit("guardianPhone", e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="edit-birthRegNo">Birth Reg No</Label>
-                  <Input id="edit-birthRegNo" value={editing.birthRegNo} onChange={(e) => updateEdit("birthRegNo", e.target.value)} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="edit-nidNo">NID (optional)</Label>
+                  <Label htmlFor="edit-nidNo">{t("nid_no")} ({t("optional")})</Label>
                   <Input id="edit-nidNo" value={editing.nidNo} onChange={(e) => updateEdit("nidNo", e.target.value)} />
                 </div>
               </div>

@@ -1,6 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { Hind_Siliguri } from "next/font/google";
 import { cookies } from "next/headers";
 import "@/styles/globals.css";
 import { OfflineBanner } from "@/components/pwa/offline-banner";
@@ -17,6 +18,13 @@ const geistSans = localFont({
 const geistMono = localFont({
   src: "../assets/fonts/GeistLike-Mono.ttf",
   variable: "--font-geist-mono",
+  display: "swap",
+});
+
+const hindSiliguri = Hind_Siliguri({
+  subsets: ["bengali", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-hind-siliguri",
   display: "swap",
 });
 
@@ -94,7 +102,7 @@ export default async function RootLayout({
     <html
       lang={isBangla ? "bn" : "en"}
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${hindSiliguri.variable}`}
     >
       <body className={`${isBangla ? "font-bn" : "font-sans"} antialiased`}>
         <ServiceWorkerRegistration />

@@ -6,7 +6,7 @@
 @theme {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-  --font-bn: "Hind Siliguri", "Noto Sans Bengali", var(--font-geist-sans), sans-serif;
+  --font-bn: var(--font-hind-siliguri), "Noto Sans Bengali", var(--font-geist-sans), sans-serif;
 
   /* ERP semantic tokens */
   --color-brand-50: #e7f4ef;
@@ -32,14 +32,14 @@
   --color-card-foreground: hsl(var(--card-foreground));
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   
@@ -49,9 +49,7 @@
 
   --radius: var(--radius);
   --radius-card: 8px;
-  --shadow-card:
-    0 1px 2px rgb(0 0 0 / 0.05),
-    0 2px 8px rgb(0 0 0 / 0.05);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);
 
   --spacing-18: 4.5rem;
 }
@@ -69,8 +67,13 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 163 100% 21%;
-    --primary-foreground: 0 0% 100%;
+    /* Bangladesh-first brand tokens */
+    --primary: #006A4E;
+    --accent: #F42A41;
+    --primary-contrast: #ffffff;
+    --primary-rgb: 0 106 78;
+    --accent-rgb: 244 42 65;
+    --primary-foreground: var(--primary-contrast);
 
     --secondary: 210 40% 96%;
     --secondary-foreground: 222 47% 20%;
@@ -78,8 +81,8 @@
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
 
-    --accent: 352 90% 56%;
-    --accent-foreground: 0 0% 100%;
+    --accent-contrast: #111827;
+    --accent-foreground: var(--accent-contrast);
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -88,7 +91,7 @@
     --input: 214 32% 91%;
     --ring: 163 100% 21%;
 
-    --radius: 0.5rem;
+    --radius: 8px;
 
     /* Custom semantic tokens */
     --success: 142 71% 25%;
@@ -120,8 +123,12 @@
     --popover: 225 14% 10%;
     --popover-foreground: 40 15% 94%;
 
-    --primary: 163 72% 55%;
-    --primary-foreground: 225 15% 7%;
+    --primary: #006A4E;
+    --accent: #F42A41;
+    --primary-contrast: #ffffff;
+    --primary-rgb: 0 106 78;
+    --accent-rgb: 244 42 65;
+    --primary-foreground: var(--primary-contrast);
 
     --secondary: 225 13% 14%;
     --secondary-foreground: 40 10% 80%;
@@ -129,8 +136,8 @@
     --muted: 225 12% 14%;
     --muted-foreground: 220 10% 56%;
 
-    --accent: 352 84% 62%;
-    --accent-foreground: 225 15% 7%;
+    --accent-contrast: #111827;
+    --accent-foreground: var(--accent-contrast);
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -170,14 +177,45 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(1200px 600px at 100% -10%, hsl(var(--primary) / 0.07), transparent 55%),
-      radial-gradient(900px 500px at -10% 110%, hsl(var(--accent) / 0.04), transparent 50%);
+      radial-gradient(1200px 600px at 100% -10%, rgb(var(--primary-rgb) / 0.07), transparent 55%),
+      radial-gradient(900px 500px at -10% 110%, rgb(var(--accent-rgb) / 0.04), transparent 50%);
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100svh;
     overflow-x: hidden;
+  }
+
+  html[lang="bn"] body {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "kern", "liga";
+  }
+
+  /* Locale-scoped type tuning for Bangla readability */
+  html[lang="bn"] {
+    font-size: 15.5px;
+  }
+
+  html[lang="bn"] h1 {
+    font-size: clamp(1.85rem, 1.6rem + 1.1vw, 2.5rem);
+  }
+
+  html[lang="bn"] h2 {
+    font-size: clamp(1.45rem, 1.3rem + 0.8vw, 2rem);
+  }
+
+  html[lang="bn"] h3 {
+    font-size: clamp(1.2rem, 1.12rem + 0.5vw, 1.45rem);
+  }
+
+  html[lang="bn"] :is(p, label, input, button, select, textarea) {
+    font-size: 0.98rem;
+  }
+
+  html[lang="bn"] :is(input, button, select, textarea) {
+    font-family: var(--font-bn);
+    font-variant-numeric: tabular-nums;
   }
 
   /* Better heading rhythm */
@@ -188,6 +226,15 @@
   h5,
   h6 {
     @apply font-semibold tracking-tight;
+  }
+
+  a {
+    color: var(--primary);
+    text-underline-offset: 0.16em;
+  }
+
+  a:hover {
+    text-decoration-color: var(--accent);
   }
 
   /* Focus visible only for keyboard navigation */
@@ -224,6 +271,30 @@
     text-wrap: pretty;
   }
 
+  .primary-cta {
+    background-color: var(--primary);
+    color: var(--primary-contrast);
+  }
+
+  .primary-cta:hover {
+    background-color: var(--accent);
+    color: #111827;
+  }
+
+  .sidebar-active-item {
+    background-color: color-mix(in srgb, var(--primary) 12%, transparent);
+    color: var(--primary);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 20%, transparent);
+  }
+
+  .sidebar-active-icon {
+    color: var(--primary);
+  }
+
+  .sidebar-active-dot {
+    background-color: var(--primary);
+  }
+
   /* Gradient text */
   .gradient-text {
     @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
@@ -233,8 +304,8 @@
 
   /* Glass card */
   .glass {
-    backdrop-filter: blur(4px) saturate(120%);
-    @apply bg-card/90 border border-border/70;
+    backdrop-filter: none;
+    @apply bg-card border border-border;
   }
 
   /* Noise texture overlay */
@@ -278,62 +349,54 @@
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @keyframes slide-in-right {
   from {
     opacity: 0;
-    transform: translateX(16px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
   }
 }
 
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.96);
   }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
 @keyframes pulse-slow {
   0%, 100% {
     opacity: 1;
-    transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(0.95);
+    opacity: 0.9;
   }
 }
 
 /* ─── Page Transitions ─── */
 @layer utilities {
   .animate-fade-in {
-    animation: fade-in 0.3s ease-out forwards;
+    animation: fade-in 0.16s ease-out forwards;
     animation-delay: 0ms;
   }
   .animate-slide-right {
-    animation: slide-in-right 0.25s ease-out forwards;
+    animation: slide-in-right 0.16s ease-out forwards;
     animation-delay: 0ms;
   }
   .animate-scale-in {
-    animation: scale-in 0.2s ease-out forwards;
+    animation: scale-in 0.16s ease-out forwards;
   }
   .animate-pulse-slow {
-    animation: pulse-slow 3s ease-in-out infinite;
+    animation: pulse-slow 2.2s ease-in-out infinite;
   }
 
   /* Staggered children */
@@ -369,15 +432,39 @@
   }
 
   .surface-panel {
-    @apply rounded-lg border border-border/70 bg-card/95 shadow-sm;
+    @apply rounded-lg border border-border bg-card;
   }
 
   .table-dense th {
-    @apply py-2;
+    @apply px-2.5 py-1.5 text-xs font-semibold leading-5 text-muted-foreground;
   }
 
   .table-dense td {
-    @apply py-2;
+    @apply px-2.5 py-1.5 leading-5;
+  }
+
+  .table-dense thead th {
+    @apply border-b border-border/90 bg-muted/30;
+  }
+
+  .table-dense tbody td {
+    @apply border-b border-border/70;
+  }
+
+  .table-dense tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl {
+    border-radius: 8px;
+  }
+
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
   }
 
   .fluid-grid {
@@ -410,6 +497,18 @@
   .animate-fade-in,
   .animate-slide-right,
   .animate-scale-in {
-    animation-duration: 0.2s;
+    animation-duration: 0.16s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-right,
+  .animate-scale-in,
+  .animate-pulse-slow,
+  .gradient-text,
+  .shimmer::after,
+  .stagger > * {
+    animation: none !important;
   }
 }

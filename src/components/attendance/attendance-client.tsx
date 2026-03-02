@@ -95,7 +95,7 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
                 date,
                 entries: students.map(s => ({ studentId: s.id, status: attendanceMap[s.id] ?? "PRESENT" })),
             });
-            if (res.success) toast.success(`${t("attendance")} ${t("save_attendance")}`);
+            if (res.success) toast.success("Attendance saved");
             else toast.error(res.error);
         });
     };
@@ -139,7 +139,7 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
 
             {/* Controls */}
             <div className="rounded-xl border border-border bg-card p-4">
-                <h2 className="font-semibold mb-3">{t("mark_attendance")}</h2>
+                <h2 className="font-semibold mb-3">Mark Attendance</h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-end">
                     <div className="w-full space-y-1.5 sm:w-auto">
                         <Label>{t("class")}</Label>
@@ -154,9 +154,9 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
                         <Label>তারিখ</Label>
                         <Input type="date" value={date} onChange={e => { setDate(e.target.value); setLoaded(false); }} className="w-full sm:w-40" />
                     </div>
-                    <Button onClick={loadStudents} disabled={pending || !classId} className="w-full sm:w-auto sm:min-w-36">
-                        <Users className="h-4 w-4 mr-1.5" /> {t("students")}
-                    </Button>
+                        <Button onClick={loadStudents} disabled={pending || !classId} className="w-full sm:w-auto sm:min-w-36">
+                            <Users className="h-4 w-4 mr-1.5" /> {t("students")}
+                        </Button>
                 </div>
             </div>
 
@@ -171,11 +171,11 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
                                 </Button>
                             ))}
                             <Button size="sm" onClick={handleSubmit} disabled={pending}>
-                                {pending ? "Saving..." : t("save_attendance")}
+                                {pending ? "Saving..." : "Save Attendance"}
                             </Button>
                             <Button variant="outline" size="sm" onClick={openPrintView} className="no-print">
                                 <Printer className="h-3.5 w-3.5 mr-1.5" />
-                                {t("print_register")}
+                                Print Register
                             </Button>
                         </div>
                     </div>

@@ -1,8 +1,13 @@
+"use client";
+
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/client";
 
 export function CTASection() {
+  const { t } = useT();
+
   return (
     <section className="mx-auto w-full max-w-6xl px-4 pb-12 pt-8 sm:px-6">
       <div className="rounded-[var(--radius-card)] bg-brand-600 p-6 text-white sm:p-10">
@@ -12,8 +17,8 @@ export function CTASection() {
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
           <Button asChild className="rounded-full bg-white text-brand-600 hover:bg-white/90">
-            <Link href="/auth/register" prefetch={false}>
-              ডেমো দেখুন
+            <Link href="/#demo-booking" prefetch={false}>
+              {t("demo_cta")}
             </Link>
           </Button>
           <Button
@@ -21,8 +26,8 @@ export function CTASection() {
             variant="outline"
             className="rounded-full border-white/60 bg-transparent text-white hover:bg-white/10 hover:text-white"
           >
-            <Link href="/auth/login" prefetch={false}>
-              শুরু করুন
+            <Link href="/auth/register" prefetch={false}>
+              {t("start_now")}
             </Link>
           </Button>
         </div>

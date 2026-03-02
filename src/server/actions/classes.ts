@@ -6,11 +6,16 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { asPlainArray, toNumber } from "@/lib/server/serializers";
-import { isGovtPrimaryModeEnabled, isPrimaryGrade, PRIMARY_GRADES } from "@/lib/config";
+import {
+  isGovtPrimaryModeEnabled,
+  isPrimaryGrade,
+  normalizeGradeValue,
+  PRIMARY_GRADES,
+} from "@/lib/config";
 
 const ClassSchema = z.object({
   name: z.string().min(1, "Class name is required"),
-  grade: z.string().min(1, "Grade is required"),
+  grade: z.string().trim().min(1, "Grade is required"),
   section: z.string().min(1, "Section is required"),
   capacity: z.coerce.number().min(1).max(200).default(30),
   roomNumber: z.string().optional(),
@@ -75,14 +80,15 @@ export async function createClass(
     }
 
     const data = parsed.data;
-    if (isGovtPrimaryModeEnabled() && !isPrimaryGrade(data.grade)) {
-      return { success: false, error: "Only Class 1 to Class 5 is allowed in Govt Primary mode." };
+    const grade = normalizeGradeValue(data.grade);
+    if (isGovtPrimaryModeEnabled() && !isPrimaryGrade(grade)) {
+      return { success: false, error: "Only Pre-Primary to Class 5 is allowed in Govt Primary mode." };
     }
 
     const existing = await db.class.findFirst({
       where: {
         institutionId,
-        grade: data.grade,
+        grade,
         section: data.section,
         academicYear: data.academicYear,
       },
@@ -98,7 +104,7 @@ export async function createClass(
       const c = await tx.class.create({
         data: {
           name: data.name,
-          grade: data.grade,
+          grade,
           section: data.section,
           capacity: data.capacity,
           roomNumber: data.roomNumber || null,
@@ -152,8 +158,9 @@ export async function updateClass(
     if (!existing) return { success: false, error: "Class not found" };
 
     const data = parsed.data;
-    if (isGovtPrimaryModeEnabled() && !isPrimaryGrade(data.grade)) {
-      return { success: false, error: "Only Class 1 to Class 5 is allowed in Govt Primary mode." };
+    const grade = normalizeGradeValue(data.grade);
+    if (isGovtPrimaryModeEnabled() && !isPrimaryGrade(grade)) {
+      return { success: false, error: "Only Pre-Primary to Class 5 is allowed in Govt Primary mode." };
     }
 
     await db.$transaction(async (tx) => {
@@ -161,7 +168,7 @@ export async function updateClass(
         where: { id },
         data: {
           name: data.name,
-          grade: data.grade,
+          grade,
           section: data.section,
           capacity: data.capacity,
           roomNumber: data.roomNumber || null,

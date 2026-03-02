@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const ClassCreateSchema = z.object({
   name: z.string().min(1),
-  grade: z.enum(["1", "2", "3", "4", "5"]),
+  grade: z.string().trim().min(1),
   section: z.string().min(1),
   capacity: z.coerce.number().min(1).max(200).default(30),
   roomNumber: z.string().optional(),

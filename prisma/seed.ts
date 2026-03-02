@@ -17,6 +17,7 @@ import {
   StudentRecordType,
 } from "@prisma/client";
 import bcryptjs from "bcryptjs";
+import { GOVT_PRIMARY_FEE_PRESETS } from "../src/lib/finance/fee-presets";
 
 // Keep seed behavior deterministic across shells:
 // 1) load .env defaults, 2) override with .env.local if present.
@@ -49,6 +50,10 @@ async function main() {
   const enableDemoPlaceholders =
     (process.env.ENABLE_DEMO_PLACEHOLDERS ?? "false") === "true";
   const seedDemoStudents = (process.env.SEED_DEMO_STUDENTS ?? "false") === "true";
+  const govtPrimaryMode =
+    (process.env.GOVT_PRIMARY_MODE ??
+      process.env.NEXT_PUBLIC_GOVT_PRIMARY_MODE ??
+      "true") === "true";
 
   // ── Institution ──────────────────────────────
   const institution = await db.institution.upsert({
@@ -84,6 +89,16 @@ async function main() {
       coSignatoryTitle: "Class Teacher",
       certificateFooter: "Issued by Dhadash Govt Primary Demo School, Dhaka",
     },
+  });
+
+  await db.feeCategory.createMany({
+    data: GOVT_PRIMARY_FEE_PRESETS.map((preset) => ({
+      institutionId: institution.id,
+      name: preset.titleEn,
+      feeType: preset.feeType,
+      isPreset: true,
+    })),
+    skipDuplicates: true,
   });
 
   // ── Admin User ───────────────────────────────
@@ -153,13 +168,22 @@ async function main() {
   console.log(`✅ Subjects: ${subjects.length}`);
 
   // ── Classes ──────────────────────────────────
-  const classData = [
-    { name: "Class One", grade: "1", section: "A" },
-    { name: "Class Two", grade: "2", section: "A" },
-    { name: "Class Three", grade: "3", section: "A" },
-    { name: "Class Four", grade: "4", section: "A" },
-    { name: "Class Five", grade: "5", section: "A" },
-  ];
+  const classData = govtPrimaryMode
+    ? [
+        { name: "Pre-Primary", grade: "PP", section: "A" },
+        { name: "Class One", grade: "1", section: "A" },
+        { name: "Class Two", grade: "2", section: "A" },
+        { name: "Class Three", grade: "3", section: "A" },
+        { name: "Class Four", grade: "4", section: "A" },
+        { name: "Class Five", grade: "5", section: "A" },
+      ]
+    : [
+        { name: "Class One", grade: "1", section: "A" },
+        { name: "Class Two", grade: "2", section: "A" },
+        { name: "Class Three", grade: "3", section: "A" },
+        { name: "Class Four", grade: "4", section: "A" },
+        { name: "Class Five", grade: "5", section: "A" },
+      ];
 
   const classes = [];
   for (const c of classData) {

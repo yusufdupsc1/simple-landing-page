@@ -17,15 +17,15 @@ export type FeatureItem = {
 
 export const featureItems: FeatureItem[] = [
   {
-    title: "Attendance Register + Print",
+    title: "উপস্থিতি রেজিস্টার + প্রিন্ট",
     description:
       "দৈনিক উপস্থিতি নিন, এক ক্লিকে A4 রেজিস্টার প্রিন্ট করুন।",
     icon: CalendarCheck2,
   },
   {
-    title: "Monthly Fee & Receipt",
+    title: "মাসিক ফি ও রশিদ",
     description:
-      "মাসিক ফি, ভর্তি ফি, পরীক্ষা ফি থেকে দ্রুত বিল তৈরি ও রশিদ প্রিন্ট।",
+      "মাসিক ফি, ভর্তি ফি, পরীক্ষা ফি থেকে দ্রুত বিল তৈরি ও রশিদ প্রিন্টিং।",
     icon: CreditCard,
   },
   {
@@ -41,7 +41,7 @@ export const featureItems: FeatureItem[] = [
     icon: BookOpen,
   },
   {
-    title: "SMS Notice Workflow",
+    title: "SMS নোটিশ",
     description:
       "স্কুল নোটিশ দ্রুত parent/guardian communication-ready flow.",
     icon: MessageSquareText,
@@ -81,7 +81,7 @@ export const pricingTiers = [
     price: "BDT 0",
     cadence: "60-day pilot",
     cta: "ডেমো দেখুন",
-    href: "/auth/register",
+    href: "/#demo-booking",
     features: ["Class 1-5 workflow", "Attendance + register print", "Fee + receipt print"],
     highlighted: true,
   },
@@ -128,13 +128,13 @@ export const testimonialItems = [
 
 export const heroHighlights = [
   {
-    label: "Attendance Register",
-    value: "Bangla-first A4 Print",
+    label: "উপস্থিতি রেজিস্টার",
+    value: "A4 প্রিন্ট রেডি",
     icon: CalendarCheck2,
   },
   {
-    label: "Monthly Fee & Receipt",
-    value: "Cash + SSLCommerz",
+    label: "মাসিক ফি ও রশিদ",
+    value: "ক্যাশ + SSLCommerz",
     icon: CreditCard,
   },
   {
@@ -143,8 +143,8 @@ export const heroHighlights = [
     icon: Users,
   },
   {
-    label: "SMS Notice",
-    value: "Parent communication ready",
+    label: "SMS নোটিশ",
+    value: "অভিভাবক যোগাযোগ রেডি",
     icon: MessageSquareText,
   },
   {

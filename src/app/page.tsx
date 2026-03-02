@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { CTASection } from "@/components/landing/cta-section";
+import { DemoBookingForm } from "@/components/landing/demo-booking-form";
 import { FeatureGrid } from "@/components/landing/feature-grid";
 import { Hero } from "@/components/landing/hero";
 import { LandingFooter } from "@/components/landing/landing-footer";
@@ -29,6 +30,7 @@ export default function HomePage() {
       <LandingHeader />
       <main>
         <Hero />
+        <DemoBookingForm />
         <TrustStrip />
         <RoleModules />
         <FeatureGrid />

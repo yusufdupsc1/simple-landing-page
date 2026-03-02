@@ -45,6 +45,36 @@ const SESSION_COOKIE_CANDIDATES = [
   "next-auth.session-token",
 ];
 
+function parseLocalePrefix(pathname: string): {
+  locale: SupportedLocale | null;
+  pathname: string;
+} {
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length === 0) {
+    return { locale: null, pathname: "/" };
+  }
+
+  const [first, ...rest] = parts;
+  if (first === "bn" || first === "en") {
+    return {
+      locale: first,
+      pathname: rest.length > 0 ? `/${rest.join("/")}` : "/",
+    };
+  }
+
+  return { locale: null, pathname };
+}
+
+function withLocalePrefix(
+  pathname: string,
+  locale: SupportedLocale,
+  usePrefix: boolean,
+): string {
+  if (!usePrefix) return pathname;
+  if (pathname === "/") return `/${locale}`;
+  return `/${locale}${pathname}`;
+}
+
 function resolveLocale(req: NextRequest) {
   const cookieLocale = req.cookies.get(LOCALE_COOKIE)?.value;
   if (cookieLocale) {
@@ -53,7 +83,8 @@ function resolveLocale(req: NextRequest) {
 
   const acceptLanguage = req.headers.get("accept-language")?.toLowerCase() ?? "";
   if (acceptLanguage.includes("bn")) return "bn";
-  // Bangladesh-first default until user explicitly switches to English.
+  if (acceptLanguage.includes("en")) return "en";
+  // Bangladesh-first default.
   return "bn";
 }
 
@@ -68,26 +99,48 @@ function withLocaleCookie(response: NextResponse, locale: SupportedLocale) {
 }
 
 export default async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const parsedPath = parseLocalePrefix(req.nextUrl.pathname);
+  const pathname = parsedPath.pathname;
+  const hasLocalePrefix = parsedPath.locale !== null;
   const requestId = req.headers.get("x-request-id") ?? crypto.randomUUID();
-  const locale = resolveLocale(req);
+  const locale = parsedPath.locale ?? resolveLocale(req);
+  const isAssetPath =
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    pathname.includes(".");
+  const isApiPath = pathname.startsWith("/api");
+
+  // Redirect non-localized page URLs to locale-prefixed versions.
+  if (!hasLocalePrefix && !isAssetPath && !isApiPath) {
+    const redirectUrl = req.nextUrl.clone();
+    redirectUrl.pathname = withLocalePrefix(pathname, locale, true);
+    return withLocaleCookie(NextResponse.redirect(redirectUrl), locale);
+  }
+
+  const forward = () => {
+    const response = hasLocalePrefix && pathname !== "/"
+      ? (() => {
+          const rewriteUrl = req.nextUrl.clone();
+          rewriteUrl.pathname = pathname;
+          return NextResponse.rewrite(rewriteUrl);
+        })()
+      : NextResponse.next();
+    response.headers.set("x-request-id", requestId);
+    return withLocaleCookie(response, locale);
+  };
 
   // 1. Allow static files and Next.js internals
   if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/uploadthing") ||
-    pathname.includes(".") ||
-    pathname.startsWith("/favicon")
+    isAssetPath ||
+    pathname.startsWith("/api/uploadthing")
   ) {
-    return withLocaleCookie(NextResponse.next(), locale);
+    return forward();
   }
 
   // 2. Allow public routes
   const isPublic = PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
   if (isPublic) {
-    const response = NextResponse.next();
-    response.headers.set("x-request-id", requestId);
-    return withLocaleCookie(response, locale);
+    return forward();
   }
 
   // 3. Get session token (Edge-compatible)
@@ -135,13 +188,17 @@ export default async function middleware(req: NextRequest) {
       });
     }
     if (pathname.startsWith("/dashboard")) {
-      const loginUrl = new URL("/auth/login", req.url);
-      loginUrl.searchParams.set("callbackUrl", encodeURIComponent(pathname));
+      const loginUrl = new URL(
+        withLocalePrefix("/auth/login", locale, hasLocalePrefix),
+        req.url,
+      );
+      loginUrl.searchParams.set(
+        "callbackUrl",
+        encodeURIComponent(withLocalePrefix(pathname, locale, hasLocalePrefix)),
+      );
       return withLocaleCookie(NextResponse.redirect(loginUrl), locale);
     }
-    const response = NextResponse.next();
-    response.headers.set("x-request-id", requestId);
-    return withLocaleCookie(response, locale);
+    return forward();
   }
 
   if (AUTH_DEBUG) {
@@ -164,7 +221,9 @@ export default async function middleware(req: NextRequest) {
 
   if (isAdminRoute && !isAdmin) {
     return withLocaleCookie(
-      NextResponse.redirect(new URL("/dashboard", req.url)),
+      NextResponse.redirect(
+        new URL(withLocalePrefix("/dashboard", locale, hasLocalePrefix), req.url),
+      ),
       locale,
     );
   }
@@ -175,15 +234,26 @@ export default async function middleware(req: NextRequest) {
       pathname === prefix || pathname.startsWith(`${prefix}/`)
     );
     if (!isAllowed) {
+      const fallbackPath = withLocalePrefix(
+        getDefaultDashboardPath(userRole),
+        locale,
+        hasLocalePrefix,
+      );
       return withLocaleCookie(
-        NextResponse.redirect(new URL(getDefaultDashboardPath(userRole), req.url)),
+        NextResponse.redirect(new URL(fallbackPath, req.url)),
         locale,
       );
     }
   }
 
   // 5. Success — Add context headers for Server Components
-  const response = NextResponse.next();
+  const response = hasLocalePrefix && pathname !== "/"
+    ? (() => {
+        const rewriteUrl = req.nextUrl.clone();
+        rewriteUrl.pathname = pathname;
+        return NextResponse.rewrite(rewriteUrl);
+      })()
+    : NextResponse.next();
 
   response.headers.set("x-request-id", requestId);
   if (token.sub) response.headers.set("x-user-id", token.sub);

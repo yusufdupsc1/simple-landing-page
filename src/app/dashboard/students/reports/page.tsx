@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { PageHeader } from "@/components/ui/page-header";
 import { ReportsWorkspace } from "@/components/students/reports-workspace";
+import { isGovtPrimaryModeEnabled, PRIMARY_GRADES } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Student Reports",
@@ -22,6 +23,9 @@ export default async function StudentReportsPage() {
     where: {
       institutionId,
       isActive: true,
+      ...(isGovtPrimaryModeEnabled()
+        ? { grade: { in: [...PRIMARY_GRADES] } }
+        : {}),
     },
     select: {
       id: true,

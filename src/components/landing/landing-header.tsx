@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/client";
 
 export function LandingHeader() {
+  const { t } = useT();
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -27,14 +33,15 @@ export function LandingHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <LanguageToggle />
           <Button asChild variant="ghost" className="hidden sm:inline-flex">
             <Link href="/auth/login" prefetch={false}>
               লগইন
             </Link>
           </Button>
-          <Button asChild className="rounded-full bg-brand-600 px-5 text-white hover:bg-brand-600/90">
-            <Link href="/auth/register" prefetch={false}>
-              ডেমো দেখুন
+          <Button asChild className="primary-cta rounded-full px-5">
+            <Link href="/#demo-booking" prefetch={false}>
+              {t("demo_cta")}
             </Link>
           </Button>
         </div>

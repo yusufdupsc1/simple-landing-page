@@ -8,6 +8,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { sendEmail, passwordResetEmail, welcomeEmail } from "@/lib/email";
+import { GOVT_PRIMARY_FEE_PRESETS } from "@/lib/finance/fee-presets";
 
 // ─── Types ────────────────────────────────────────────────────────────────
 type ActionResult<T = undefined> =
@@ -137,6 +138,16 @@ export async function registerInstitution(
           emailNotifs: true,
           smsNotifs: false,
         },
+      });
+
+      await tx.feeCategory.createMany({
+        data: GOVT_PRIMARY_FEE_PRESETS.map((preset) => ({
+          institutionId: institution.id,
+          name: preset.titleEn,
+          feeType: preset.feeType,
+          isPreset: true,
+        })),
+        skipDuplicates: true,
       });
 
     });

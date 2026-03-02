@@ -12,33 +12,99 @@ import {
   type ProvisionedCredential,
 } from "@/server/services/user-provisioning";
 import { buildStudentVisibilityWhere, isPrivilegedOrStaff } from "@/lib/server/role-scope";
-import { isGovtPrimaryModeEnabled, isPrimaryGrade, PRIMARY_GRADES } from "@/lib/config";
+import { isGovtPrimaryModeEnabled, PRIMARY_GRADES } from "@/lib/config";
 
 // ─── Schemas ───────────────────────────────
-const StudentSchema = z.object({
-  firstName: z.string().min(1, "First name is required").max(50),
-  lastName: z.string().min(1, "Last name is required").max(50),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  phone: z.string().optional(),
-  dateOfBirth: z.string().optional(),
-  gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
-  classId: z.string().optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  country: z.string().optional(),
-  parentFirstName: z.string().optional(),
-  parentLastName: z.string().optional(),
-  parentEmail: z.string().email().optional().or(z.literal("")),
-  parentPhone: z.string().optional(),
-  parentRelation: z.string().optional(),
-  fatherName: z.string().min(1, "Father name is required"),
-  motherName: z.string().min(1, "Mother name is required"),
-  guardianPhone: z.string().min(1, "Guardian phone is required"),
-  birthRegNo: z.string().optional(),
-  nidNo: z.string().optional(),
-});
+type ValidationLocale = "bn" | "en";
 
-export type StudentFormData = z.infer<typeof StudentSchema>;
+const VALIDATION_MESSAGES: Record<
+  ValidationLocale,
+  {
+    studentNameEnRequired: string;
+    firstNameRequired: string;
+    lastNameRequired: string;
+    invalidEmail: string;
+    guardianNameRequired: string;
+    fatherNameRequired: string;
+    motherNameRequired: string;
+    guardianPhoneRequired: string;
+    classRequired: string;
+    rollRequired: string;
+    birthRegNoRequired: string;
+    dateOfBirthRequired: string;
+  }
+> = {
+  en: {
+    studentNameEnRequired: "Student name (English) is required",
+    firstNameRequired: "First name is required",
+    lastNameRequired: "Last name is required",
+    invalidEmail: "Invalid email",
+    guardianNameRequired: "Guardian name is required",
+    fatherNameRequired: "Father name is required",
+    motherNameRequired: "Mother name is required",
+    guardianPhoneRequired: "Guardian phone is required",
+    classRequired: "Class is required",
+    rollRequired: "Roll is required",
+    birthRegNoRequired: "Birth registration number is required",
+    dateOfBirthRequired: "Date of birth is required",
+  },
+  bn: {
+    studentNameEnRequired: "শিক্ষার্থীর ইংরেজি নাম আবশ্যক",
+    firstNameRequired: "শিক্ষার্থীর নাম আবশ্যক",
+    lastNameRequired: "শিক্ষার্থীর পদবি/শেষ নাম আবশ্যক",
+    invalidEmail: "ইমেইল ঠিকানা সঠিক নয়",
+    guardianNameRequired: "অভিভাবকের নাম আবশ্যক",
+    fatherNameRequired: "বাবার নাম আবশ্যক",
+    motherNameRequired: "মায়ের নাম আবশ্যক",
+    guardianPhoneRequired: "গার্ডিয়ানের মোবাইল নম্বর আবশ্যক",
+    classRequired: "শ্রেণি নির্বাচন করুন",
+    rollRequired: "রোল নম্বর আবশ্যক",
+    birthRegNoRequired: "জন্ম নিবন্ধন নম্বর আবশ্যক",
+    dateOfBirthRequired: "জন্ম তারিখ আবশ্যক",
+  },
+};
+
+function normalizeValidationLocale(locale?: string): ValidationLocale {
+  if ((locale ?? "").toLowerCase().startsWith("bn")) return "bn";
+  return "en";
+}
+
+const StudentSchema = (locale: ValidationLocale = "en") => {
+  const m = VALIDATION_MESSAGES[locale];
+  return z.object({
+    firstName: z.string().max(50).optional().or(z.literal("")),
+    lastName: z.string().max(50).optional().or(z.literal("")),
+    studentNameBn: z.string().max(120).optional().or(z.literal("")),
+    studentNameEn: z.string().max(120).optional().or(z.literal("")),
+    email: z.string().email(m.invalidEmail).optional().or(z.literal("")),
+    phone: z.string().optional(),
+    dateOfBirth: z.string().optional(),
+    gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
+    classId: z.string().optional(),
+    rollNo: z.string().max(20).optional().or(z.literal("")),
+    guardianName: z.string().max(120).optional().or(z.literal("")),
+    address: z.string().optional(),
+    village: z.string().max(120).optional().or(z.literal("")),
+    ward: z.string().max(80).optional().or(z.literal("")),
+    upazila: z.string().max(120).optional().or(z.literal("")),
+    district: z.string().max(120).optional().or(z.literal("")),
+    city: z.string().optional(),
+    country: z.string().optional(),
+    parentFirstName: z.string().optional(),
+    parentLastName: z.string().optional(),
+    parentEmail: z.string().email(m.invalidEmail).optional().or(z.literal("")),
+    parentPhone: z.string().optional(),
+    parentRelation: z.string().optional(),
+    fatherName: z.string().optional(),
+    motherName: z.string().optional(),
+    guardianPhone: z.string().optional(),
+    birthRegNo: z.string().optional(),
+    nidNo: z.string().optional(),
+  });
+};
+
+export type StudentFormData = z.infer<ReturnType<typeof StudentSchema>>;
+const GOVT_PRIMARY_ADMISSION_GRADES = new Set(["1", "2", "3", "4", "5"]);
 const VALID_STUDENT_STATUSES = [
   "ACTIVE",
   "INACTIVE",
@@ -94,12 +160,59 @@ async function validateGovtPrimaryClass(institutionId: string, classId?: string)
     select: { grade: true },
   });
   if (!cls) return false;
-  return isPrimaryGrade(cls.grade);
+  return GOVT_PRIMARY_ADMISSION_GRADES.has(cls.grade);
+}
+
+function splitEnglishName(fullName: string) {
+  const cleaned = fullName.trim().replace(/\s+/g, " ");
+  if (!cleaned) return { firstName: "", lastName: "" };
+  const parts = cleaned.split(" ");
+  const firstName = parts.shift() ?? "";
+  const lastName = parts.join(" ") || ".";
+  return { firstName, lastName };
+}
+
+function validateStudentFields(
+  data: StudentFormData,
+  locale: ValidationLocale,
+) {
+  const m = VALIDATION_MESSAGES[locale];
+  const fieldErrors: Record<string, string[]> = {};
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
+
+  if (govtPrimaryMode) {
+    if (!data.studentNameEn?.trim()) fieldErrors.studentNameEn = [m.studentNameEnRequired];
+    if (!data.guardianName?.trim()) fieldErrors.guardianName = [m.guardianNameRequired];
+    if (!data.guardianPhone?.trim()) fieldErrors.guardianPhone = [m.guardianPhoneRequired];
+    if (!data.birthRegNo?.trim()) fieldErrors.birthRegNo = [m.birthRegNoRequired];
+    if (!data.dateOfBirth?.trim()) fieldErrors.dateOfBirth = [m.dateOfBirthRequired];
+    if (!data.classId?.trim()) fieldErrors.classId = [m.classRequired];
+    if (!data.rollNo?.trim()) fieldErrors.rollNo = [m.rollRequired];
+  } else {
+    if (!data.studentNameEn?.trim() && !(data.firstName?.trim() && data.lastName?.trim())) {
+      fieldErrors.studentNameEn = [m.studentNameEnRequired];
+    }
+    if (!data.fatherName?.trim()) fieldErrors.fatherName = [m.fatherNameRequired];
+    if (!data.motherName?.trim()) fieldErrors.motherName = [m.motherNameRequired];
+    if (!data.guardianPhone?.trim()) fieldErrors.guardianPhone = [m.guardianPhoneRequired];
+  }
+
+  const studentNameEn = data.studentNameEn?.trim() || `${data.firstName ?? ""} ${data.lastName ?? ""}`.trim();
+  const resolvedNames = splitEnglishName(studentNameEn);
+
+  return {
+    fieldErrors,
+    hasErrors: Object.keys(fieldErrors).length > 0,
+    studentNameEn,
+    firstName: resolvedNames.firstName,
+    lastName: resolvedNames.lastName,
+  };
 }
 
 // ─── CREATE ─────────────────────────────────
 export async function createStudent(
   formData: StudentFormData,
+  locale?: string,
 ): Promise<
   ActionResult<{
     id: string;
@@ -113,12 +226,13 @@ export async function createStudent(
     if (!isPrivilegedOrStaff(role)) {
       return { success: false, error: "Insufficient permissions" };
     }
-    const parsed = StudentSchema.safeParse(formData);
+    const currentLocale = normalizeValidationLocale(locale);
+    const parsed = StudentSchema(currentLocale).safeParse(formData);
 
     if (!parsed.success) {
       return {
         success: false,
-        error: "Validation failed",
+        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
         fieldErrors: parsed.error.flatten().fieldErrors as Record<
           string,
           string[]
@@ -127,6 +241,14 @@ export async function createStudent(
     }
 
     const data = parsed.data;
+    const validated = validateStudentFields(data, currentLocale);
+    if (validated.hasErrors) {
+      return {
+        success: false,
+        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        fieldErrors: validated.fieldErrors,
+      };
+    }
     const classAllowed = await validateGovtPrimaryClass(institutionId, data.classId);
     if (!classAllowed) {
       return { success: false, error: "Only Class 1 to 5 assignment is allowed in Govt Primary mode." };
@@ -134,7 +256,7 @@ export async function createStudent(
     const studentId = await generateStudentId(institutionId);
 
     const student = await db.$transaction(async (tx) => {
-      const studentName = `${data.firstName} ${data.lastName}`.trim();
+      const studentName = validated.studentNameEn;
       let studentCredential: ProvisionedCredential | null = null;
       let parentCredential: ProvisionedCredential | null = null;
 
@@ -144,7 +266,7 @@ export async function createStudent(
           institutionId,
           role: "STUDENT",
           email: data.email,
-          displayName: studentName,
+          displayName: validated.studentNameEn || studentName,
           passwordSeed: studentId,
         });
         studentCredential = provisionedStudent.credential;
@@ -153,19 +275,27 @@ export async function createStudent(
       const s = await tx.student.create({
         data: {
           studentId,
-          firstName: data.firstName,
-          lastName: data.lastName,
+          firstName: validated.firstName,
+          lastName: validated.lastName,
+          studentNameBn: data.studentNameBn?.trim() || null,
+          studentNameEn: validated.studentNameEn || null,
           email: data.email || null,
           phone: data.phone || null,
           dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
           gender: data.gender || null,
+          guardianName: data.guardianName?.trim() || null,
+          rollNo: data.rollNo?.trim() || null,
           address: data.address || null,
+          village: data.village?.trim() || null,
+          ward: data.ward?.trim() || null,
+          upazila: data.upazila?.trim() || null,
+          district: data.district?.trim() || null,
           city: data.city || null,
           country: data.country || null,
           classId: data.classId || null,
-          fatherName: data.fatherName,
-          motherName: data.motherName,
-          guardianPhone: data.guardianPhone,
+          fatherName: data.fatherName?.trim() || null,
+          motherName: data.motherName?.trim() || null,
+          guardianPhone: data.guardianPhone?.trim() || null,
           birthRegNo: data.birthRegNo || null,
           nidNo: data.nidNo || null,
           institutionId,
@@ -207,8 +337,8 @@ export async function createStudent(
           entityId: s.id,
           newValues: {
             studentId,
-            firstName: data.firstName,
-            lastName: data.lastName,
+            firstName: validated.firstName,
+            lastName: validated.lastName,
           },
           userId,
         },
@@ -244,18 +374,20 @@ export async function createStudent(
 export async function updateStudent(
   id: string,
   formData: StudentFormData,
+  locale?: string,
 ): Promise<ActionResult> {
   try {
     const { institutionId, userId, role } = await getAuthContext();
     if (!isPrivilegedOrStaff(role)) {
       return { success: false, error: "Insufficient permissions" };
     }
-    const parsed = StudentSchema.safeParse(formData);
+    const currentLocale = normalizeValidationLocale(locale);
+    const parsed = StudentSchema(currentLocale).safeParse(formData);
 
     if (!parsed.success) {
       return {
         success: false,
-        error: "Validation failed",
+        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
         fieldErrors: parsed.error.flatten().fieldErrors as Record<
           string,
           string[]
@@ -272,6 +404,14 @@ export async function updateStudent(
     }
 
     const data = parsed.data;
+    const validated = validateStudentFields(data, currentLocale);
+    if (validated.hasErrors) {
+      return {
+        success: false,
+        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        fieldErrors: validated.fieldErrors,
+      };
+    }
     const classAllowed = await validateGovtPrimaryClass(institutionId, data.classId);
     if (!classAllowed) {
       return { success: false, error: "Only Class 1 to 5 assignment is allowed in Govt Primary mode." };
@@ -281,18 +421,27 @@ export async function updateStudent(
       await tx.student.update({
         where: { id },
         data: {
-          firstName: data.firstName,
-          lastName: data.lastName,
+          firstName: validated.firstName,
+          lastName: validated.lastName,
+          studentNameBn: data.studentNameBn?.trim() || null,
+          studentNameEn: validated.studentNameEn || null,
           email: data.email || null,
           phone: data.phone || null,
           dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
           gender: data.gender || null,
+          guardianName: data.guardianName?.trim() || null,
+          rollNo: data.rollNo?.trim() || null,
           address: data.address || null,
+          village: data.village?.trim() || null,
+          ward: data.ward?.trim() || null,
+          upazila: data.upazila?.trim() || null,
+          district: data.district?.trim() || null,
           city: data.city || null,
+          country: data.country || null,
           classId: data.classId || null,
-          fatherName: data.fatherName,
-          motherName: data.motherName,
-          guardianPhone: data.guardianPhone,
+          fatherName: data.fatherName?.trim() || null,
+          motherName: data.motherName?.trim() || null,
+          guardianPhone: data.guardianPhone?.trim() || null,
           birthRegNo: data.birthRegNo || null,
           nidNo: data.nidNo || null,
         },
@@ -307,7 +456,7 @@ export async function updateStudent(
             firstName: existing.firstName,
             lastName: existing.lastName,
           },
-          newValues: { firstName: data.firstName, lastName: data.lastName },
+          newValues: { firstName: validated.firstName, lastName: validated.lastName },
           userId,
         },
       });
@@ -320,6 +469,78 @@ export async function updateStudent(
     console.error("[UPDATE_STUDENT]", error);
     return { success: false, error: "Failed to update student." };
   }
+}
+
+// ─── GET STUDENT DETAILS ─────────────────────
+export async function getStudentById(id: string) {
+  const { institutionId, role, userId, email, phone } = await getAuthContext();
+  const visibilityWhere = await buildStudentVisibilityWhere({
+    institutionId,
+    role,
+    userId,
+    email,
+    phone,
+  });
+
+  const student = await db.student.findFirst({
+    where: {
+      id,
+      institutionId,
+      ...(isGovtPrimaryModeEnabled() ? { class: { grade: { in: [...PRIMARY_GRADES] } } } : {}),
+      ...visibilityWhere,
+    },
+    include: {
+      class: { select: { name: true, grade: true, section: true } },
+      parents: {
+        select: {
+          firstName: true,
+          lastName: true,
+          phone: true,
+          email: true,
+          relation: true,
+        },
+      },
+    },
+  });
+
+  if (!student) return null;
+
+  return {
+    id: student.id,
+    studentId: student.studentId,
+    firstName: student.firstName,
+    lastName: student.lastName,
+    studentNameBn: student.studentNameBn,
+    studentNameEn: student.studentNameEn,
+    email: student.email,
+    phone: student.phone,
+    dateOfBirth: toIsoDate(student.dateOfBirth),
+    gender: student.gender,
+    address: student.address,
+    guardianName: student.guardianName,
+    rollNo: student.rollNo,
+    village: student.village,
+    ward: student.ward,
+    upazila: student.upazila,
+    district: student.district,
+    city: student.city,
+    country: student.country,
+    fatherName: student.fatherName,
+    motherName: student.motherName,
+    guardianPhone: student.guardianPhone,
+    birthRegNo: student.birthRegNo,
+    nidNo: student.nidNo,
+    status: student.status,
+    createdAt: toIsoDate(student.createdAt),
+    class: student.class
+      ? {
+          name: student.class.name,
+          grade: student.class.grade,
+          section: student.class.section,
+        }
+      : null,
+    parents: asPlainArray(student.parents),
+  };
 }
 
 // ─── DELETE ─────────────────────────────────
@@ -474,11 +695,19 @@ export async function getStudents({
       studentId: student.studentId,
       firstName: student.firstName,
       lastName: student.lastName,
+      studentNameBn: student.studentNameBn,
+      studentNameEn: student.studentNameEn,
       email: student.email,
       phone: student.phone,
       dateOfBirth: toIsoDate(student.dateOfBirth),
       gender: student.gender,
       address: student.address,
+      guardianName: student.guardianName,
+      rollNo: student.rollNo,
+      village: student.village,
+      ward: student.ward,
+      upazila: student.upazila,
+      district: student.district,
       city: student.city,
       country: student.country,
       fatherName: student.fatherName,

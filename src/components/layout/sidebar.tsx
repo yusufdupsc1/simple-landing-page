@@ -37,6 +37,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useT } from "@/lib/i18n/client";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
 interface SidebarProps {
   session: Session;
@@ -173,6 +174,11 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
             roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"],
           },
           {
+            label: "Fee Categories",
+            href: "/dashboard/settings?tab=fees",
+            roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"],
+          },
+          {
             label: "Guest Public Reports",
             href: "/dashboard/settings?tab=academic&focus=public",
             roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"],
@@ -183,8 +189,19 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
   },
 ];
 
+const GOVT_PRIMARY_HIDDEN_NAV_HREFS = new Set<string>([
+  "/dashboard/analytics",
+  "/dashboard/control",
+  "/dashboard/control/inactive",
+  "/dashboard/control/visitors",
+  "/dashboard/control/imports",
+  "/dashboard/settings?tab=access",
+  "/dashboard/settings?tab=academic&focus=public",
+]);
+
 export function Sidebar({ session }: SidebarProps) {
   const { t } = useT();
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const userRole = (session.user as any)?.role ?? "";
@@ -238,19 +255,39 @@ export function Sidebar({ session }: SidebarProps) {
 
   const itemLabelMap: Record<string, string> = {
     Dashboard: "dashboard",
-    Students: "students",
-    Teachers: "teachers",
+    "Teacher Portal": "teacher_portal",
+    "Student Portal": "student_portal",
+    "Parent Portal": "parent_portal",
+    Analytics: "analytics",
+    Students: "student",
+    "All Students": "student",
+    "Student Reports": "reports",
+    Teachers: "assistant_teacher",
     Attendance: "attendance",
     Finance: "fees",
-    Grades: "results",
-    Institution: "institution",
+    Events: "routine",
+    Grades: "result",
+    Governance: "governance",
+    Institution: "school_name",
     Classes: "classes",
     Subjects: "subjects",
-    Announcements: "notices",
+    Announcements: "notice",
     Class: "class",
   };
 
-  const localize = (label: string) => t(itemLabelMap[label] ?? label.toLowerCase()) || label;
+  const localizeSection = (label: string) => {
+    const key = sectionLabelMap[label];
+    return key ? t(key) : label;
+  };
+
+  const localizeItem = (label: string) => {
+    if (govtPrimaryMode && label === "Institution") return t("primary_school_setup");
+    if (govtPrimaryMode && label === "Students") return t("student");
+    if (govtPrimaryMode && label === "Teachers") return t("assistant_teacher");
+    if (govtPrimaryMode && label === "Classes") return t("primary_classes");
+    const key = itemLabelMap[label];
+    return key ? t(key) : label;
+  };
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -275,7 +312,8 @@ export function Sidebar({ session }: SidebarProps) {
               <School className="h-3 w-3 text-accent" />
             </div>
             <span className="text-xs font-medium truncate text-foreground/80">
-              {(session.user as any)?.institutionName ?? t("institution")}
+              {(session.user as any)?.institutionName ??
+                (govtPrimaryMode ? t("school_name") : t("institution"))}
             </span>
             <ChevronRight className="h-3 w-3 text-muted-foreground ml-auto flex-shrink-0" />
           </div>
@@ -289,20 +327,23 @@ export function Sidebar({ session }: SidebarProps) {
           {NAV_SECTIONS.map((section) => {
             const visibleItems = section.items.filter(
               (item) =>
-                !item.roles || item.roles.includes(userRole)
+                (!item.roles || item.roles.includes(userRole)) &&
+                !(govtPrimaryMode && GOVT_PRIMARY_HIDDEN_NAV_HREFS.has(item.href))
             );
             if (visibleItems.length === 0) return null;
 
             return (
               <div key={section.label}>
                 <p className="px-2 mb-1 text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/60">
-                  {t(sectionLabelMap[section.label] ?? section.label.toLowerCase())}
+                  {localizeSection(section.label)}
                 </p>
                 <div className="space-y-0.5">
                   {visibleItems.map((item) => {
                     const hasChildren = Boolean(item.children?.length);
                     const visibleChildren = (item.children ?? []).filter(
-                      (child) => !child.roles || child.roles.includes(userRole),
+                      (child) =>
+                        (!child.roles || child.roles.includes(userRole)) &&
+                        !(govtPrimaryMode && GOVT_PRIMARY_HIDDEN_NAV_HREFS.has(child.href)),
                     );
                     const hasActiveChild = visibleChildren.some((child) =>
                       isActive(child.href, child.exact),
@@ -318,7 +359,7 @@ export function Sidebar({ session }: SidebarProps) {
                           className={cn(
                             "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium transition-all duration-150",
                             active
-                              ? "bg-primary/10 text-primary"
+                              ? "sidebar-active-item"
                               : "text-muted-foreground hover:text-foreground hover:bg-muted"
                           )}
                         >
@@ -326,18 +367,18 @@ export function Sidebar({ session }: SidebarProps) {
                             className={cn(
                               "h-4 w-4 flex-shrink-0",
                               active
-                                ? "text-primary"
+                                ? "sidebar-active-icon"
                                 : "text-muted-foreground"
                             )}
                           />
-                          <span className="truncate">{localize(item.label)}</span>
+                            <span className="truncate">{localizeItem(item.label)}</span>
                           {item.badge && (
                             <span className="ml-auto font-mono text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded">
                               {item.badge}
                             </span>
                           )}
                           {active && (
-                            <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                            <span className="sidebar-active-dot ml-auto h-1.5 w-1.5 rounded-full flex-shrink-0" />
                           )}
                         </Link>
                       );
@@ -358,17 +399,17 @@ export function Sidebar({ session }: SidebarProps) {
                           className={cn(
                             "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-all duration-150",
                             active
-                              ? "bg-primary/10 text-primary"
+                              ? "sidebar-active-item"
                               : "text-muted-foreground hover:bg-muted hover:text-foreground",
                           )}
                         >
                           <item.icon
                             className={cn(
                               "h-4 w-4 flex-shrink-0",
-                              active ? "text-primary" : "text-muted-foreground",
+                              active ? "sidebar-active-icon" : "text-muted-foreground",
                             )}
                           />
-                          <span className="truncate">{localize(item.label)}</span>
+                          <span className="truncate">{localizeItem(item.label)}</span>
                           <ChevronDown
                             className={cn(
                               "ml-auto h-3.5 w-3.5 transition-transform",
@@ -387,12 +428,12 @@ export function Sidebar({ session }: SidebarProps) {
                                 className={cn(
                                   "flex items-center rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
                                   isActive(child.href, child.exact)
-                                    ? "bg-primary/10 text-primary"
+                                    ? "sidebar-active-item"
                                     : "text-muted-foreground hover:bg-muted hover:text-foreground",
                                 )}
                               >
                                 <FileText className="mr-1.5 h-3.5 w-3.5" />
-                                {localize(child.label)}
+                                {localizeItem(child.label)}
                               </Link>
                             ))}
                           </div>

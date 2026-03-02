@@ -22,6 +22,7 @@ import {
     type TeacherFormData,
 } from "@/server/actions/teachers";
 import { formatCurrency } from "@/lib/utils";
+import { useT } from "@/lib/i18n/client";
 
 type Subject = { id: string; name: string; code: string };
 type Teacher = {
@@ -46,7 +47,7 @@ const STATUS_COLORS: Record<string, string> = {
     TERMINATED: "bg-destructive/10 text-destructive",
 };
 
-function TeacherForm({ initial, subjects: _subjects, onSuccess }: { initial?: Teacher; subjects: Subject[]; onSuccess: () => void }) {
+function TeacherForm({ initial, onSuccess }: { initial?: Teacher; onSuccess: () => void }) {
     const [pending, startTransition] = useTransition();
     const [form, setForm] = useState<TeacherFormData>({
         firstName: initial?.firstName ?? "",
@@ -154,7 +155,8 @@ function TeacherForm({ initial, subjects: _subjects, onSuccess }: { initial?: Te
     );
 }
 
-export function TeachersClient({ teachers, subjects, total, pages, currentPage }: Props) {
+export function TeachersClient({ teachers, total, pages, currentPage }: Props) {
+    const { t } = useT();
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [editTeacher, setEditTeacher] = useState<Teacher | null>(null);
@@ -197,7 +199,7 @@ export function TeachersClient({ teachers, subjects, total, pages, currentPage }
 
     return (
         <>
-            <PageHeader title="Teachers" total={total} totalLabel="teachers">
+            <PageHeader title={t("teachers")} total={total} totalLabel={t("teachers")}>
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                         <Button size="sm" className="w-full sm:w-auto" onClick={() => setEditTeacher(null)} disabled={pending}>
@@ -211,7 +213,6 @@ export function TeachersClient({ teachers, subjects, total, pages, currentPage }
                         <TeacherForm
                             key={editTeacher?.id ?? "new-teacher"}
                             initial={editTeacher ?? undefined}
-                            subjects={subjects}
                             onSuccess={handleFormSuccess}
                         />
                     </DialogContent>

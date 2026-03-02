@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { Save, Building2, GraduationCap, ShieldCheck, RefreshCw } from "lucide-react";
+import { Save, Building2, GraduationCap, ShieldCheck, RefreshCw, CreditCard, Plus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,9 +14,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   updateInstitutionProfile,
   updateInstitutionSettings,
+  createFeeCategory,
+  updateFeeCategory,
+  type FeeCategoryData,
   type InstitutionProfileData,
   type InstitutionSettingsData,
 } from "@/server/actions/settings";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
 type Institution = {
   id: string;
@@ -63,9 +67,25 @@ type AccessRequestRow = {
   rejectionReason: string | null;
 };
 
+type FeeCategoryRow = {
+  id: string;
+  name: string;
+  feeType:
+    | "TUITION"
+    | "TRANSPORT"
+    | "LIBRARY"
+    | "LABORATORY"
+    | "SPORTS"
+    | "EXAMINATION"
+    | "UNIFORM"
+    | "MISC";
+  isPreset: boolean;
+};
+
 interface Props {
   institution: Institution;
   settings: SettingsRow;
+  feeCategories: FeeCategoryRow[];
   viewerRole: string;
 }
 
@@ -76,6 +96,16 @@ const PLAN_COLORS: Record<string, string> = {
 };
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const FEE_TYPE_OPTIONS: FeeCategoryRow["feeType"][] = [
+  "TUITION",
+  "EXAMINATION",
+  "MISC",
+  "SPORTS",
+  "LIBRARY",
+  "TRANSPORT",
+  "LABORATORY",
+  "UNIFORM",
+];
 
 function ProfileTab({ institution, canEdit }: { institution: Institution; canEdit: boolean }) {
   const [pending, startTransition] = useTransition();
@@ -188,6 +218,7 @@ function ProfileTab({ institution, canEdit }: { institution: Institution; canEdi
 }
 
 function AcademicTab({ settings, canEdit }: { settings: SettingsRow; canEdit: boolean }) {
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
   const [pending, startTransition] = useTransition();
   const [form, setForm] = useState<InstitutionSettingsData>({
     academicYear: settings?.academicYear ?? "2024-2025",
@@ -207,6 +238,13 @@ function AcademicTab({ settings, canEdit }: { settings: SettingsRow; canEdit: bo
     publicReportsDescription: settings?.publicReportsDescription ?? "",
   } as InstitutionSettingsData & { publicReportsEnabled: boolean; publicReportsDescription: string });
   const set = (k: keyof typeof form, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
+  const termOptions = (() => {
+    const baseOptions = govtPrimaryMode ? [2, 3] : [1, 2, 3, 4];
+    if (!baseOptions.includes(form.termsPerYear)) {
+      return [...baseOptions, form.termsPerYear].sort((a, b) => a - b);
+    }
+    return baseOptions;
+  })();
 
   const toggleDay = (day: number) => {
     const days = form.workingDays as number[];
@@ -237,19 +275,26 @@ function AcademicTab({ settings, canEdit }: { settings: SettingsRow; canEdit: bo
             <Input id="s-year" value={form.academicYear} onChange={(e) => set("academicYear", e.target.value)} placeholder="2024-2025" disabled={!canEdit} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="s-terms">Terms Per Year</Label>
+            <Label htmlFor="s-terms">
+              {govtPrimaryMode ? "Assessment Terms Per Year" : "Terms Per Year"}
+            </Label>
             <Select value={String(form.termsPerYear)} onValueChange={(v) => set("termsPerYear", Number(v))} disabled={!canEdit}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {[1, 2, 3, 4].map((n) => (
+                {termOptions.map((n) => (
                   <SelectItem key={n} value={String(n)}>
                     {n} term{n > 1 ? "s" : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {govtPrimaryMode ? (
+              <p className="text-xs text-muted-foreground">
+                Govt Primary mode keeps term setup focused on primary-school assessment cycles.
+              </p>
+            ) : null}
           </div>
         </div>
         <div className="space-y-1.5 mt-4">
@@ -384,6 +429,177 @@ function AcademicTab({ settings, canEdit }: { settings: SettingsRow; canEdit: bo
         {pending ? "Saving..." : "Save Settings"}
       </Button>
     </form>
+  );
+}
+
+function FeeCategoriesTab({
+  initialRows,
+  canEdit,
+}: {
+  initialRows: FeeCategoryRow[];
+  canEdit: boolean;
+}) {
+  const [pending, startTransition] = useTransition();
+  const [rows, setRows] = useState<FeeCategoryRow[]>(initialRows);
+  const [newName, setNewName] = useState("");
+  const [newType, setNewType] = useState<FeeCategoryRow["feeType"]>("MISC");
+
+  useEffect(() => {
+    setRows(initialRows);
+  }, [initialRows]);
+
+  const patchRow = (
+    id: string,
+    patch: Partial<Pick<FeeCategoryRow, "name" | "feeType">>,
+  ) => {
+    setRows((prev) => prev.map((row) => (row.id === id ? { ...row, ...patch } : row)));
+  };
+
+  const handleCreate = () => {
+    if (!canEdit) {
+      toast.error("Only SUPER_ADMIN / ADMIN can manage fee categories.");
+      return;
+    }
+    const trimmed = newName.trim();
+    if (!trimmed) {
+      toast.error("Category name is required.");
+      return;
+    }
+
+    startTransition(async () => {
+      const payload: FeeCategoryData = {
+        name: trimmed,
+        feeType: newType,
+      };
+      const res = await createFeeCategory(payload);
+      if (!res.success || !res.data) {
+        toast.error(res.error ?? "Failed to create fee category.");
+        return;
+      }
+
+      setRows((prev) => [
+        ...prev,
+        { id: res.data.id, name: res.data.name, feeType: res.data.feeType as FeeCategoryRow["feeType"], isPreset: false },
+      ]);
+      setNewName("");
+      setNewType("MISC");
+      toast.success("Fee category added");
+    });
+  };
+
+  const handleSave = (row: FeeCategoryRow) => {
+    if (!canEdit) {
+      toast.error("Only SUPER_ADMIN / ADMIN can manage fee categories.");
+      return;
+    }
+    const trimmed = row.name.trim();
+    if (!trimmed) {
+      toast.error("Category name is required.");
+      return;
+    }
+
+    startTransition(async () => {
+      const payload: FeeCategoryData = {
+        name: trimmed,
+        feeType: row.feeType,
+      };
+      const res = await updateFeeCategory(row.id, payload);
+      if (!res.success || !res.data) {
+        toast.error(res.error ?? "Failed to update fee category.");
+        return;
+      }
+
+      patchRow(row.id, {
+        name: res.data.name,
+        feeType: res.data.feeType as FeeCategoryRow["feeType"],
+      });
+      toast.success("Fee category updated");
+    });
+  };
+
+  return (
+    <div className="max-w-3xl space-y-5">
+      <div className="space-y-1">
+        <h2 className="font-semibold">Fee Categories</h2>
+        <p className="text-xs text-muted-foreground">
+          Bangladesh presets are initialized once per institution. You can rename and adjust type anytime.
+        </p>
+      </div>
+
+      <div className="rounded-lg border border-border p-3">
+        <p className="mb-3 text-xs font-medium text-muted-foreground">Add Category</p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_180px_auto]">
+          <Input
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="e.g. Development Fee"
+            disabled={!canEdit || pending}
+          />
+          <Select
+            value={newType}
+            onValueChange={(v) => setNewType(v as FeeCategoryRow["feeType"])}
+            disabled={!canEdit || pending}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FEE_TYPE_OPTIONS.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button type="button" onClick={handleCreate} disabled={!canEdit || pending}>
+            <Plus className="mr-1.5 h-4 w-4" />
+            Add
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {rows.length === 0 ? (
+          <p className="rounded-lg border border-border p-3 text-sm text-muted-foreground">
+            No fee categories configured yet.
+          </p>
+        ) : (
+          rows.map((row) => (
+            <div key={row.id} className="rounded-lg border border-border p-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_180px_auto]">
+                <Input
+                  value={row.name}
+                  onChange={(e) => patchRow(row.id, { name: e.target.value })}
+                  disabled={!canEdit || pending}
+                />
+                <Select
+                  value={row.feeType}
+                  onValueChange={(v) => patchRow(row.id, { feeType: v as FeeCategoryRow["feeType"] })}
+                  disabled={!canEdit || pending}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FEE_TYPE_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button type="button" variant="outline" onClick={() => handleSave(row)} disabled={!canEdit || pending}>
+                  Save
+                </Button>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                {row.isPreset ? "Preset category" : "Custom category"}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -599,14 +815,18 @@ function AccessRequestsTab({ canReview }: { canReview: boolean }) {
   );
 }
 
-export function SettingsClient({ institution, settings, viewerRole }: Props) {
+export function SettingsClient({ institution, settings, feeCategories, viewerRole }: Props) {
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
   const canEditSettings = ["SUPER_ADMIN", "ADMIN"].includes(viewerRole);
   const canReviewRequests = ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"].includes(viewerRole);
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestedTab = searchParams.get("tab");
+  const allowedTabs = govtPrimaryMode
+    ? (["profile", "academic", "fees"] as const)
+    : (["profile", "academic", "fees", "access"] as const);
   const activeTab =
-    requestedTab === "profile" || requestedTab === "academic" || requestedTab === "access"
+    requestedTab && (allowedTabs as readonly string[]).includes(requestedTab)
       ? requestedTab
       : "profile";
 
@@ -618,12 +838,22 @@ export function SettingsClient({ institution, settings, viewerRole }: Props) {
 
   return (
     <>
-      <PageHeader title="Settings" description="Manage institution profile, operations, and security workflows" />
+      <PageHeader
+        title={govtPrimaryMode ? "Primary School Settings" : "Settings"}
+        description={
+          govtPrimaryMode
+            ? "Manage school profile, primary academics, and fee categories."
+            : "Manage institution profile, operations, and security workflows"
+        }
+      />
       <Tabs value={activeTab} onValueChange={setTab}>
         <TabsList className="mb-6 w-full sm:w-auto">
-          <TabsTrigger value="profile" className="gap-1.5"><Building2 className="h-3.5 w-3.5" />Profile</TabsTrigger>
+          <TabsTrigger value="profile" className="gap-1.5"><Building2 className="h-3.5 w-3.5" />{govtPrimaryMode ? "School Profile" : "Profile"}</TabsTrigger>
           <TabsTrigger value="academic" className="gap-1.5"><GraduationCap className="h-3.5 w-3.5" />Academic</TabsTrigger>
-          <TabsTrigger value="access" className="gap-1.5"><ShieldCheck className="h-3.5 w-3.5" />Access Requests</TabsTrigger>
+          <TabsTrigger value="fees" className="gap-1.5"><CreditCard className="h-3.5 w-3.5" />Fees</TabsTrigger>
+          {!govtPrimaryMode ? (
+            <TabsTrigger value="access" className="gap-1.5"><ShieldCheck className="h-3.5 w-3.5" />Access Requests</TabsTrigger>
+          ) : null}
         </TabsList>
         <TabsContent value="profile">
           <ProfileTab institution={institution} canEdit={canEditSettings} />
@@ -631,9 +861,14 @@ export function SettingsClient({ institution, settings, viewerRole }: Props) {
         <TabsContent value="academic">
           <AcademicTab settings={settings} canEdit={canEditSettings} />
         </TabsContent>
-        <TabsContent value="access">
-          <AccessRequestsTab canReview={canReviewRequests} />
+        <TabsContent value="fees">
+          <FeeCategoriesTab initialRows={feeCategories} canEdit={canEditSettings} />
         </TabsContent>
+        {!govtPrimaryMode ? (
+          <TabsContent value="access">
+            <AccessRequestsTab canReview={canReviewRequests} />
+          </TabsContent>
+        ) : null}
       </Tabs>
     </>
   );

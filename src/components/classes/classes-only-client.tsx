@@ -31,6 +31,8 @@ import {
   deleteClass,
   type ClassFormData,
 } from "@/server/actions/classes";
+import { useT } from "@/lib/i18n/client";
+import { getGradeOptions } from "@/lib/config";
 
 type Teacher = { id: string; firstName: string; lastName: string };
 
@@ -67,10 +69,22 @@ function ClassForm({
   teachers: Teacher[];
   onSuccess: () => void;
 }) {
+  const baseGradeOptions = getGradeOptions();
+  const gradeOptions =
+    initial?.grade && !baseGradeOptions.some((option) => option.grade === initial.grade)
+      ? [
+          ...baseGradeOptions,
+          {
+            grade: initial.grade,
+            labelBn: `শ্রেণি ${initial.grade}`,
+            labelEn: `Class ${initial.grade}`,
+          },
+        ]
+      : baseGradeOptions;
   const [pending, startTransition] = useTransition();
   const [form, setForm] = useState<ClassFormData>({
     name: initial?.name ?? "",
-    grade: initial?.grade ?? "",
+    grade: initial?.grade ?? gradeOptions[0]?.grade ?? "",
     section: initial?.section ?? "",
     capacity: initial?.capacity ?? 30,
     roomNumber: initial?.roomNumber ?? "",
@@ -115,9 +129,9 @@ function ClassForm({
               <SelectValue placeholder="Select class" />
             </SelectTrigger>
             <SelectContent>
-              {["1", "2", "3", "4", "5"].map((grade) => (
-                <SelectItem key={grade} value={grade}>
-                  Class {grade}
+              {gradeOptions.map((gradeOption) => (
+                <SelectItem key={gradeOption.grade} value={gradeOption.grade}>
+                  {gradeOption.labelEn}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -199,6 +213,7 @@ export function ClassesOnlyClient({
   pages,
   currentPage,
 }: Props) {
+  const { t } = useT();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [editClass, setEditClass] = useState<ClassRow | null>(null);
@@ -222,9 +237,9 @@ export function ClassesOnlyClient({
   return (
     <>
       <PageHeader
-        title="Classes"
+        title={t("class")}
         total={total}
-        totalLabel="classes"
+        totalLabel={t("class")}
         description="Manage academic classes and class-teacher assignments"
       >
         <Dialog open={open} onOpenChange={setOpen}>

@@ -1,4 +1,5 @@
 // src/app/auth/login/page.tsx
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { LoginForm } from "@/components/forms/login-form";
@@ -110,23 +111,23 @@ export default async function LoginPage({
 
           <p className="mt-4 text-center text-sm text-muted-foreground">
             New school?{" "}
-            <a
+            <Link
               href="/auth/register"
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
               Create your institution
-            </a>
+            </Link>
           </p>
 
           <p className="mt-3 text-center text-xs text-muted-foreground">
             By signing in, you agree to our{" "}
-            <a href="/terms" className="underline underline-offset-4 hover:text-foreground">
+            <Link href="/terms" className="underline underline-offset-4 hover:text-foreground">
               Terms
-            </a>{" "}
+            </Link>{" "}
             and{" "}
-            <a href="/privacy" className="underline underline-offset-4 hover:text-foreground">
+            <Link href="/privacy" className="underline underline-offset-4 hover:text-foreground">
               Privacy Policy
-            </a>
+            </Link>
           </p>
         </div>
       </div>

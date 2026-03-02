@@ -19,6 +19,7 @@ import {
     createClass, updateClass, deleteClass, createSubject, updateSubject, deleteSubject,
     type ClassFormData, type SubjectFormData,
 } from "@/server/actions/classes";
+import { getGradeOptions } from "@/lib/config";
 
 type Teacher = { id: string; firstName: string; lastName: string };
 type Subject = { id: string; name: string; code: string; credits: number; isCore: boolean; _count: { teachers: number; grades: number } };
@@ -41,10 +42,22 @@ type DeleteTarget =
   | null;
 
 function ClassForm({ initial, teachers, onSuccess }: { initial?: ClassRow; teachers: Teacher[]; onSuccess: () => void }) {
+    const baseGradeOptions = getGradeOptions();
+    const gradeOptions =
+      initial?.grade && !baseGradeOptions.some((option) => option.grade === initial.grade)
+        ? [
+            ...baseGradeOptions,
+            {
+              grade: initial.grade,
+              labelBn: `শ্রেণি ${initial.grade}`,
+              labelEn: `Class ${initial.grade}`,
+            },
+          ]
+        : baseGradeOptions;
     const [pending, startTransition] = useTransition();
     const [form, setForm] = useState<ClassFormData>({
         name: initial?.name ?? "",
-        grade: initial?.grade ?? "",
+        grade: initial?.grade ?? gradeOptions[0]?.grade ?? "",
         section: initial?.section ?? "",
         capacity: initial?.capacity ?? 30,
         roomNumber: initial?.roomNumber ?? "",
@@ -74,9 +87,9 @@ function ClassForm({ initial, teachers, onSuccess }: { initial?: ClassRow; teach
                     <Select value={form.grade} onValueChange={(v) => set("grade", v)}>
                         <SelectTrigger id="cl-grade"><SelectValue placeholder="Select class" /></SelectTrigger>
                         <SelectContent>
-                            {["1", "2", "3", "4", "5"].map((grade) => (
-                                <SelectItem key={grade} value={grade}>
-                                    Class {grade}
+                            {gradeOptions.map((gradeOption) => (
+                                <SelectItem key={gradeOption.grade} value={gradeOption.grade}>
+                                    {gradeOption.labelEn}
                                 </SelectItem>
                             ))}
                         </SelectContent>

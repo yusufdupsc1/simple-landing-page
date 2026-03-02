@@ -39,8 +39,8 @@ import {
   type PaymentFormData,
 } from "@/server/actions/finance";
 import { formatCurrency, formatDate } from "@/lib/utils";
-import { useT } from "@/lib/i18n/client";
 import type { GovtFeePreset } from "@/lib/finance/fee-presets";
+import { useT } from "@/lib/i18n/client";
 
 type Student = {
   id: string;
@@ -361,11 +361,11 @@ export function FinanceClient({
 
   return (
     <>
-      <PageHeader title={t("finance")} description="Manage fees and payments">
+      <PageHeader title={t("fees")} description="Manage fees and payments">
         <Dialog open={feeOpen} onOpenChange={setFeeOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-1.5" /> {t("create_fee")}
+              <Plus className="h-4 w-4 mr-1.5" /> Create Fee
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -399,7 +399,7 @@ export function FinanceClient({
       </div>
 
       <div className="flex w-full flex-wrap gap-3">
-        <SearchInput placeholder="Search fees..." className="w-full sm:w-64" />
+        <SearchInput placeholder={`${t("fees")}...`} className="w-full sm:w-64" />
       </div>
 
       <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -407,7 +407,7 @@ export function FinanceClient({
           <table className="table-dense w-full min-w-[760px] text-sm">
             <thead className="border-b border-border bg-muted/30">
               <tr>
-                {["Student", "Fee", "Amount", "Paid", "Due Date", "Status", "Actions"].map((h) => (
+                {[t("students"), t("fees"), "Amount", "Paid", "Due Date", "Status", "Actions"].map((h) => (
                   <th
                     key={h}
                     className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
@@ -464,7 +464,7 @@ export function FinanceClient({
                                 setPayOpen(true);
                               }}
                             >
-                              <Receipt className="h-3 w-3" /> {t("record_payment")}
+                              <Receipt className="h-3 w-3" /> Record Payment
                             </Button>
                           ) : null}
                           {latestPayment?.id ? (
@@ -474,7 +474,7 @@ export function FinanceClient({
                               className="h-7 text-xs gap-1"
                               onClick={() => openReceipt(latestPayment.id)}
                             >
-                              <Printer className="h-3 w-3" /> {t("receipt")}
+                              <Printer className="h-3 w-3" /> Receipt
                             </Button>
                           ) : null}
                         </div>
@@ -493,7 +493,7 @@ export function FinanceClient({
       <Dialog open={payOpen} onOpenChange={setPayOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("record_payment")}</DialogTitle>
+            <DialogTitle>Record Payment</DialogTitle>
           </DialogHeader>
           {selectedFee ? <PaymentForm fee={selectedFee} onSuccess={() => setPayOpen(false)} /> : null}
         </DialogContent>

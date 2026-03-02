@@ -255,6 +255,7 @@ async function getExecutiveData(institutionId: string) {
 
 export default async function DashboardPage() {
   const session = await auth();
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
   const user = session?.user as {
     institutionId?: string;
     institutionName?: string;
@@ -365,25 +366,28 @@ export default async function DashboardPage() {
         <p className="text-muted-foreground">
           Here&apos;s what&apos;s happening at{" "}
           <strong>{institutionName}</strong> today.
+          {govtPrimaryMode ? " Govt Primary mode is active." : ""}
         </p>
       </div>
 
       {/* KPI Stats */}
       <StatsGrid stats={stats} />
 
-      <ExecutiveCommandCenter
-        institutionSlug={executive.institutionSlug}
-        profileCompletion={executive.profileCompletion}
-        signatureReady={executive.signatureReady}
-        logoReady={executive.logoReady}
-        publicReportsEnabled={executive.publicReportsEnabled}
-        pendingAccessRequests={executive.pendingAccessRequests}
-        parentAccounts={executive.parentAccounts}
-        roleMix={executive.roleMix}
-        inactive={executive.inactive}
-        sslCommerzConfigured={executive.sslCommerzConfigured}
-        stripeConfigured={executive.stripeConfigured}
-      />
+      {!govtPrimaryMode ? (
+        <ExecutiveCommandCenter
+          institutionSlug={executive.institutionSlug}
+          profileCompletion={executive.profileCompletion}
+          signatureReady={executive.signatureReady}
+          logoReady={executive.logoReady}
+          publicReportsEnabled={executive.publicReportsEnabled}
+          pendingAccessRequests={executive.pendingAccessRequests}
+          parentAccounts={executive.parentAccounts}
+          roleMix={executive.roleMix}
+          inactive={executive.inactive}
+          sslCommerzConfigured={executive.sslCommerzConfigured}
+          stripeConfigured={executive.stripeConfigured}
+        />
+      ) : null}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

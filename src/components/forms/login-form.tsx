@@ -2,9 +2,10 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -138,9 +139,10 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
 
   const {
     register,
-    watch,
+    getValues,
     setValue,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(LoginSchema),
@@ -156,14 +158,12 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
     },
   });
 
-  const selectedScope = watch("scope");
-  const selectedMode = watch("loginMode");
-  const institutionSlug = watch("institution")?.trim().toLowerCase() ?? "";
+  const selectedScope = useWatch({ control, name: "scope" });
+  const selectedMode = useWatch({ control, name: "loginMode" });
+  const institutionSlug = useWatch({ control, name: "institution" })?.trim().toLowerCase() ?? "";
 
   useEffect(() => {
     if (!institutionSlug) {
-      setScopeCounts(null);
-      setScopeInfoError(null);
       return;
     }
 
@@ -237,9 +237,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
 
   const handleSendOtp = () => {
     setFormError(null);
-    const currentScope = watch("scope");
-    const currentInstitution = watch("institution")?.trim().toLowerCase() ?? "";
-    const currentPhone = watch("phone")?.trim() ?? "";
+    const currentScope = getValues("scope");
+    const currentInstitution = getValues("institution")?.trim().toLowerCase() ?? "";
+    const currentPhone = getValues("phone")?.trim() ?? "";
 
     if (currentScope !== "ADMIN" && !currentInstitution) {
       setFormError("Institution slug is required for this scope.");
@@ -397,12 +397,12 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <a
+                <Link
                   href="/auth/forgot-password"
                   className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
                 >
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <div className="relative">
                 <Input
@@ -561,9 +561,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
 
       <p className="text-center text-xs text-muted-foreground">
         Teacher, Student, or Parent?{" "}
-        <a href="/auth/request-access" className="underline underline-offset-4 hover:text-foreground">
+        <Link href="/auth/request-access" className="underline underline-offset-4 hover:text-foreground">
           Request institution access
-        </a>
+        </Link>
       </p>
     </div>
   );

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { formatCurrency } from "@/lib/utils";
+import { isGovtPrimaryModeEnabled, PRIMARY_GRADES } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +58,13 @@ async function getPublicReports(slug: string) {
     db.student.count({ where: { institutionId: institution.id, status: "ACTIVE" } }),
     db.teacher.count({ where: { institutionId: institution.id, status: "ACTIVE" } }),
     db.class.findMany({
-      where: { institutionId: institution.id, isActive: true },
+      where: {
+        institutionId: institution.id,
+        isActive: true,
+        ...(isGovtPrimaryModeEnabled()
+          ? { grade: { in: [...PRIMARY_GRADES] } }
+          : {}),
+      },
       select: {
         id: true,
         name: true,
