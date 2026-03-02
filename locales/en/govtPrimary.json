@@ -1,0 +1,16 @@
+{
+  "head_teacher": "Head Teacher",
+  "assistant_teacher": "Assistant Teacher",
+  "class_teacher": "Class Teacher",
+  "student_roll": "Student Roll",
+  "section": "Section",
+  "birth_reg_no": "Birth Registration No",
+  "upazila": "Upazila",
+  "district": "District",
+  "guardian_phone": "Guardian Phone",
+  "attendance_register": "Attendance Register",
+  "routine": "Routine",
+  "result_sheet": "Result Sheet",
+  "notice_board": "Notice Board",
+  "transfer_certificate": "Transfer Certificate"
+}

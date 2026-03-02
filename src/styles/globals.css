@@ -455,6 +455,22 @@
     @apply border-b-0;
   }
 
+  .routine-grid-table th {
+    @apply border-b border-border bg-muted/30 px-2 py-2 text-xs font-semibold text-muted-foreground;
+  }
+
+  .routine-grid-table td {
+    @apply border-b border-border/70 px-2 py-2 align-middle;
+  }
+
+  .result-entry-table th {
+    @apply border-b border-border bg-muted/30 px-2 py-2 text-xs font-semibold text-muted-foreground;
+  }
+
+  .result-entry-table td {
+    @apply border-b border-border/70 px-2 py-2 align-middle;
+  }
+
   .rounded-xl,
   .rounded-2xl,
   .rounded-3xl {
@@ -490,6 +506,42 @@
     margin: 0 auto;
     padding: 10mm;
     background: #fff;
+  }
+
+  .routine-print-table th,
+  .routine-print-table td {
+    border: 1px solid #94a3b8;
+    padding: 6px 8px;
+    vertical-align: middle;
+  }
+
+  .result-sheet-print-table th,
+  .result-sheet-print-table td {
+    border: 1px solid #94a3b8;
+    padding: 6px 8px;
+    vertical-align: middle;
+  }
+
+  .attendance-print-table th,
+  .attendance-print-table td {
+    border: 1px solid #94a3b8;
+    padding: 6px 8px;
+    vertical-align: middle;
+  }
+
+  .attendance-signatures .signature-line {
+    padding-top: 2.2rem;
+  }
+
+  .receipt-print-table th,
+  .receipt-print-table td {
+    border: 1px solid #94a3b8;
+    padding: 6px 8px;
+    vertical-align: middle;
+  }
+
+  .receipt-signature .signature-line {
+    padding-top: 2.6rem;
   }
 }
 

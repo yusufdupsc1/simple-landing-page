@@ -4,9 +4,12 @@ import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { safeLoader } from "@/lib/server/safe-loader";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Teacher Portal" };
+export const metadata: Metadata = {
+  title: isGovtPrimaryModeEnabled() ? "Assistant Teacher Portal" : "Teacher Portal",
+};
 export const dynamic = "force-dynamic";
 
 async function getTeacherPortalData(
@@ -38,6 +41,8 @@ async function getTeacherPortalData(
 }
 
 export default async function TeacherPortalPage() {
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
+  const roleLabel = govtPrimaryMode ? "Assistant Teacher" : "Teacher";
   const session = await auth();
   const user = session?.user as
     | { id?: string; institutionId?: string; role?: string; email?: string | null; name?: string | null }
@@ -64,7 +69,7 @@ export default async function TeacherPortalPage() {
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
             <p className="text-muted-foreground">
-              No teacher profile found. Please contact your administrator.
+              No {roleLabel.toLowerCase()} profile found. Please contact your administrator.
             </p>
           </CardContent>
         </Card>
@@ -80,7 +85,7 @@ export default async function TeacherPortalPage() {
           {teacher.firstName} {teacher.lastName}
         </h1>
         <p className="text-sm text-muted-foreground sm:text-base">
-          Teacher ID: {teacher.teacherId}
+          {roleLabel} ID: {teacher.teacherId}
         </p>
       </div>
 
@@ -154,4 +159,3 @@ export default async function TeacherPortalPage() {
     </div>
   );
 }
-

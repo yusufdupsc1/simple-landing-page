@@ -117,7 +117,7 @@ function ClassForm({
           id="cl-name"
           value={form.name}
           onChange={(e) => set("name", e.target.value)}
-          placeholder="e.g. Grade 10A"
+          placeholder="e.g. Class 5A"
           required
         />
       </div>

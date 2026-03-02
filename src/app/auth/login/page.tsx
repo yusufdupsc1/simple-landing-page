@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { LoginForm } from "@/components/forms/login-form";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default async function LoginPage({
   const googleEnabled = Boolean(
     process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
   );
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
 
   return (
     <main className="min-h-screen bg-background flex">
@@ -59,7 +61,9 @@ export default async function LoginPage({
               &ldquo;The modern operating system for institutions that care about outcomes.&rdquo;
             </p>
             <footer className="text-sm text-muted-foreground">
-              Built for principals, teachers, and administrators
+              {govtPrimaryMode
+                ? "Built for head teachers, assistant teachers, and school administrators"
+                : "Built for principals, teachers, and administrators"}
             </footer>
           </blockquote>
         </div>

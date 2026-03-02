@@ -1,6 +1,7 @@
 import { Users, UserCheck, ClipboardCheck, CreditCard } from "lucide-react";
 
 import { formatCurrency } from "@/lib/utils";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
 interface StatsData {
   totalStudents: number;
@@ -10,9 +11,10 @@ interface StatsData {
 }
 
 export function StatsGrid({ stats }: { stats: StatsData }) {
+  const teacherLabel = isGovtPrimaryModeEnabled() ? "Assistant Teachers" : "Teachers";
   const cards = [
     { label: "Students", value: stats.totalStudents, icon: Users },
-    { label: "Teachers", value: stats.totalTeachers, icon: UserCheck },
+    { label: teacherLabel, value: stats.totalTeachers, icon: UserCheck },
     { label: "Present Today", value: stats.todayAttendance, icon: ClipboardCheck },
     {
       label: "Pending Fees",

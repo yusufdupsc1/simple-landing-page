@@ -85,6 +85,9 @@ export default async function ReceiptPrintPage({ params }: PageProps) {
         <p className="text-xs text-slate-600">Fee Receipt</p>
         <p className="mt-2 text-sm font-semibold">{payment.institution.name}</p>
         <p className="text-xs text-slate-600">{payment.institution.address ?? "Bangladesh"}</p>
+        {payment.institution.phone ? (
+          <p className="text-xs text-slate-600">{payment.institution.phone}</p>
+        ) : null}
       </header>
 
       <section className="mb-4 grid grid-cols-2 gap-2 text-sm">
@@ -112,29 +115,53 @@ export default async function ReceiptPrintPage({ params }: PageProps) {
         </p>
       </section>
 
-      <table className="w-full border-collapse text-sm table-dense">
+      <table className="receipt-print-table w-full border-collapse text-sm">
         <thead>
           <tr>
-            <th className="border border-slate-400 px-2 py-2 text-left">বিবরণ / Description</th>
-            <th className="border border-slate-400 px-2 py-2 text-right">পরিমাণ / Amount</th>
+            <th className="text-left">SL</th>
+            <th className="text-left">বিবরণ / Description</th>
+            <th className="text-right">পরিমাণ / Amount</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td className="border border-slate-300 px-2 py-2">{payment.fee.title}</td>
-            <td className="border border-slate-300 px-2 py-2 text-right">{formatCurrency(Number(payment.amount))}</td>
+            <td>1</td>
+            <td>{payment.fee.title}</td>
+            <td className="text-right">{formatCurrency(Number(payment.amount))}</td>
           </tr>
         </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan={2} className="text-right font-semibold">
+              মোট / Total
+            </td>
+            <td className="text-right font-semibold">{formatCurrency(Number(payment.amount))}</td>
+          </tr>
+        </tfoot>
       </table>
 
-      <div className="mt-6 text-right">
+      <div className="mt-4 text-right">
         <p className="text-sm">মোট পরিশোধ / Total Paid</p>
         <p className="text-lg font-bold">{formatCurrency(Number(payment.amount))}</p>
       </div>
 
       <footer className="mt-12 text-sm">
-        <p className="text-slate-600">এই রশিদটি কম্পিউটার-জেনারেটেড।</p>
-        <p className="text-slate-600">This receipt is system generated.</p>
+        <div className="receipt-signature grid grid-cols-1 gap-8 sm:grid-cols-2">
+          <div className="text-left">
+            <p className="signature-line">....................................</p>
+            <p className="font-semibold">প্রস্তুতকারী</p>
+            <p className="text-xs text-slate-600">Prepared By</p>
+          </div>
+          <div className="text-right">
+            <p className="signature-line">....................................</p>
+            <p className="font-semibold">স্বাক্ষর</p>
+            <p className="text-xs text-slate-600">Authorized Signature</p>
+          </div>
+        </div>
+        <div className="mt-6">
+          <p className="text-slate-600">এই রশিদটি কম্পিউটার-জেনারেটেড।</p>
+          <p className="text-slate-600">This receipt is system generated.</p>
+        </div>
       </footer>
     </main>
   );

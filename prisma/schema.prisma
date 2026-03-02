@@ -41,6 +41,9 @@ model Institution {
   teachers       Teacher[]
   classes        Class[]
   subjects       Subject[]
+  classRoutineEntries ClassRoutineEntry[]
+  primaryExams   PrimaryExam[]
+  primaryExamMarks PrimaryExamMark[]
   grades         Grade[]
   attendance     Attendance[]
   feeCategories  FeeCategory[]
@@ -108,7 +111,7 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  role          Role      @default(STAFF)
+  role          Role      @default(OFFICE_STAFF)
   approvalStatus ApprovalStatus @default(APPROVED)
   isActive      Boolean   @default(true)
   lastLoginAt   DateTime?
@@ -179,8 +182,11 @@ enum Role {
   SUPER_ADMIN
   ADMIN
   PRINCIPAL
+  HEAD_TEACHER
   TEACHER
+  CLASS_TEACHER
   STAFF
+  OFFICE_STAFF
   STUDENT
   PARENT
 }
@@ -234,6 +240,9 @@ model Class {
 
   students   Student[]
   timetable  Timetable[]
+  routineEntries ClassRoutineEntry[]
+  primaryExams PrimaryExam[]
+  announcements Announcement[]
   attendance Attendance[]
   fees       Fee[]
 
@@ -286,6 +295,68 @@ model Timetable {
   @@map("timetables")
 }
 
+model ClassRoutineEntry {
+  id          String   @id @default(cuid())
+  dayOfWeek   Int // 0=Sun ... 4=Thu (Govt Primary weekdays)
+  periodNo    Int // 1..6
+  subjectName String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  classId String
+  class   Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, dayOfWeek, periodNo])
+  @@index([institutionId, classId])
+  @@map("class_routine_entries")
+}
+
+model PrimaryExam {
+  id           String   @id @default(cuid())
+  name         String
+  year         Int
+  subjectsText String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  classId String
+  class   Class  @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  marks PrimaryExamMark[]
+
+  @@index([institutionId, classId, year])
+  @@map("primary_exams")
+}
+
+model PrimaryExamMark {
+  id          String   @id @default(cuid())
+  subjectName String
+  score       Float?
+  isAbsent    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  institutionId String
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  examId String
+  exam   PrimaryExam @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  studentId String
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([examId, studentId, subjectName])
+  @@index([institutionId, examId])
+  @@index([studentId])
+  @@map("primary_exam_marks")
+}
+
 // ─────────────────────────────────────────────
 // PEOPLE
 // ─────────────────────────────────────────────
@@ -336,6 +407,7 @@ model Student {
   parents    Parent[]
   attendance Attendance[]
   grades     Grade[]
+  primaryExamMarks PrimaryExamMark[]
   fees       Fee[]
   records    StudentRecord[]
 
@@ -604,8 +676,11 @@ model Announcement {
 
   institutionId String
   institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  classId       String?
+  class         Class?     @relation(fields: [classId], references: [id], onDelete: SetNull)
 
   @@index([institutionId])
+  @@index([classId])
   @@map("announcements")
 }
 

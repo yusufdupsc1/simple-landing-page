@@ -1,0 +1,16 @@
+{
+  "head_teacher": "প্রধান শিক্ষক",
+  "assistant_teacher": "সহকারী শিক্ষক",
+  "class_teacher": "শ্রেণি শিক্ষক",
+  "student_roll": "শিক্ষার্থীর রোল",
+  "section": "সেকশন",
+  "birth_reg_no": "জন্ম নিবন্ধন নম্বর",
+  "upazila": "উপজেলা",
+  "district": "জেলা",
+  "guardian_phone": "গার্ডিয়ানের মোবাইল নম্বর",
+  "attendance_register": "উপস্থিতি রেজিস্টার",
+  "routine": "রুটিন",
+  "result_sheet": "রেজাল্ট শিট",
+  "notice_board": "নোটিশ বোর্ড",
+  "transfer_certificate": "ট্রান্সফার সার্টিফিকেট"
+}

@@ -29,9 +29,11 @@ const VALIDATION_MESSAGES: Record<
     motherNameRequired: string;
     guardianPhoneRequired: string;
     classRequired: string;
+    classRangeRestricted: string;
+    sectionRequired: string;
     rollRequired: string;
-    birthRegNoRequired: string;
-    dateOfBirthRequired: string;
+    rollNumericRequired: string;
+    birthRegOrDateOfBirthRequired: string;
   }
 > = {
   en: {
@@ -44,9 +46,11 @@ const VALIDATION_MESSAGES: Record<
     motherNameRequired: "Mother name is required",
     guardianPhoneRequired: "Guardian phone is required",
     classRequired: "Class is required",
+    classRangeRestricted: "Only Class 1 to 5 is allowed in Govt Primary mode",
+    sectionRequired: "Section is required",
     rollRequired: "Roll is required",
-    birthRegNoRequired: "Birth registration number is required",
-    dateOfBirthRequired: "Date of birth is required",
+    rollNumericRequired: "Roll must be numeric",
+    birthRegOrDateOfBirthRequired: "Birth registration number or date of birth is required",
   },
   bn: {
     studentNameEnRequired: "শিক্ষার্থীর ইংরেজি নাম আবশ্যক",
@@ -58,9 +62,11 @@ const VALIDATION_MESSAGES: Record<
     motherNameRequired: "মায়ের নাম আবশ্যক",
     guardianPhoneRequired: "গার্ডিয়ানের মোবাইল নম্বর আবশ্যক",
     classRequired: "শ্রেণি নির্বাচন করুন",
+    classRangeRestricted: "সরকারি প্রাথমিক মোডে শুধুমাত্র ১ম থেকে ৫ম শ্রেণি অনুমোদিত",
+    sectionRequired: "সেকশন আবশ্যক",
     rollRequired: "রোল নম্বর আবশ্যক",
-    birthRegNoRequired: "জন্ম নিবন্ধন নম্বর আবশ্যক",
-    dateOfBirthRequired: "জন্ম তারিখ আবশ্যক",
+    rollNumericRequired: "রোল নম্বর শুধু সংখ্যা হতে হবে",
+    birthRegOrDateOfBirthRequired: "জন্ম নিবন্ধন নম্বর অথবা জন্ম তারিখের অন্তত একটি আবশ্যক",
   },
 };
 
@@ -151,16 +157,21 @@ async function generateStudentId(institutionId: string): Promise<string> {
 }
 
 async function validateGovtPrimaryClass(institutionId: string, classId?: string) {
-  if (!isGovtPrimaryModeEnabled() || !classId) return true;
+  if (!isGovtPrimaryModeEnabled() || !classId) return { valid: true as const };
   const cls = await db.class.findFirst({
     where: {
       id: classId,
       institutionId,
     },
-    select: { grade: true },
+    select: { grade: true, section: true },
   });
-  if (!cls) return false;
-  return GOVT_PRIMARY_ADMISSION_GRADES.has(cls.grade);
+  if (!cls || !GOVT_PRIMARY_ADMISSION_GRADES.has(cls.grade)) {
+    return { valid: false as const, reason: "CLASS_RESTRICTED" as const };
+  }
+  if (!cls.section?.trim()) {
+    return { valid: false as const, reason: "SECTION_REQUIRED" as const };
+  }
+  return { valid: true as const };
 }
 
 function splitEnglishName(fullName: string) {
@@ -184,10 +195,16 @@ function validateStudentFields(
     if (!data.studentNameEn?.trim()) fieldErrors.studentNameEn = [m.studentNameEnRequired];
     if (!data.guardianName?.trim()) fieldErrors.guardianName = [m.guardianNameRequired];
     if (!data.guardianPhone?.trim()) fieldErrors.guardianPhone = [m.guardianPhoneRequired];
-    if (!data.birthRegNo?.trim()) fieldErrors.birthRegNo = [m.birthRegNoRequired];
-    if (!data.dateOfBirth?.trim()) fieldErrors.dateOfBirth = [m.dateOfBirthRequired];
+    if (!data.birthRegNo?.trim() && !data.dateOfBirth?.trim()) {
+      fieldErrors.birthRegNo = [m.birthRegOrDateOfBirthRequired];
+      fieldErrors.dateOfBirth = [m.birthRegOrDateOfBirthRequired];
+    }
     if (!data.classId?.trim()) fieldErrors.classId = [m.classRequired];
-    if (!data.rollNo?.trim()) fieldErrors.rollNo = [m.rollRequired];
+    if (!data.rollNo?.trim()) {
+      fieldErrors.rollNo = [m.rollRequired];
+    } else if (!/^\d+$/.test(data.rollNo.trim())) {
+      fieldErrors.rollNo = [m.rollNumericRequired];
+    }
   } else {
     if (!data.studentNameEn?.trim() && !(data.firstName?.trim() && data.lastName?.trim())) {
       fieldErrors.studentNameEn = [m.studentNameEnRequired];
@@ -249,9 +266,21 @@ export async function createStudent(
         fieldErrors: validated.fieldErrors,
       };
     }
-    const classAllowed = await validateGovtPrimaryClass(institutionId, data.classId);
-    if (!classAllowed) {
-      return { success: false, error: "Only Class 1 to 5 assignment is allowed in Govt Primary mode." };
+    const classValidation = await validateGovtPrimaryClass(institutionId, data.classId);
+    if (!classValidation.valid) {
+      const m = VALIDATION_MESSAGES[currentLocale];
+      if (classValidation.reason === "SECTION_REQUIRED") {
+        return {
+          success: false,
+          error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+          fieldErrors: { section: [m.sectionRequired] },
+        };
+      }
+      return {
+        success: false,
+        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        fieldErrors: { classId: [m.classRangeRestricted] },
+      };
     }
     const studentId = await generateStudentId(institutionId);
 
@@ -412,9 +441,21 @@ export async function updateStudent(
         fieldErrors: validated.fieldErrors,
       };
     }
-    const classAllowed = await validateGovtPrimaryClass(institutionId, data.classId);
-    if (!classAllowed) {
-      return { success: false, error: "Only Class 1 to 5 assignment is allowed in Govt Primary mode." };
+    const classValidation = await validateGovtPrimaryClass(institutionId, data.classId);
+    if (!classValidation.valid) {
+      const m = VALIDATION_MESSAGES[currentLocale];
+      if (classValidation.reason === "SECTION_REQUIRED") {
+        return {
+          success: false,
+          error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+          fieldErrors: { section: [m.sectionRequired] },
+        };
+      }
+      return {
+        success: false,
+        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        fieldErrors: { classId: [m.classRangeRestricted] },
+      };
     }
 
     await db.$transaction(async (tx) => {

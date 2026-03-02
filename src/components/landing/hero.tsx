@@ -3,13 +3,24 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import {
+  CalendarCheck2,
+  CalendarDays,
+  FileText,
+  Bell,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { heroHighlights } from "@/components/landing/landing-data";
 import { useT } from "@/lib/i18n/client";
 
 export function Hero() {
   const { t } = useT();
+  const bulletItems = [
+    { label: t("landing_bullet_attendance_print"), icon: CalendarCheck2 },
+    { label: t("landing_bullet_routine_print"), icon: CalendarDays },
+    { label: t("landing_bullet_result_sheet"), icon: FileText },
+    { label: t("landing_bullet_notice_board"), icon: Bell },
+  ];
 
   return (
     <section className="relative mx-auto w-full max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pt-18">
@@ -24,6 +35,14 @@ export function Hero() {
           <p className="max-w-xl text-pretty text-base text-muted-text sm:text-lg">
             {t("landing_hero_description")}
           </p>
+          <ul className="space-y-2">
+            {bulletItems.map((item) => (
+              <li key={item.label} className="flex items-center gap-2 text-sm text-text">
+                <item.icon className="h-4 w-4 text-primary" aria-hidden="true" />
+                <span>{item.label}</span>
+              </li>
+            ))}
+          </ul>
           <div className="flex flex-wrap items-center gap-3">
             <Button asChild className="primary-cta rounded-full px-6">
               <Link href="/#demo-booking" prefetch={false}>
@@ -50,18 +69,9 @@ export function Hero() {
               className="h-auto w-full"
             />
           </div>
-          <ul className="grid gap-3 sm:grid-cols-3">
-            {heroHighlights.map((item) => (
-              <li
-                key={item.label}
-                className="rounded-xl border border-ui-border bg-surface p-3"
-              >
-                <item.icon className="mb-2 h-4 w-4 text-primary" aria-hidden="true" />
-                <p className="text-xs font-semibold text-text">{item.label}</p>
-                <p className="text-xs text-muted-text">{item.value}</p>
-              </li>
-            ))}
-          </ul>
+          <div className="rounded-xl border border-ui-border bg-surface p-3 text-xs text-muted-text">
+            {t("landing_features_description")}
+          </div>
         </div>
       </div>
     </section>

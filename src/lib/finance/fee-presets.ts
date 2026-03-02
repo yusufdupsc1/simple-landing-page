@@ -38,10 +38,4 @@ export const GOVT_PRIMARY_FEE_PRESETS: GovtFeePreset[] = [
     titleEn: "Session Charge",
     feeType: "MISC",
   },
-  {
-    key: "COACHING_FEE",
-    titleBn: "কোচিং ফি",
-    titleEn: "Coaching Fee",
-    feeType: "MISC",
-  },
 ];

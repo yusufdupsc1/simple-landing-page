@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useMemo } from "react";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, XCircle, Clock, AlertCircle, Users, Printer } from "lucide-react";
@@ -11,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { markAttendance, getAttendanceForClass } from "@/server/actions/attendance";
-import { useT } from "@/lib/i18n/client";
+import { useGovtPrimaryT, useT } from "@/lib/i18n/client";
 
 type ClassRow = { id: string; name: string; grade: string; section: string };
 type Summary = { total: number; present: number; absent: number; late: number; excused: number; presentRate: number };
@@ -46,16 +47,52 @@ const INTERACTIVE_STATUSES: Array<{
     { key: "ABSENT", symbol: "A" },
 ];
 
+const GOVT_PRIMARY_REGISTER_GRADES = new Set(["1", "2", "3", "4", "5"]);
+
 export function AttendanceClient({ classes, selectedClassId, selectedDate, summary }: Props) {
     const { t } = useT();
+    const { t: tg } = useGovtPrimaryT();
     const router = useRouter();
     const searchParams = useSearchParams();
     const [pending, startTransition] = useTransition();
     const [students, setStudents] = useState<StudentRow[]>([]);
     const [loaded, setLoaded] = useState(false);
     const [attendanceMap, setAttendanceMap] = useState<Record<string, AttendanceStatus>>({});
-    const [classId, setClassId] = useState(selectedClassId);
     const [date, setDate] = useState(selectedDate);
+
+    const registerClasses = useMemo(() => {
+        const filtered = classes.filter((cls) => GOVT_PRIMARY_REGISTER_GRADES.has(cls.grade));
+        return filtered.length > 0 ? filtered : classes;
+    }, [classes]);
+
+    const initialClass =
+        registerClasses.find((cls) => cls.id === selectedClassId) ??
+        registerClasses[0] ??
+        null;
+
+    const [selectedGrade, setSelectedGrade] = useState(initialClass?.grade ?? "");
+    const [selectedSection, setSelectedSection] = useState(initialClass?.section ?? "");
+
+    const gradeOptions = useMemo(
+        () => Array.from(new Set(registerClasses.map((cls) => cls.grade))).sort((a, b) => Number(a) - Number(b)),
+        [registerClasses],
+    );
+
+    const sectionOptions = useMemo(
+        () =>
+            Array.from(
+                new Set(registerClasses.filter((cls) => cls.grade === selectedGrade).map((cls) => cls.section)),
+            ).sort(),
+        [registerClasses, selectedGrade],
+    );
+
+    const classId = useMemo(
+        () =>
+            registerClasses.find(
+                (cls) => cls.grade === selectedGrade && cls.section === selectedSection,
+            )?.id ?? "",
+        [registerClasses, selectedGrade, selectedSection],
+    );
 
     const updateUrl = (newClassId: string, newDate: string) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -65,7 +102,10 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
     };
 
     const loadStudents = () => {
-        if (!classId) { toast.error("Please select a class"); return; }
+        if (!classId) {
+            toast.error("Please select class and section");
+            return;
+        }
         startTransition(async () => {
             const rows = await getAttendanceForClass({ classId, date });
             setStudents(rows as StudentRow[]);
@@ -119,7 +159,7 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
 
     return (
         <>
-            <PageHeader title={t("attendance")} description="দৈনিক উপস্থিতি নিন ও রেজিস্টার প্রিন্ট করুন" />
+            <PageHeader title={tg("attendance_register")} description="দৈনিক উপস্থিতি নিন ও রেজিস্টার প্রিন্ট করুন" />
 
             {/* Summary Stats */}
             <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
@@ -139,14 +179,49 @@ export function AttendanceClient({ classes, selectedClassId, selectedDate, summa
 
             {/* Controls */}
             <div className="rounded-xl border border-border bg-card p-4">
-                <h2 className="font-semibold mb-3">Mark Attendance</h2>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-end">
+                <h2 className="font-semibold mb-3">Daily Attendance Register</h2>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-4 sm:items-end">
                     <div className="w-full space-y-1.5 sm:w-auto">
                         <Label>{t("class")}</Label>
-                        <Select value={classId} onValueChange={v => { setClassId(v); setLoaded(false); }}>
-                            <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Select class" /></SelectTrigger>
+                        <Select
+                            value={selectedGrade}
+                            onValueChange={(gradeValue) => {
+                                const nextSections = Array.from(
+                                    new Set(
+                                        registerClasses
+                                            .filter((cls) => cls.grade === gradeValue)
+                                            .map((cls) => cls.section),
+                                    ),
+                                ).sort();
+                                setSelectedGrade(gradeValue);
+                                setSelectedSection(nextSections[0] ?? "");
+                                setLoaded(false);
+                            }}
+                        >
+                            <SelectTrigger className="w-full sm:w-40">
+                                <SelectValue placeholder="Select class" />
+                            </SelectTrigger>
                             <SelectContent>
-                                {classes.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                                {gradeOptions.map((grade) => (
+                                    <SelectItem key={grade} value={grade}>
+                                        Class {grade}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="w-full space-y-1.5 sm:w-auto">
+                        <Label>{t("section")}</Label>
+                        <Select value={selectedSection} onValueChange={v => { setSelectedSection(v); setLoaded(false); }}>
+                            <SelectTrigger className="w-full sm:w-32">
+                                <SelectValue placeholder="Select section" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {sectionOptions.map((section) => (
+                                    <SelectItem key={section} value={section}>
+                                        {section}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>

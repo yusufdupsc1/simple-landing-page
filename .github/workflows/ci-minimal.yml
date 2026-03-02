@@ -1,0 +1,44 @@
+name: Minimal CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Typecheck
+        run: pnpm run type-check
+
+      - name: Build
+        run: pnpm run build
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ci
+          AUTH_SECRET: ci-secret-at-least-32-characters
+          NEXT_PUBLIC_APP_URL: https://ci.example.com
+          GOVT_PRIMARY_MODE: "true"
+          NEXT_PUBLIC_GOVT_PRIMARY_MODE: "true"

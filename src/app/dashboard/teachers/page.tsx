@@ -6,9 +6,12 @@ import { getSubjects } from "@/server/actions/classes";
 import { TeachersClient } from "@/components/teachers/teachers-client";
 import { TableSkeleton } from "@/components/ui/skeletons";
 import { safeLoader } from "@/lib/server/safe-loader";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Teachers" };
+export const metadata: Metadata = {
+  title: isGovtPrimaryModeEnabled() ? "Assistant Teachers" : "Teachers",
+};
 export const dynamic = "force-dynamic";
 
 interface PageProps {

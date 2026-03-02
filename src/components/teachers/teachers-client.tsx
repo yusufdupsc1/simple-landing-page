@@ -23,6 +23,7 @@ import {
 } from "@/server/actions/teachers";
 import { formatCurrency } from "@/lib/utils";
 import { useT } from "@/lib/i18n/client";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
 type Subject = { id: string; name: string; code: string };
 type Teacher = {
@@ -48,6 +49,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function TeacherForm({ initial, onSuccess }: { initial?: Teacher; onSuccess: () => void }) {
+    const govtPrimaryMode = isGovtPrimaryModeEnabled();
+    const singularLabel = govtPrimaryMode ? "Assistant Teacher" : "Teacher";
     const [pending, startTransition] = useTransition();
     const [form, setForm] = useState<TeacherFormData>({
         firstName: initial?.firstName ?? "",
@@ -69,14 +72,14 @@ function TeacherForm({ initial, onSuccess }: { initial?: Teacher; onSuccess: () 
         startTransition(async () => {
             const res = initial ? await updateTeacher(initial.id, form) : await createTeacher(form);
             if (res.success) {
-                toast.success(initial ? "Teacher updated" : "Teacher created");
+                toast.success(initial ? `${singularLabel} updated` : `${singularLabel} created`);
                 const credential =
                     !initial && res.data && typeof res.data === "object" && "credential" in res.data
                         ? (res.data as { credential?: { email: string; password: string } }).credential
                         : null;
                 if (!initial && credential) {
                     toast.info(
-                        `Teacher login: ${credential.email} / ${credential.password}`,
+                        `${singularLabel} login: ${credential.email} / ${credential.password}`,
                         { duration: 12000 },
                     );
                 }
@@ -157,6 +160,8 @@ function TeacherForm({ initial, onSuccess }: { initial?: Teacher; onSuccess: () 
 
 export function TeachersClient({ teachers, total, pages, currentPage }: Props) {
     const { t } = useT();
+    const govtPrimaryMode = isGovtPrimaryModeEnabled();
+    const pluralLabel = govtPrimaryMode ? t("assistant_teachers") : t("teachers");
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [editTeacher, setEditTeacher] = useState<Teacher | null>(null);
@@ -199,16 +204,16 @@ export function TeachersClient({ teachers, total, pages, currentPage }: Props) {
 
     return (
         <>
-            <PageHeader title={t("teachers")} total={total} totalLabel={t("teachers")}>
+            <PageHeader title={pluralLabel} total={total} totalLabel={pluralLabel}>
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
                         <Button size="sm" className="w-full sm:w-auto" onClick={() => setEditTeacher(null)} disabled={pending}>
-                            <Plus className="h-4 w-4 mr-1.5" /> Add Teacher
+                            <Plus className="h-4 w-4 mr-1.5" /> {govtPrimaryMode ? "Add Assistant Teacher" : "Add Teacher"}
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-xl">
                         <DialogHeader>
-                            <DialogTitle>{editTeacher ? "Edit Teacher" : "Add New Teacher"}</DialogTitle>
+                            <DialogTitle>{editTeacher ? (govtPrimaryMode ? "Edit Assistant Teacher" : "Edit Teacher") : (govtPrimaryMode ? "Add New Assistant Teacher" : "Add New Teacher")}</DialogTitle>
                         </DialogHeader>
                         <TeacherForm
                             key={editTeacher?.id ?? "new-teacher"}
@@ -220,7 +225,7 @@ export function TeachersClient({ teachers, total, pages, currentPage }: Props) {
             </PageHeader>
 
             <div className="flex w-full flex-wrap items-center gap-3">
-                <SearchInput placeholder="Search teachers..." className="w-full sm:w-64" />
+                <SearchInput placeholder={govtPrimaryMode ? "Search assistant teachers..." : "Search teachers..."} className="w-full sm:w-64" />
             </div>
 
             <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -228,14 +233,14 @@ export function TeachersClient({ teachers, total, pages, currentPage }: Props) {
                     <table className="w-full min-w-[700px] text-sm">
                         <thead className="border-b border-border bg-muted/30">
                             <tr>
-                                {["Teacher", "ID", "Contact", "Specialization", "Classes", "Salary", "Status", ""].map(h => (
+                                {[govtPrimaryMode ? "Assistant Teacher" : "Teacher", "ID", "Contact", "Specialization", "Classes", "Salary", "Status", ""].map(h => (
                                     <th key={h} className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border/60">
                             {teachers.length === 0 ? (
-                                <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No teachers found.</td></tr>
+                                <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">{govtPrimaryMode ? "No assistant teachers found." : "No teachers found."}</td></tr>
                             ) : teachers.map(t => (
                                 <tr key={t.id} className="hover:bg-muted/30 transition-colors">
                                     <td className="px-4 py-3">

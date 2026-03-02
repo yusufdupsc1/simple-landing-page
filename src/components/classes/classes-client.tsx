@@ -79,7 +79,7 @@ function ClassForm({ initial, teachers, onSuccess }: { initial?: ClassRow; teach
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
                 <Label htmlFor="cl-name">Class Name *</Label>
-                <Input id="cl-name" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Grade 10A" required />
+                <Input id="cl-name" value={form.name} onChange={e => set("name", e.target.value)} placeholder="e.g. Class 5A" required />
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">

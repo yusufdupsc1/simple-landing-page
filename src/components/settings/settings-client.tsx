@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { Save, Building2, GraduationCap, ShieldCheck, RefreshCw, CreditCard, Plus } from "lucide-react";
+import { Save, Building2, GraduationCap, ShieldCheck, RefreshCw, CreditCard, Plus, Database } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import {
   updateInstitutionSettings,
   createFeeCategory,
   updateFeeCategory,
+  loadGovtPrimaryDemoData,
   type FeeCategoryData,
   type InstitutionProfileData,
   type InstitutionSettingsData,
@@ -435,9 +436,11 @@ function AcademicTab({ settings, canEdit }: { settings: SettingsRow; canEdit: bo
 function FeeCategoriesTab({
   initialRows,
   canEdit,
+  showDemoLoader,
 }: {
   initialRows: FeeCategoryRow[];
   canEdit: boolean;
+  showDemoLoader: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   const [rows, setRows] = useState<FeeCategoryRow[]>(initialRows);
@@ -517,6 +520,25 @@ function FeeCategoriesTab({
     });
   };
 
+  const handleLoadGovtPrimaryDemo = () => {
+    if (!canEdit) {
+      toast.error("Only SUPER_ADMIN / ADMIN can load demo data.");
+      return;
+    }
+
+    startTransition(async () => {
+      const res = await loadGovtPrimaryDemoData();
+      if (!res.success || !res.data) {
+        toast.error(res.error ?? "Failed to load demo data.");
+        return;
+      }
+
+      toast.success(
+        `Demo data loaded: ${res.data.classes} classes, ${res.data.studentsCreated} students created (${res.data.studentsUpdated} updated).`,
+      );
+    });
+  };
+
   return (
     <div className="max-w-3xl space-y-5">
       <div className="space-y-1">
@@ -525,6 +547,19 @@ function FeeCategoriesTab({
           Bangladesh presets are initialized once per institution. You can rename and adjust type anytime.
         </p>
       </div>
+
+      {showDemoLoader ? (
+        <div className="rounded-lg border border-border p-3">
+          <p className="mb-1 text-sm font-medium">Development Tools</p>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Load Govt Primary demo setup for the current school: Class 3/5, sections A/B, students, routine, notice, and one attendance day.
+          </p>
+          <Button type="button" variant="outline" onClick={handleLoadGovtPrimaryDemo} disabled={!canEdit || pending}>
+            <Database className="mr-1.5 h-4 w-4" />
+            Load Govt Primary Demo Data
+          </Button>
+        </div>
+      ) : null}
 
       <div className="rounded-lg border border-border p-3">
         <p className="mb-3 text-xs font-medium text-muted-foreground">Add Category</p>
@@ -817,6 +852,7 @@ function AccessRequestsTab({ canReview }: { canReview: boolean }) {
 
 export function SettingsClient({ institution, settings, feeCategories, viewerRole }: Props) {
   const govtPrimaryMode = isGovtPrimaryModeEnabled();
+  const showDemoLoader = process.env.NODE_ENV === "development";
   const canEditSettings = ["SUPER_ADMIN", "ADMIN"].includes(viewerRole);
   const canReviewRequests = ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"].includes(viewerRole);
   const router = useRouter();
@@ -862,7 +898,11 @@ export function SettingsClient({ institution, settings, feeCategories, viewerRol
           <AcademicTab settings={settings} canEdit={canEditSettings} />
         </TabsContent>
         <TabsContent value="fees">
-          <FeeCategoriesTab initialRows={feeCategories} canEdit={canEditSettings} />
+          <FeeCategoriesTab
+            initialRows={feeCategories}
+            canEdit={canEditSettings}
+            showDemoLoader={showDemoLoader}
+          />
         </TabsContent>
         {!govtPrimaryMode ? (
           <TabsContent value="access">

@@ -8,16 +8,23 @@ import { Eye, EyeOff, Loader2, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
-const SCOPE_OPTIONS = [
+const SCOPE_OPTIONS_BASE = [
   { value: "TEACHER", label: "Teacher" },
   { value: "STUDENT", label: "Student" },
   { value: "PARENT", label: "Parent" },
 ] as const;
 
-type Scope = (typeof SCOPE_OPTIONS)[number]["value"];
+type Scope = (typeof SCOPE_OPTIONS_BASE)[number]["value"];
 
 export default function RequestAccessPage() {
+  const govtPrimaryMode = isGovtPrimaryModeEnabled();
+  const scopeOptions = SCOPE_OPTIONS_BASE.map((option) =>
+    option.value === "TEACHER" && govtPrimaryMode
+      ? { ...option, label: "Assistant Teacher" }
+      : option,
+  );
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
@@ -108,9 +115,9 @@ export default function RequestAccessPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Requested Scope</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {SCOPE_OPTIONS.map((option) => (
+              <Label>Requested Scope</Label>
+              <div className="grid grid-cols-3 gap-2">
+              {scopeOptions.map((option) => (
                 <button
                   key={option.value}
                   type="button"

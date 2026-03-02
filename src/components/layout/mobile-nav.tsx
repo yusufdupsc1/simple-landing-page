@@ -29,7 +29,11 @@ function getItems(role?: string) {
   }
   if (role === "TEACHER") {
     return [
-      { href: "/dashboard/portal/teacher", labelKey: "teacher_portal", icon: LayoutDashboard },
+      {
+        href: "/dashboard/portal/teacher",
+        labelKey: govtPrimaryMode ? "assistant_teacher_portal" : "teacher_portal",
+        icon: LayoutDashboard,
+      },
       { href: "/dashboard/attendance", labelKey: "attendance", icon: ClipboardCheck },
       { href: "/dashboard/grades", labelKey: "result", icon: School },
       { href: "/dashboard/events", labelKey: "routine", icon: Calendar },

@@ -36,7 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useT } from "@/lib/i18n/client";
+import { useGovtPrimaryT, useT } from "@/lib/i18n/client";
 import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
 interface SidebarProps {
@@ -201,6 +201,7 @@ const GOVT_PRIMARY_HIDDEN_NAV_HREFS = new Set<string>([
 
 export function Sidebar({ session }: SidebarProps) {
   const { t } = useT();
+  const { t: tg } = useGovtPrimaryT();
   const govtPrimaryMode = isGovtPrimaryModeEnabled();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -281,10 +282,14 @@ export function Sidebar({ session }: SidebarProps) {
   };
 
   const localizeItem = (label: string) => {
+    if (govtPrimaryMode && label === "Teacher Portal") return t("assistant_teacher_portal");
     if (govtPrimaryMode && label === "Institution") return t("primary_school_setup");
     if (govtPrimaryMode && label === "Students") return t("student");
-    if (govtPrimaryMode && label === "Teachers") return t("assistant_teacher");
+    if (govtPrimaryMode && label === "Teachers") return tg("assistant_teacher");
     if (govtPrimaryMode && label === "Classes") return t("primary_classes");
+    if (govtPrimaryMode && label === "Events") return tg("routine");
+    if (govtPrimaryMode && label === "Announcements") return tg("notice_board");
+    if (govtPrimaryMode && label === "Grades") return tg("result_sheet");
     const key = itemLabelMap[label];
     return key ? t(key) : label;
   };

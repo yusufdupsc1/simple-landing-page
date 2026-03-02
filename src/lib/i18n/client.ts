@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getCommonDict, normalizeLocale, type SupportedLocale } from "@/lib/i18n/getDict";
+import {
+  getCommonDict,
+  getNamespaceDict,
+  normalizeLocale,
+  type SupportedLocale,
+  type TranslationNamespace,
+} from "@/lib/i18n/getDict";
 import { tFromDict } from "@/lib/i18n/t";
 
 const LOCALE_COOKIE = "locale";
@@ -63,15 +69,29 @@ export function useLocale(): SupportedLocale {
 }
 
 export function useT() {
+  return useNamespaceT("common");
+}
+
+export function useNamespaceT(namespace: TranslationNamespace) {
   const locale = useLocale();
 
   return useMemo(() => {
-    const dict = getCommonDict(locale);
-    const fallback = getCommonDict("en");
+    const dict =
+      namespace === "common"
+        ? getCommonDict(locale)
+        : getNamespaceDict(locale, namespace);
+    const fallback =
+      namespace === "common"
+        ? getCommonDict("en")
+        : getNamespaceDict("en", namespace);
 
     return {
       locale,
       t: (key: string) => tFromDict(key, dict, fallback),
     };
-  }, [locale]);
+  }, [locale, namespace]);
+}
+
+export function useGovtPrimaryT() {
+  return useNamespaceT("govtPrimary");
 }

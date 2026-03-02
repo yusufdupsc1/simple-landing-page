@@ -137,6 +137,7 @@ function toDateInputValue(value?: string | null) {
 }
 
 const GOVT_PRIMARY_ADMISSION_GRADES = new Set(["1", "2", "3", "4", "5"]);
+const NUMERIC_ROLL_PATTERN = /^\d+$/;
 
 function splitEnglishName(fullName: string) {
   const cleaned = fullName.trim().replace(/\s+/g, " ");
@@ -266,18 +267,34 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
     setCreating(getInitialCreateState());
   }
 
+  function getGovtAdmissionValidationMessage(values: {
+    studentNameEn: string;
+    classId: string;
+    section: string;
+    rollNo: string;
+    birthRegNo: string;
+    dateOfBirth: string;
+    guardianName: string;
+    guardianPhone: string;
+  }) {
+    if (!values.studentNameEn.trim()) return t("student_name_en_required");
+    if (!values.classId.trim()) return t("class_required");
+    if (!values.section.trim()) return t("section_required");
+    if (!values.rollNo.trim()) return t("roll_required");
+    if (!NUMERIC_ROLL_PATTERN.test(values.rollNo.trim())) return t("roll_must_be_numeric");
+    if (!values.birthRegNo.trim() && !values.dateOfBirth.trim()) {
+      return t("student_birth_or_dob_required");
+    }
+    if (!values.guardianName.trim()) return t("guardian_name_required");
+    if (!values.guardianPhone.trim()) return t("guardian_phone_required");
+    return null;
+  }
+
   async function handleCreate() {
     if (govtPrimaryMode) {
-      if (
-        !creating.studentNameEn.trim() ||
-        !creating.birthRegNo.trim() ||
-        !creating.dateOfBirth.trim() ||
-        !creating.guardianName.trim() ||
-        !creating.guardianPhone.trim() ||
-        !creating.classId ||
-        !creating.rollNo.trim()
-      ) {
-        toast.error(t("student_admission_required_fields"));
+      const validationMessage = getGovtAdmissionValidationMessage(creating);
+      if (validationMessage) {
+        toast.error(validationMessage);
         return;
       }
     } else if (
@@ -363,16 +380,9 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
   async function handleSave() {
     if (!editing) return;
     if (govtPrimaryMode) {
-      if (
-        !editing.studentNameEn.trim() ||
-        !editing.birthRegNo.trim() ||
-        !editing.dateOfBirth.trim() ||
-        !editing.guardianName.trim() ||
-        !editing.guardianPhone.trim() ||
-        !editing.classId ||
-        !editing.rollNo.trim()
-      ) {
-        toast.error(t("student_admission_required_fields"));
+      const validationMessage = getGovtAdmissionValidationMessage(editing);
+      if (validationMessage) {
+        toast.error(validationMessage);
         return;
       }
     } else if (
@@ -404,20 +414,20 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
             dateOfBirth: editing.dateOfBirth || undefined,
             gender: editing.gender || undefined,
             classId: editing.classId || undefined,
-            rollNo: editing.rollNo,
-            guardianName: editing.guardianName,
-            address: editing.address,
-            village: editing.village,
-            ward: editing.ward,
-            upazila: editing.upazila,
-            district: editing.district,
-            city: editing.city,
-            country: editing.country,
-            fatherName: editing.fatherName,
-            motherName: editing.motherName,
-            guardianPhone: editing.guardianPhone,
-            birthRegNo: editing.birthRegNo,
-            nidNo: editing.nidNo,
+            rollNo: editing.rollNo.trim(),
+            guardianName: editing.guardianName.trim(),
+            address: editing.address.trim(),
+            village: editing.village.trim(),
+            ward: editing.ward.trim(),
+            upazila: editing.upazila.trim(),
+            district: editing.district.trim(),
+            city: editing.city.trim(),
+            country: editing.country.trim(),
+            fatherName: editing.fatherName.trim(),
+            motherName: editing.motherName.trim(),
+            guardianPhone: editing.guardianPhone.trim(),
+            birthRegNo: editing.birthRegNo.trim(),
+            nidNo: editing.nidNo.trim(),
           }),
         });
 
@@ -610,13 +620,18 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                 <Input id="create-phone" value={creating.phone} onChange={(e) => updateCreate("phone", e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="create-birthRegNo">{t("birth_reg_no")}{govtPrimaryMode ? " *" : ""}</Label>
+                <Label htmlFor="create-birthRegNo">{t("birth_reg_no")}</Label>
                 <Input id="create-birthRegNo" value={creating.birthRegNo} onChange={(e) => updateCreate("birthRegNo", e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="create-dob">{t("date_of_birth")}{govtPrimaryMode ? " *" : ""}</Label>
+                <Label htmlFor="create-dob">{t("date_of_birth")}</Label>
                 <Input id="create-dob" type="date" value={creating.dateOfBirth} onChange={(e) => updateCreate("dateOfBirth", e.target.value)} />
               </div>
+              {govtPrimaryMode ? (
+                <p className="sm:col-span-2 text-xs text-muted-foreground">
+                  {t("student_birth_or_dob_hint")}
+                </p>
+              ) : null}
               <div className="space-y-1.5">
                 <Label htmlFor="create-gender">{t("gender")}</Label>
                 <select
@@ -648,12 +663,12 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                 </select>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="create-section">{t("section")}</Label>
+                <Label htmlFor="create-section">{t("section")}{govtPrimaryMode ? " *" : ""}</Label>
                 <Input id="create-section" value={creating.section} readOnly />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="create-roll">{t("roll")}{govtPrimaryMode ? " *" : ""}</Label>
-                <Input id="create-roll" value={creating.rollNo} onChange={(e) => updateCreate("rollNo", e.target.value)} />
+                <Input id="create-roll" inputMode="numeric" pattern="[0-9]*" value={creating.rollNo} onChange={(e) => updateCreate("rollNo", e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="create-guardianName">{t("guardian_name")}{govtPrimaryMode ? " *" : ""}</Label>
@@ -744,13 +759,18 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                   <Input id="edit-phone" value={editing.phone} onChange={(e) => updateEdit("phone", e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="edit-birthRegNo">{t("birth_reg_no")}{govtPrimaryMode ? " *" : ""}</Label>
+                  <Label htmlFor="edit-birthRegNo">{t("birth_reg_no")}</Label>
                   <Input id="edit-birthRegNo" value={editing.birthRegNo} onChange={(e) => updateEdit("birthRegNo", e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="edit-dob">{t("date_of_birth")}{govtPrimaryMode ? " *" : ""}</Label>
+                  <Label htmlFor="edit-dob">{t("date_of_birth")}</Label>
                   <Input id="edit-dob" type="date" value={editing.dateOfBirth} onChange={(e) => updateEdit("dateOfBirth", e.target.value)} />
                 </div>
+                {govtPrimaryMode ? (
+                  <p className="sm:col-span-2 text-xs text-muted-foreground">
+                    {t("student_birth_or_dob_hint")}
+                  </p>
+                ) : null}
                 <div className="space-y-1.5">
                   <Label htmlFor="edit-gender">{t("gender")}</Label>
                   <select
@@ -782,12 +802,12 @@ export function StudentsTable({ students, classes, total, pages, currentPage }: 
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="edit-section">{t("section")}</Label>
+                  <Label htmlFor="edit-section">{t("section")}{govtPrimaryMode ? " *" : ""}</Label>
                   <Input id="edit-section" value={editing.section} readOnly />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="edit-roll">{t("roll")}{govtPrimaryMode ? " *" : ""}</Label>
-                  <Input id="edit-roll" value={editing.rollNo} onChange={(e) => updateEdit("rollNo", e.target.value)} />
+                  <Input id="edit-roll" inputMode="numeric" pattern="[0-9]*" value={editing.rollNo} onChange={(e) => updateEdit("rollNo", e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="edit-guardianName">{t("guardian_name")}{govtPrimaryMode ? " *" : ""}</Label>
