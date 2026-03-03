@@ -1,8 +1,8 @@
 // src/app/dashboard/layout.tsx
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { Sidebar } from "@/components/layout/sidebar";
-import { TopBar } from "@/components/layout/topbar";
+import { SidebarServer } from "@/components/layout/sidebar.server";
+import { TopBarServer } from "@/components/layout/topbar.server";
 import { MobileNavServer } from "@/components/layout/mobile-nav.server";
 import { AppToaster } from "@/components/layout/app-toaster";
 import type { Metadata } from "next";
@@ -32,11 +32,11 @@ export default async function DashboardLayout({
       </a>
       <div className="safe-bottom flex min-h-svh overflow-hidden bg-background/80">
         {/* Desktop Sidebar */}
-        <Sidebar session={session} />
+        <SidebarServer session={session} />
 
         {/* Main area */}
         <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
-          <TopBar session={session} />
+          <TopBarServer session={session} />
 
           {/* Page content */}
           <main id="dashboard-main" className="flex-1 overflow-y-auto">
