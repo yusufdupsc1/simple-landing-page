@@ -1,6 +1,11 @@
 import type { Role } from "@prisma/client";
 
-export type PermissionAction = "read" | "create" | "update" | "delete" | "manage";
+export type PermissionAction =
+  | "read"
+  | "create"
+  | "update"
+  | "delete"
+  | "manage";
 
 export type PermissionResource =
   | "students"
@@ -82,8 +87,11 @@ const POLICIES: Record<Role, PermissionMap> = {
   SUPER_ADMIN: ADMIN_FULL,
   ADMIN: ADMIN_FULL,
   PRINCIPAL: ADMIN_FULL,
+  HEAD_TEACHER: ADMIN_FULL,
   TEACHER: TEACHER_PERMISSIONS,
+  CLASS_TEACHER: TEACHER_PERMISSIONS,
   STAFF: STAFF_PERMISSIONS,
+  OFFICE_STAFF: STAFF_PERMISSIONS,
   STUDENT: STUDENT_PARENT_PERMISSIONS,
   PARENT: STUDENT_PARENT_PERMISSIONS,
 };
