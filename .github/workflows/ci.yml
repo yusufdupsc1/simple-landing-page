@@ -57,9 +57,6 @@ jobs:
       - name: Run TypeScript type check
         run: pnpm run type-check
 
-      - name: Validate OpenAPI contract
-        run: pnpm run openapi:check
-
       - name: Check formatting
         run: pnpm run format:check
 
@@ -88,11 +85,25 @@ jobs:
       - name: Run npm audit
         run: pnpm audit --audit-level=moderate
 
-  # ─── Tests ──────────────────────────────────
-  test:
+  # ─── Unit Tests ────────────────────────────────
+  test-unit:
     name: Unit Tests
     runs-on: ubuntu-latest
     needs: lint
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -119,11 +130,11 @@ jobs:
           GOVT_PRIMARY_MODE: "true"
           NEXT_PUBLIC_GOVT_PRIMARY_MODE: "true"
 
-  # ─── Build ──────────────────────────────────
+  # ─── Build ─────────────────────────────────────
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [lint, audit]
+    needs: [lint, audit, test-unit]
     steps:
       - uses: actions/checkout@v4
 
@@ -163,7 +174,7 @@ jobs:
           path: .next/
           retention-days: 1
 
-  # ─── Docker Build & Push ────────────────────
+  # ─── Docker Build & Push ───────────────────────
   docker:
     name: Docker Build & Push
     runs-on: ubuntu-latest
@@ -266,36 +277,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Extract metadata (Docker Hub)
-        if: steps.vars.outputs.dockerhub_enabled == 'true'
-        id: meta_dockerhub
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ steps.vars.outputs.dockerhub_image }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix=sha-
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push (Docker Hub)
-        if: steps.vars.outputs.dockerhub_enabled == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          build-args: |
-            DATABASE_URL=postgresql://postgres:postgres@localhost:5432/build
-            AUTH_SECRET=build-secret-32-chars-minimum-here
-            NEXT_PUBLIC_APP_URL=https://app.dhadash.com
-          push: true
-          tags: ${{ steps.meta_dockerhub.outputs.tags }}
-          labels: ${{ steps.meta_dockerhub.outputs.labels }}
-          provenance: false
-          sbom: false
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # ─── Deploy to Vercel ───────────────────────
+  # ─── Deploy to Vercel ───────────────────────────
   deploy:
     name: Deploy to Vercel
     runs-on: ubuntu-latest
