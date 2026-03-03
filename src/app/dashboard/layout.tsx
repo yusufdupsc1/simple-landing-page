@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { SidebarServer } from "@/components/layout/sidebar.server";
 import { TopBarServer } from "@/components/layout/topbar.server";
 import { MobileNavServer } from "@/components/layout/mobile-nav.server";
+import { MobileFAB } from "@/components/layout/mobile-fab";
 import { AppToaster } from "@/components/layout/app-toaster";
 import type { Metadata } from "next";
 
@@ -48,6 +49,7 @@ export default async function DashboardLayout({
 
         {/* Mobile Nav */}
         <MobileNavServer session={session} />
+        <MobileFAB />
       </div>
       <AppToaster />
     </>

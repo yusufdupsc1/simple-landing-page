@@ -264,11 +264,11 @@ export default async function DashboardPage() {
   const govtPrimaryMode = isGovtPrimaryModeEnabled();
   const user = session?.user as
     | {
-        institutionId?: string;
-        institutionName?: string;
-        name?: string | null;
-        role?: string;
-      }
+      institutionId?: string;
+      institutionName?: string;
+      name?: string | null;
+      role?: string;
+    }
     | undefined;
   if (!user?.institutionId) {
     return null;
@@ -391,10 +391,15 @@ export default async function DashboardPage() {
                   </span>
                 )}
               </p>
+
+              {/* Mobile Quick Actions (under description) */}
+              <div className="block xl:hidden mt-6">
+                <QuickActions />
+              </div>
             </div>
           </div>
 
-          <div className="xl:col-span-2 relative z-10 w-full">
+          <div className="hidden xl:block xl:col-span-2 relative z-10 w-full">
             <QuickActions />
           </div>
         </div>

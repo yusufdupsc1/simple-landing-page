@@ -22,7 +22,7 @@ const actions = [
     bg: "bg-emerald-50",
   },
   {
-    label: "Smart Insights",
+    label: "AI Performance",
     href: "/dashboard/analytics",
     icon: BrainCircuit,
     color: "text-purple-600",
@@ -35,7 +35,6 @@ const actions = [
     color: "text-blue-600",
     bg: "bg-blue-50",
   },
-
   {
     label: "Live Connect",
     href: "/dashboard/messages",
@@ -57,7 +56,13 @@ const actions = [
     color: "text-rose-600",
     bg: "bg-rose-50",
   },
-
+  {
+    label: "Cloud Storage",
+    href: "/dashboard/control/imports",
+    icon: Building2,
+    color: "text-slate-600",
+    bg: "bg-slate-50",
+  },
   {
     label: "Notice Board",
     href: "/dashboard/announcements",
@@ -66,54 +71,64 @@ const actions = [
     bg: "bg-amber-50",
   },
   {
-    label: "E-Credentials",
-    href: "/dashboard/settings?tab=academic",
+    label: "Global Search",
+    href: "/dashboard/settings?tab=profile",
     icon: FileBadge,
     color: "text-violet-600",
     bg: "bg-violet-50",
   },
   {
-    label: "Institution Hub",
-    href: "/dashboard/settings?tab=profile",
-    icon: Building2,
-    color: "text-slate-600",
-    bg: "bg-slate-50",
+    label: "AI Assistant",
+    href: "/dashboard/analytics",
+    icon: BrainCircuit,
+    color: "text-orange-600",
+    bg: "bg-orange-50",
+  },
+  {
+    label: "Identity Vault",
+    href: "/dashboard/settings?tab=access",
+    icon: ShieldCheck,
+    color: "text-pink-600",
+    bg: "bg-pink-50",
+  },
+  {
+    label: "Bulk Upload",
+    href: "/dashboard/control/imports",
+    icon: UserPlus,
+    color: "text-lime-600",
+    bg: "bg-lime-50",
   },
 ];
 
 export function QuickActions() {
   return (
-    <section className="group relative overflow-hidden rounded-[2rem] border border-border/40 bg-card/60 backdrop-blur-xl p-5 sm:p-7 shadow-sm transition-premium hover:border-primary/20 premium-shadow h-full flex flex-col">
-      <div className="flex items-center justify-between mb-6">
+    <section className="group relative overflow-hidden rounded-3xl border border-border/40 bg-card/60 backdrop-blur-xl p-4 sm:p-6 shadow-sm transition-premium hover:border-primary/20 premium-shadow h-full flex flex-col">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex flex-col">
-          <h2 className="text-lg font-black tracking-tight text-foreground/90">
+          <h2 className="text-sm font-black tracking-tight text-foreground/80 uppercase">
             Quick Actions
           </h2>
-          <div className="flex gap-1 mt-1">
-            <div className="h-1 w-6 rounded-full bg-bd-green" />
-            <div className="h-1 w-2 rounded-full bg-bd-red" />
-          </div>
         </div>
         <Link
           href="/dashboard/settings"
-          className="text-[11px] font-bold text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors uppercase tracking-widest leading-none"
+          className="text-[10px] font-bold text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors uppercase tracking-widest leading-none"
         >
           View All <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 md:gap-5 flex-1 items-center">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 flex-1 items-center">
         {actions.map((action) => {
           const Icon = action.icon;
           return (
             <Link
               key={action.href}
               href={action.href}
-              className="flex flex-col items-center justify-center gap-3 group/action"
+              className="flex flex-col items-center justify-center gap-1.5 group/action"
             >
               <div
                 className={cn(
-                  "h-14 w-14 sm:h-16 sm:w-16 rounded-[1.25rem] flex items-center justify-center shadow-sm border border-black/5 transition-premium relative overflow-hidden",
+                  "h-10 w-10 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm border border-black/5 transition-premium relative overflow-hidden",
                   action.bg,
                   action.color,
                   "hover:scale-105 hover:shadow-lg active:scale-95",
@@ -121,9 +136,9 @@ export function QuickActions() {
               >
                 {/* Micro-shimmer effect on hover */}
                 <div className="absolute inset-0 bg-white/40 translate-x-[-100%] group-hover/action:translate-x-[100%] transition-transform duration-700" />
-                <Icon className="h-6 w-6 sm:h-7 sm:w-7 transition-transform duration-500 group-hover/action:rotate-6" />
+                <Icon className="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-500 group-hover/action:rotate-6" />
               </div>
-              <span className="text-[10px] sm:text-[11px] font-bold tracking-tight text-muted-foreground/80 group-hover/action:text-foreground transition-colors leading-tight text-center px-1">
+              <span className="text-[9px] sm:text-[11px] font-bold tracking-tight text-muted-foreground/80 group-hover/action:text-foreground transition-colors leading-tight text-center px-0.5 line-clamp-1 w-full">
                 {action.label}
               </span>
             </Link>
