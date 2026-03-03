@@ -528,7 +528,7 @@ async function main() {
         recordType: StudentRecordType.RESULT_SHEET,
         periodType: RecordPeriodType.MONTHLY,
         periodLabel: "2026-01",
-        title: "Result Sheet Report",
+        title: "Progress tracking report",
       },
       {
         recordType: StudentRecordType.ATTENDANCE_RECORD,

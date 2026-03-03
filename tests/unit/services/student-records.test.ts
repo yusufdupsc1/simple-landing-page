@@ -27,9 +27,8 @@ vi.mock("@/lib/db", () => ({
   db: dbMock,
 }));
 
-const { generateStudentRecord, generatePeriodicRecords } = await import(
-  "@/server/services/student-records/generate"
-);
+const { generateStudentRecord, generatePeriodicRecords } =
+  await import("@/server/services/student-records/generate");
 
 describe("student records generation service", () => {
   beforeEach(() => {
@@ -40,7 +39,7 @@ describe("student records generation service", () => {
     const existing = {
       id: "record-1",
       studentId: "student-1",
-      title: "Result Sheet Report",
+      title: "Progress tracking report",
       fileName: "result.pdf",
       fileUrl: "data:application/pdf;base64,AAA",
       periodType: "MONTHLY",
@@ -98,7 +97,7 @@ describe("student records generation service", () => {
     dbMock.studentRecord.create.mockResolvedValue({
       id: "record-2",
       studentId: "student-1",
-      title: "Result Sheet Report",
+      title: "Progress tracking report",
       fileName: "stu-0001-result-sheet-2026-01.pdf",
       fileUrl: "data:application/pdf;base64,AAA",
       periodType: "MONTHLY",
