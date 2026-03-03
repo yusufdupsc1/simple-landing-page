@@ -224,8 +224,9 @@ export function AttendanceClient({
         toast.success(`Attendance saved for ${students.length} students`);
       } else {
         toast.error(res.error || "Failed to save attendance");
-        if (!res.success && res.fieldErrors) {
-          Object.entries(res.fieldErrors).forEach(([field, messages]) => {
+        const fieldErrors = (res as any).fieldErrors;
+        if (fieldErrors) {
+          Object.entries(fieldErrors).forEach(([field, messages]) => {
             toast.error(`${field}: ${(messages as string[]).join(", ")}`);
           });
         }
@@ -263,7 +264,7 @@ export function AttendanceClient({
           "firstName",
           "lastName",
           "status",
-        ] as const;
+        ];
         const headerLabels = [
           "Roll No",
           "Student ID",
