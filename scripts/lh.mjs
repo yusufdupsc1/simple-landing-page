@@ -148,16 +148,34 @@ async function runPage(chrome, { path: pagePath, slug }) {
 
     console.log(`\n✅ Lighthouse done. Summary → ${summaryPath}\n`);
 
-    // Print table
-    console.log("Page          Score  LCP      TBT      TTFB");
-    console.log("──────────────────────────────────────────────");
+    // Threshold validation for Task 8
+    const THRESHOLDS = {
+        score: parseInt(process.env.LH_THRESHOLD_SCORE || "60"),
+        tbt: parseInt(process.env.LH_THRESHOLD_TBT || "700"),
+        lcp: parseFloat(process.env.LH_THRESHOLD_LCP || "4.5"),
+    };
+
+    console.log("\nThreshold Check:");
+    let failed = false;
     for (const r of results) {
-        if (r.error) {
-            console.log(`${r.slug.padEnd(14)} ERROR  ${r.error}`);
-        } else {
-            console.log(
-                `${r.slug.padEnd(14)} ${String(r.score).padEnd(6)} ${r.lcp.padEnd(8)} ${r.tbt.padEnd(8)} ${r.ttfb}`
-            );
-        }
+        if (r.error) continue;
+
+        const tbtVal = parseInt(r.tbt.replace(/[ms, ]/g, "")) || 0;
+        const lcpVal = parseFloat(r.lcp.replace(/[s, ]/g, "")) || 0;
+
+        const scoreOk = r.score >= THRESHOLDS.score;
+        const tbtOk = tbtVal <= THRESHOLDS.tbt;
+        const lcpOk = lcpVal <= THRESHOLDS.lcp;
+
+        console.log(`  ${r.slug.padEnd(14)} Score: ${scoreOk ? "PASS" : "FAIL"} (${r.score}/${THRESHOLDS.score}), TBT: ${tbtOk ? "PASS" : "FAIL"} (${tbtVal}ms/${THRESHOLDS.tbt}ms), LCP: ${lcpOk ? "PASS" : "FAIL"} (${lcpVal}s/${THRESHOLDS.lcp}s)`);
+
+        if (!scoreOk || !tbtOk || !lcpOk) failed = true;
+    }
+
+    if (failed) {
+        console.error("\n❌ Performance regression detected! Thresholds not met.");
+        process.exit(1);
+    } else {
+        console.log("\n✅ All performance thresholds satisfied.");
     }
 })();

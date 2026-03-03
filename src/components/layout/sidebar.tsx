@@ -41,6 +41,7 @@ import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
 interface SidebarProps {
   session: Session;
+  isMobile?: boolean;
 }
 
 interface NavItem {
@@ -199,7 +200,7 @@ const GOVT_PRIMARY_HIDDEN_NAV_HREFS = new Set<string>([
   "/dashboard/settings?tab=academic&focus=public",
 ]);
 
-export function Sidebar({ session }: SidebarProps) {
+export function Sidebar({ session, isMobile }: SidebarProps) {
   const { t } = useT();
   const { t: tg } = useGovtPrimaryT();
   const govtPrimaryMode = isGovtPrimaryModeEnabled();
@@ -296,7 +297,10 @@ export function Sidebar({ session }: SidebarProps) {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <aside className="hidden h-svh w-[230px] flex-shrink-0 flex-col border-r border-border/80 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 lg:flex xl:w-[250px]">
+      <aside className={cn(
+        "h-svh w-[230px] flex-shrink-0 flex-col border-r border-border/80 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 xl:w-[250px]",
+        isMobile ? "flex w-full" : "hidden lg:flex"
+      )}>
         {/* Brand */}
         <div className="flex items-center gap-2.5 h-14 px-4 border-b border-border">
           <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
@@ -376,7 +380,7 @@ export function Sidebar({ session }: SidebarProps) {
                                 : "text-muted-foreground"
                             )}
                           />
-                            <span className="truncate">{localizeItem(item.label)}</span>
+                          <span className="truncate">{localizeItem(item.label)}</span>
                           {item.badge && (
                             <span className="ml-auto font-mono text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded">
                               {item.badge}

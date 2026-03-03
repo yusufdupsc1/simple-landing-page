@@ -1,0 +1,76 @@
+name: Performance Regression
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "22"
+  DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/test"
+  AUTH_SECRET: "perf-secret-32-chars-minimum-here"
+  NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+  SKIP_ENV_VALIDATION: "true"
+
+jobs:
+  performance:
+    name: Performance Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm run db:generate
+
+      - name: Build Next.js app
+        run: pnpm exec next build --webpack
+        env:
+          GOVT_PRIMARY_MODE: "true"
+          NEXT_PUBLIC_GOVT_PRIMARY_MODE: "true"
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run Performance E2E & Lighthouse
+        run: |
+          # Start app in background
+          pnpm start &
+          
+          # Wait for app to be ready
+          echo "Waiting for app to start..."
+          npx wait-on http://localhost:3000 -t 60000
+          
+          echo "Running Playwright performance tests..."
+          pnpm exec playwright test tests/e2e/perf-regression.spec.ts
+          
+          echo "Running Lighthouse audits..."
+          # Note: Auditing public pages (login) as authenticated audits require session cookies in CI
+          pnpm run perf:lighthouse
+        env:
+          LH_THRESHOLD_SCORE: "60"
+          LH_THRESHOLD_TBT: "700"
+          LH_THRESHOLD_LCP: "4.5"
+
+      - name: Upload performance reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-reports
+          path: |
+            perf/lh/
+            test-results/
+            playwright-report/
