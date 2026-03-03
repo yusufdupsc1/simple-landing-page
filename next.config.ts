@@ -1,10 +1,23 @@
 // next.config.ts
-import bundleAnalyzer from "@next/bundle-analyzer";
+import { createRequire } from "module";
 import type { NextConfig } from "next";
 
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-});
+type NextConfigTransform = (config: NextConfig) => NextConfig;
+
+const require = createRequire(import.meta.url);
+
+const withBundleAnalyzer: NextConfigTransform = (() => {
+  try {
+    const bundleAnalyzer = require("@next/bundle-analyzer");
+    const createAnalyzer = bundleAnalyzer.default ?? bundleAnalyzer;
+    return createAnalyzer({
+      enabled: process.env.ANALYZE === "true",
+    }) as NextConfigTransform;
+  } catch {
+    // Optional dependency: keep builds working when analyzer package is not installed.
+    return (config: NextConfig) => config;
+  }
+})();
 
 const isDev = process.env.NODE_ENV === "development";
 
