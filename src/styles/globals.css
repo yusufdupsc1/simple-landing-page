@@ -27,7 +27,7 @@
   --color-info-fg: #1e40af;
   --color-info-bg: #dbeafe;
 
-  /* Theme color mappings for Tailwind v4 */
+  /* Theme color mappings */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -59,7 +59,6 @@
 /* ─── Design Token Layer ─── */
 @layer base {
   :root {
-    /* Light mode — Bangladesh-first green/red */
     --background: 210 40% 98%;
     --foreground: 222 47% 11%;
 
@@ -69,7 +68,6 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Bangladesh-first brand tokens */
     --primary: #006a4e;
     --accent: #f42a41;
     --primary-contrast: #ffffff;
@@ -95,7 +93,6 @@
 
     --radius: 8px;
 
-    /* Custom semantic tokens */
     --success: 142 71% 25%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
@@ -103,7 +100,6 @@
     --info: 221 69% 38%;
     --info-foreground: 0 0% 100%;
 
-    /* Chart palette */
     --chart-1: 163 100% 21%;
     --chart-2: 352 90% 56%;
     --chart-3: 142 76% 36%;
@@ -113,7 +109,6 @@
     --safe-top: env(safe-area-inset-top);
     --safe-bottom: env(safe-area-inset-bottom);
 
-    /* Custom animations */
     --animate-float: float 6s ease-in-out infinite;
     --animate-glow: glow 2s ease-in-out infinite alternate;
   }
@@ -138,7 +133,6 @@
   }
 
   .dark {
-    /* Dark mode */
     --background: 225 15% 7%;
     --foreground: 40 15% 94%;
 
@@ -186,7 +180,6 @@
   }
 }
 
-/* ─── Base Resets ─── */
 @layer base {
   * {
     @apply border-border;
@@ -225,19 +218,15 @@
     font-feature-settings: "kern", "liga";
   }
 
-  /* Locale-scoped type tuning for Bangla readability */
   html[lang="bn"] {
     font-size: 15.5px;
   }
-
   html[lang="bn"] h1 {
     font-size: clamp(1.85rem, 1.6rem + 1.1vw, 2.5rem);
   }
-
   html[lang="bn"] h2 {
     font-size: clamp(1.45rem, 1.3rem + 0.8vw, 2rem);
   }
-
   html[lang="bn"] h3 {
     font-size: clamp(1.2rem, 1.12rem + 0.5vw, 1.45rem);
   }
@@ -251,7 +240,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Better heading rhythm */
   h1,
   h2,
   h3,
@@ -270,12 +258,10 @@
     text-decoration-color: var(--accent);
   }
 
-  /* Focus visible only for keyboard navigation */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 
-  /* Scrollbar */
   ::-webkit-scrollbar {
     @apply w-1.5 h-1.5;
   }
@@ -289,13 +275,11 @@
     @apply bg-muted-foreground/30;
   }
 
-  /* Selection */
   ::selection {
     @apply bg-primary/20 text-foreground;
   }
 }
 
-/* ─── Utility Classes ─── */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -324,25 +308,21 @@
   .sidebar-active-icon {
     color: var(--primary);
   }
-
   .sidebar-active-dot {
     background-color: var(--primary);
   }
 
-  /* Gradient text */
   .gradient-text {
     @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
     background-size: 200% auto;
     animation: shimmer 4s linear infinite;
   }
 
-  /* Glass card */
   .glass {
     backdrop-filter: none;
     @apply bg-card border border-border;
   }
 
-  /* Noise texture overlay */
   .noise::after {
     content: "";
     position: absolute;
@@ -352,7 +332,6 @@
     border-radius: inherit;
   }
 
-  /* Shimmer loading state */
   .shimmer {
     @apply relative overflow-hidden;
   }
@@ -368,64 +347,12 @@
     );
     animation: shimmer 1.5s infinite;
   }
-}
 
-/* ─── Keyframes ─── */
-@keyframes shimmer {
-  from {
-    background-position: 200% center;
-  }
-  to {
-    background-position: -200% center;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-in-right {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes scale-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes pulse-slow {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.9;
-  }
-}
-
-/* ─── Page Transitions ─── */
-@layer utilities {
   .animate-fade-in {
     animation: fade-in 0.16s ease-out forwards;
-    animation-delay: 0ms;
   }
   .animate-slide-right {
     animation: slide-in-right 0.16s ease-out forwards;
-    animation-delay: 0ms;
   }
   .animate-scale-in {
     animation: scale-in 0.16s ease-out forwards;
@@ -434,7 +361,6 @@
     animation: pulse-slow 2.2s ease-in-out infinite;
   }
 
-  /* Staggered children */
   .stagger > * {
     opacity: 0;
     animation: fade-in 0.4s ease-out forwards;
@@ -461,7 +387,6 @@
   .safe-top {
     padding-top: max(0px, var(--safe-top));
   }
-
   .safe-bottom {
     padding-bottom: max(0px, var(--safe-bottom));
   }
@@ -473,19 +398,15 @@
   .table-dense th {
     @apply px-2.5 py-1.5 text-xs font-semibold leading-5 text-muted-foreground;
   }
-
   .table-dense td {
     @apply px-2.5 py-1.5 leading-5;
   }
-
   .table-dense thead th {
     @apply border-b border-border/90 bg-muted/30;
   }
-
   .table-dense tbody td {
     @apply border-b border-border/70;
   }
-
   .table-dense tbody tr:last-child td {
     @apply border-b-0;
   }
@@ -493,7 +414,6 @@
   .routine-grid-table th {
     @apply border-b border-border bg-muted/30 px-2 py-2 text-xs font-semibold text-muted-foreground;
   }
-
   .routine-grid-table td {
     @apply border-b border-border/70 px-2 py-2 align-middle;
   }
@@ -501,7 +421,6 @@
   .result-entry-table th {
     @apply border-b border-border bg-muted/30 px-2 py-2 text-xs font-semibold text-muted-foreground;
   }
-
   .result-entry-table td {
     @apply border-b border-border/70 px-2 py-2 align-middle;
   }
@@ -511,7 +430,6 @@
   .rounded-3xl {
     border-radius: 8px;
   }
-
   .shadow-lg,
   .shadow-xl,
   .shadow-2xl {
@@ -525,7 +443,56 @@
   }
 }
 
-/* ─── Print ─── */
+@keyframes shimmer {
+  from {
+    background-position: 200% center;
+  }
+  to {
+    background-position: -200% center;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;
@@ -534,8 +501,6 @@
     @apply text-black bg-white;
     background-image: none !important;
   }
-
-  /* Hide layout elements when printing */
   header,
   nav,
   .sidebar,
@@ -544,14 +509,10 @@
   [class*="fixed right-"] {
     display: none !important;
   }
-
-  /* Show only main content */
   main {
     margin: 0 !important;
     padding: 0 !important;
   }
-
-  /* Ensure cards are visible */
   .card,
   [class*="rounded"] {
     box-shadow: none !important;
@@ -567,21 +528,13 @@
   }
 
   .routine-print-table th,
-  .routine-print-table td {
-    border: 1px solid #94a3b8;
-    padding: 6px 8px;
-    vertical-align: middle;
-  }
-
+  .routine-print-table td,
   .result-sheet-print-table th,
-  .result-sheet-print-table td {
-    border: 1px solid #94a3b8;
-    padding: 6px 8px;
-    vertical-align: middle;
-  }
-
+  .result-sheet-print-table td,
   .attendance-print-table th,
-  .attendance-print-table td {
+  .attendance-print-table td,
+  .receipt-print-table th,
+  .receipt-print-table td {
     border: 1px solid #94a3b8;
     padding: 6px 8px;
     vertical-align: middle;
@@ -590,14 +543,6 @@
   .attendance-signatures .signature-line {
     padding-top: 2.2rem;
   }
-
-  .receipt-print-table th,
-  .receipt-print-table td {
-    border: 1px solid #94a3b8;
-    padding: 6px 8px;
-    vertical-align: middle;
-  }
-
   .receipt-signature .signature-line {
     padding-top: 2.6rem;
   }
