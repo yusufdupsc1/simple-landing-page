@@ -25,7 +25,6 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "analyze": "ANALYZE=true next build",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -90,7 +89,7 @@
     "vitest": "^3.0.4"
   },
   "engines": {
-    "node": "20.x",
-    "npm": "10.x"
+    "node": "20.0.0",
+    "npm": "10.0.0"
   }
 }
