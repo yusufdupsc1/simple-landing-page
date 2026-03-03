@@ -12,6 +12,7 @@ import { RecentStudents } from "@/components/dashboard/recent-students";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { UpcomingEvents } from "@/components/dashboard/upcoming-events";
 import { ExecutiveCommandCenter } from "@/components/dashboard/executive-command-center";
+import { ModernToolkit } from "@/components/dashboard/modern-toolkit";
 import { DEFAULT_LOCALE, DEFAULT_TIMEZONE } from "@/lib/utils";
 import { safeLoader } from "@/lib/server/safe-loader";
 import { isGovtPrimaryModeEnabled } from "@/lib/config";
@@ -216,12 +217,12 @@ async function getExecutiveData(institutionId: string) {
       },
       sslCommerzConfigured: Boolean(
         process.env.SSLCOMMERZ_STORE_ID &&
-          process.env.SSLCOMMERZ_STORE_PASSWORD,
+        process.env.SSLCOMMERZ_STORE_PASSWORD,
       ),
       stripeConfigured: Boolean(
         !isGovtPrimaryModeEnabled() &&
-          process.env.STRIPE_SECRET_KEY &&
-          process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+        process.env.STRIPE_SECRET_KEY &&
+        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       ) || undefined,
     };
   } catch (error) {
@@ -347,31 +348,55 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in sm:space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-          {now.toLocaleDateString(DEFAULT_LOCALE, {
-            timeZone: DEFAULT_TIMEZONE,
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          {greeting},{" "}
-          <span className="text-primary">{userName}</span>
-        </h1>
-        <p className="text-muted-foreground">
-          Here&apos;s what&apos;s happening at{" "}
-          <strong>{institutionName}</strong> today.
-          {govtPrimaryMode ? " Govt Primary mode is active." : ""}
-        </p>
+    <div className="space-y-8 animate-fade-in pb-12">
+      {/* Premium Dashboard Hero Area */}
+      <div className="relative overflow-hidden rounded-[3rem] bg-gradient-to-br from-primary/[0.08] via-background to-accent/[0.04] p-8 sm:p-12 border border-primary/10 premium-shadow">
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 -z-10 h-96 w-96 monument-motif opacity-[0.03] bg-primary rotate-45 blur-2xl" />
+        <div className="absolute -bottom-24 -left-24 -z-10 h-72 w-72 rounded-full bg-accent/5 blur-3xl" />
+
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-10 items-center">
+          <div className="xl:col-span-3 space-y-6">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-1.5 w-8 rounded-full bg-bd-green" />
+                <p className="text-[10px] font-black text-primary/60 tracking-[0.3em] uppercase">
+                  {now.toLocaleDateString(DEFAULT_LOCALE, {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
+              </div>
+
+              <h1 className="text-4xl font-black tracking-tighter sm:text-6xl leading-[1.1] text-foreground">
+                {greeting}, <br />
+                <span className="gradient-text">{userName}</span>
+              </h1>
+
+              <p className="text-muted-foreground/80 text-sm sm:text-lg max-w-xl leading-relaxed mt-2">
+                Welcome to your command center for <strong>{institutionName}</strong>.
+                Everything is synced and secured.
+                {govtPrimaryMode && (
+                  <span className="ml-2 inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-black text-emerald-600 uppercase tracking-widest border border-emerald-500/20">
+                    GP Mode Active
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          <div className="xl:col-span-2 relative z-10 w-full">
+            <QuickActions />
+          </div>
+        </div>
       </div>
 
       {/* KPI Stats */}
       <StatsGrid stats={stats} />
+
+      {/* Modern Toolkit Widgets */}
+      <ModernToolkit />
 
       {!govtPrimaryMode ? (
         <ExecutiveCommandCenter
@@ -401,11 +426,10 @@ export default async function DashboardPage() {
 
       {/* Bottom Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <RecentStudents students={stats.recentStudents} />
         </div>
-        <div className="space-y-6">
-          <QuickActions />
+        <div className="lg:col-span-3">
           <UpcomingEvents events={events} />
         </div>
       </div>

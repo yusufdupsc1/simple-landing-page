@@ -2,22 +2,48 @@ import Link from "next/link";
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-ui-border bg-surface/80">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p className="font-medium text-muted-text">
-          © {new Date().getFullYear()} Dhadash. Built for Govt. Primary school teams.
-        </p>
-        <nav className="flex items-center gap-5" aria-label="Footer">
-          <Link href="/privacy" prefetch={false} className="text-muted-text transition-colors hover:text-text">
-            Privacy
-          </Link>
-          <Link href="/terms" prefetch={false} className="text-muted-text transition-colors hover:text-text">
-            Terms
-          </Link>
-          <Link href="/auth/login" prefetch={false} className="text-muted-text transition-colors hover:text-text">
-            Portal
-          </Link>
-        </nav>
+    <footer className="border-t border-border/40 bg-card/60 backdrop-blur-xl transition-premium py-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">Dhadash</span>
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            </div>
+            <p className="max-w-xs text-sm text-muted-foreground leading-relaxed">
+              ডিজিটাল বাংলাদেশ ভিশনে সরকারি প্রাথমিক বিদ্যালয়ের অটোমেশন পার্টনার।
+            </p>
+          </div>
+
+          <nav className="flex flex-wrap items-center gap-x-8 gap-y-4 text-sm font-semibold" aria-label="Footer">
+            {[
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
+              { label: "Portal Login", href: "/auth/login" },
+              { label: "Contact Admin", href: "mailto:admin@dhadash.com" }
+            ].map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                prefetch={false}
+                className="text-muted-foreground transition-premium hover:text-primary"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-border/40 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-xs font-medium text-muted-foreground">
+            © {new Date().getFullYear()} Dhadash. All rights reserved. Built with ❤️ for Bangladesh.
+          </p>
+          <div className="flex items-center gap-4 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+            {/* National Emblem Shape Simulated */}
+            <div className="h-6 w-6 monument-motif bg-primary" />
+            <span className="text-[10px] font-bold tracking-widest uppercase">Digital Bangladesh</span>
+          </div>
+        </div>
       </div>
     </footer>
   );

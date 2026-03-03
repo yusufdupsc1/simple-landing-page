@@ -1,9 +1,10 @@
-import { LayoutDashboard, GraduationCap, Users, Calendar, ClipboardCheck, School, Bell, ArchiveRestore } from "lucide-react";
+import { LayoutDashboard, GraduationCap, Users, Calendar, ClipboardCheck, School, Bell, ArchiveRestore, CreditCard } from "lucide-react";
 import type { Session } from "next-auth";
 import { isGovtPrimaryModeEnabled } from "@/lib/config";
 import { getDict } from "@/lib/i18n/getDict";
 import { cookies } from "next/headers";
 import { ActiveLink } from "./active-link.client";
+import { cn } from "@/lib/utils";
 
 function getItems(role?: string) {
     const govtPrimaryMode = isGovtPrimaryModeEnabled();
@@ -11,17 +12,17 @@ function getItems(role?: string) {
 
     if (role === "STUDENT") {
         return [
-            { href: "/dashboard/portal/student", labelKey: "student_portal", icon: LayoutDashboard },
-            { href: "/dashboard/portal/student", labelKey: "fees", icon: GraduationCap },
+            { href: "/dashboard/portal/student", labelKey: "dashboard", icon: LayoutDashboard },
+            { href: "/dashboard/portal/student", labelKey: "fees", icon: CreditCard },
             { href: "/dashboard/portal/student", labelKey: "result", icon: School },
             { href: "/dashboard/portal/student", labelKey: "notice", icon: Bell },
         ];
     }
     if (role === "PARENT") {
         return [
-            { href: "/dashboard/portal/parent", labelKey: "parent_portal", icon: LayoutDashboard },
-            { href: "/dashboard/portal/parent", labelKey: "guardian", icon: Users },
-            { href: "/dashboard/portal/parent", labelKey: "fees", icon: GraduationCap },
+            { href: "/dashboard/portal/parent", labelKey: "dashboard", icon: LayoutDashboard },
+            { href: "/dashboard/students", labelKey: "student", icon: GraduationCap },
+            { href: "/dashboard/portal/parent", labelKey: "fees", icon: CreditCard },
             { href: "/dashboard/portal/parent", labelKey: "notice", icon: Bell },
         ];
     }
@@ -29,7 +30,7 @@ function getItems(role?: string) {
         return [
             {
                 href: "/dashboard/portal/teacher",
-                labelKey: govtPrimaryMode ? "assistant_teacher_portal" : "teacher_portal",
+                labelKey: "dashboard",
                 icon: LayoutDashboard,
             },
             { href: "/dashboard/attendance", labelKey: "attendance", icon: ClipboardCheck },
@@ -40,17 +41,15 @@ function getItems(role?: string) {
 
     if (isPrivileged) {
         return [
-            { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+            { href: "/dashboard", labelKey: "home", icon: LayoutDashboard },
             { href: "/dashboard/students", labelKey: "student", icon: GraduationCap },
-            { href: "/dashboard/teachers", labelKey: "assistant_teacher", icon: Users },
-            govtPrimaryMode
-                ? { href: "/dashboard/classes", labelKey: "class", icon: School }
-                : { href: "/dashboard/control/inactive", labelKey: "governance", icon: ArchiveRestore },
+            { href: "/dashboard/attendance", labelKey: "attendance", icon: ClipboardCheck },
+            { href: "/dashboard/finance", labelKey: "fees", icon: CreditCard },
         ];
     }
 
     return [
-        { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+        { href: "/dashboard", labelKey: "home", icon: LayoutDashboard },
         { href: "/dashboard/students", labelKey: "student", icon: GraduationCap },
         { href: "/dashboard/teachers", labelKey: "assistant_teacher", icon: Users },
         { href: "/dashboard/events", labelKey: "routine", icon: Calendar },
@@ -67,7 +66,6 @@ export async function MobileNavServer({ session }: { session: Session }) {
     const govtPrimaryMode = isGovtPrimaryModeEnabled();
 
     const t = (key: string) => {
-        // In Govt Primary mode, prefer the govtPrimary dictionary for specific keys
         if (govtPrimaryMode && dict.govtPrimary[key]) {
             return dict.govtPrimary[key];
         }
@@ -77,17 +75,25 @@ export async function MobileNavServer({ session }: { session: Session }) {
     return (
         <nav
             aria-label="Mobile primary"
-            className="safe-bottom fixed inset-x-0 bottom-0 z-50 grid h-16 grid-cols-4 border-t border-border/80 bg-background/90 shadow-[0_-8px_30px_hsl(var(--foreground)/0.06)] backdrop-blur supports-[backdrop-filter]:bg-background/75 lg:hidden"
+            className="safe-bottom fixed inset-x-0 bottom-0 z-50 flex items-center justify-around h-18 border-t border-border/40 bg-card/80 backdrop-blur-2xl lg:hidden shadow-[0_-8px_30px_rgba(0,0,0,0.08)] px-2"
         >
             {items.map((item) => (
                 <ActiveLink
                     key={item.href}
                     href={item.href}
-                    className="mx-1 my-1 flex flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-medium text-muted-foreground transition-colors"
-                    activeClassName="bg-primary/10 text-primary"
+                    className="flex-1 flex flex-col items-center justify-center gap-1.5 h-full transition-premium group active:scale-90"
+                    activeClassName="mobile-nav-active"
                 >
-                    <item.icon className="h-4 w-4" />
-                    <span>{t(item.labelKey)}</span>
+                    {/* Icon Container */}
+                    <div className="relative flex items-center justify-center h-10 w-full group-[.mobile-nav-active]:h-9 group-[.mobile-nav-active]:w-[80%] group-[.mobile-nav-active]:bg-primary group-[.mobile-nav-active]:text-primary-foreground group-[.mobile-nav-active]:rounded-xl transition-all duration-300">
+                        <item.icon className="h-5 w-5 transition-all duration-300 group-[.mobile-nav-active]:scale-110" />
+                    </div>
+
+                    <span className="text-[10px] font-black uppercase tracking-[0.1em] text-muted-foreground transition-colors group-[.mobile-nav-active]:text-primary">
+                        {t(item.labelKey)}
+                    </span>
+
+                    {/* Underline Indicator for non-active items hover might be too much, let's stick to clean active state */}
                 </ActiveLink>
             ))}
         </nav>
