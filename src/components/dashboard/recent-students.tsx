@@ -13,10 +13,13 @@ interface StudentItem {
 
 interface RecentStudentsProps {
   students: StudentItem[];
-  isBangla: boolean;
+  isBangla?: boolean;
 }
 
-export function RecentStudents({ students, isBangla }: RecentStudentsProps) {
+export function RecentStudents({
+  students,
+  isBangla = false,
+}: RecentStudentsProps) {
   return (
     <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
       <div className="mb-4 flex items-center justify-between">

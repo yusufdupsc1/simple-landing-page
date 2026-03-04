@@ -8,7 +8,7 @@ interface AttendanceRow {
 
 interface AttendanceChartProps {
   data: AttendanceRow[];
-  isBangla: boolean;
+  isBangla?: boolean;
 }
 
 function statusLabel(status: string, isBangla: boolean) {
@@ -20,7 +20,10 @@ function statusLabel(status: string, isBangla: boolean) {
   return status;
 }
 
-export function AttendanceChart({ data, isBangla }: AttendanceChartProps) {
+export function AttendanceChart({
+  data,
+  isBangla = false,
+}: AttendanceChartProps) {
   return (
     <section className="flex h-full flex-col rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
       <h2 className="mb-4 flex items-center justify-between gap-2 text-xl font-semibold">

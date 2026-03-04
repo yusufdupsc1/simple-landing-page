@@ -12,8 +12,8 @@ interface StatsData {
 
 interface StatsGridProps {
   stats: StatsData;
-  isBangla: boolean;
-  govtPrimaryMode: boolean;
+  isBangla?: boolean;
+  govtPrimaryMode?: boolean;
 }
 
 function n(value: number, isBangla: boolean) {
@@ -22,8 +22,8 @@ function n(value: number, isBangla: boolean) {
 
 export function StatsGrid({
   stats,
-  isBangla,
-  govtPrimaryMode,
+  isBangla = false,
+  govtPrimaryMode = false,
 }: StatsGridProps) {
   const teacherLabel = isBangla
     ? govtPrimaryMode

@@ -7,10 +7,13 @@ interface RevenueRow {
 
 interface RevenueChartProps {
   data: RevenueRow[];
-  isBangla: boolean;
+  isBangla?: boolean;
 }
 
-export function RevenueChart({ data, isBangla }: RevenueChartProps) {
+export function RevenueChart({
+  data,
+  isBangla = false,
+}: RevenueChartProps) {
   return (
     <section className="flex h-full flex-col rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
       <h2 className="mb-4 flex items-center justify-between gap-2 text-xl font-semibold">
