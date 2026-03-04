@@ -106,7 +106,7 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${hindSiliguri.variable}`}
     >
-      <body className={`${isBangla ? "font-bn" : "font-sans"} antialiased`}>
+      <body className="font-bn antialiased">
         <ServiceWorkerRegistration />
         <TabLoadingIndicator />
         <OfflineBanner />

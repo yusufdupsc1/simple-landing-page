@@ -3,7 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { CalendarCheck2, CalendarDays, FileText, Bell } from "lucide-react";
+import {
+  CalendarCheck2,
+  CalendarDays,
+  FileText,
+  Bell,
+  ClipboardCheck,
+  CreditCard,
+  School,
+  ShieldCheck,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useT } from "@/lib/i18n/client";
@@ -15,6 +24,12 @@ export function Hero() {
     { label: t("landing_bullet_routine_print"), icon: CalendarDays },
     { label: t("landing_bullet_result_sheet"), icon: FileText },
     { label: t("landing_bullet_notice_board"), icon: Bell },
+  ];
+  const utilityWidgets = [
+    { label: "উপস্থিতি", subLabel: "দৈনিক ট্র্যাকিং", icon: ClipboardCheck },
+    { label: "ফি ম্যানেজ", subLabel: "রসিদ অটোমেশন", icon: CreditCard },
+    { label: "ফলাফল", subLabel: "প্রিন্ট রিপোর্ট", icon: School },
+    { label: "নিরাপত্তা", subLabel: "ডেটা সুরক্ষিত", icon: ShieldCheck },
   ];
 
   return (
@@ -93,6 +108,27 @@ export function Hero() {
         </div>
 
         <div className="relative animate-in fade-in slide-in-from-right duration-700 delay-200">
+          <div className="absolute right-0 top-6 z-10 hidden w-40 space-y-3 xl:block">
+            {utilityWidgets.map((widget) => (
+              <div
+                key={widget.label}
+                className="bd-hover-mix flex items-center gap-2 rounded-xl border border-border/60 bg-card/70 px-2.5 py-2 backdrop-blur-sm"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/25 text-primary">
+                  <widget.icon className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-[11px] font-bold text-foreground/90">
+                    {widget.label}
+                  </p>
+                  <p className="truncate text-[10px] text-muted-foreground">
+                    {widget.subLabel}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
           {/* Subtle National Motif Wrapper */}
           <div className="absolute -inset-4 -z-10 monument-motif bg-primary/5 opacity-50 blur-sm pointer-events-none" />
 
@@ -125,6 +161,27 @@ export function Hero() {
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3 xl:hidden">
+            {utilityWidgets.map((widget) => (
+              <div
+                key={`${widget.label}-mobile`}
+                className="bd-hover-mix flex items-center gap-2 rounded-xl border border-border/60 bg-card/70 px-2.5 py-2 backdrop-blur-sm"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary/20 to-accent/25 text-primary">
+                  <widget.icon className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-[11px] font-bold text-foreground/90">
+                    {widget.label}
+                  </p>
+                  <p className="truncate text-[10px] text-muted-foreground">
+                    {widget.subLabel}
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

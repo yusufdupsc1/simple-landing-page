@@ -19,8 +19,6 @@ import {
   School,
   BookOpen,
   Bookmark,
-  FileText,
-  ChevronRight,
   ChevronDown,
   ShieldCheck,
   GraduationCap,
@@ -30,12 +28,6 @@ import {
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useGovtPrimaryT, useT } from "@/lib/i18n/client";
 import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
@@ -348,13 +340,12 @@ export function Sidebar({ session, isMobile }: SidebarProps) {
   };
 
   return (
-    <TooltipProvider delayDuration={0}>
-      <aside
-        className={cn(
-          "h-svh w-[230px] flex-shrink-0 flex-col border-r border-border/40 bg-card/60 backdrop-blur-xl xl:w-[250px] transition-premium",
-          isMobile ? "flex w-full" : "hidden lg:flex",
-        )}
-      >
+    <aside
+      className={cn(
+        "h-svh w-[230px] flex-shrink-0 flex-col overflow-hidden border-r border-border/40 bg-card/60 backdrop-blur-xl xl:w-[250px] transition-premium",
+        isMobile ? "flex w-full" : "hidden lg:flex",
+      )}
+    >
         {/* Brand */}
         <div className="flex items-center gap-3 h-14 px-5 border-b border-border/40">
           <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-[0_2px_10px_-3px_rgba(var(--primary),0.5)]">
@@ -397,7 +388,7 @@ export function Sidebar({ session, isMobile }: SidebarProps) {
         {/* Navigation */}
         <nav
           aria-label="Primary"
-          className="flex-1 overflow-y-auto py-1 px-3 space-y-6 custom-scrollbar"
+          className="custom-scrollbar flex-1 space-y-6 overflow-x-hidden overflow-y-auto px-3 py-1"
         >
           {NAV_SECTIONS.map((section) => {
             const visibleItems = section.items.filter(
@@ -438,7 +429,7 @@ export function Sidebar({ session, isMobile }: SidebarProps) {
                           href={item.href}
                           prefetch={false}
                           className={cn(
-                            "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-premium",
+                            "bd-hover-mix group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-premium",
                             active
                               ? "sidebar-active-item"
                               : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
@@ -477,7 +468,7 @@ export function Sidebar({ session, isMobile }: SidebarProps) {
                             }))
                           }
                           className={cn(
-                            "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-premium",
+                            "bd-hover-mix group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-premium",
                             active
                               ? "sidebar-active-item"
                               : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
@@ -545,7 +536,7 @@ export function Sidebar({ session, isMobile }: SidebarProps) {
               </p>
             </div>
 
-            <div className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-background/80 transition-premium border border-transparent hover:border-border/50 hover:shadow-sm group">
+            <div className="group flex items-center gap-3 rounded-2xl border border-transparent p-2.5 transition-premium hover:border-border/50 hover:bg-background/80 hover:shadow-sm">
               <div className="relative">
                 <Avatar className="h-9 w-9 ring-2 ring-background ring-offset-1 ring-offset-border/40 transition-transform group-hover:scale-105">
                   <AvatarImage src={session.user.image ?? ""} />
@@ -563,23 +554,18 @@ export function Sidebar({ session, isMobile }: SidebarProps) {
                   {userRole.replace("_", " ")}
                 </p>
               </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => signOut({ callbackUrl: "/auth/login" })}
-                    className="p-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-premium"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p>Sign out</p>
-                </TooltipContent>
-              </Tooltip>
             </div>
+
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: "/auth/login" })}
+              className="bd-hover-mix mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-border/60 px-3 py-2 text-[12px] font-bold tracking-wide text-muted-foreground transition-premium hover:border-primary/35 hover:text-foreground"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>লগআউট</span>
+            </button>
           </div>
         </div>
-      </aside>
-    </TooltipProvider>
+    </aside>
   );
 }

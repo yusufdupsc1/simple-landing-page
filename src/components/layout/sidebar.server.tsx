@@ -299,7 +299,7 @@ export async function SidebarServer({ session }: { session: Session }) {
   };
 
   return (
-    <aside className="relative hidden h-svh w-[242px] flex-shrink-0 flex-col border-r border-border/80 bg-card/95 lg:flex xl:w-[258px]">
+    <aside className="relative hidden h-svh w-[242px] flex-shrink-0 flex-col overflow-hidden border-r border-border/80 bg-card/95 lg:flex xl:w-[258px]">
       <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-primary/40 via-border to-accent/40" />
       {/* Brand */}
       <Link
@@ -337,7 +337,7 @@ export async function SidebarServer({ session }: { session: Session }) {
       {/* Navigation */}
       <nav
         aria-label="Primary"
-        className="flex-1 space-y-3 overflow-hidden px-2 py-3"
+        className="flex-1 space-y-3 overflow-x-hidden overflow-y-auto px-2 py-3 custom-scrollbar"
       >
         {NAV_SECTIONS.map((section) => {
           const visibleItems = section.items.filter(
@@ -370,7 +370,7 @@ export async function SidebarServer({ session }: { session: Session }) {
                       <ActiveLink
                         key={item.href}
                         href={item.href}
-                        className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 hover:text-foreground"
+                        className="bd-hover-mix flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 hover:text-foreground"
                         activeClassName="sidebar-active-item"
                       >
                         <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -394,7 +394,7 @@ export async function SidebarServer({ session }: { session: Session }) {
                     <div key={item.href} className="space-y-1">
                       <ActiveLink
                         href={item.href}
-                        className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 hover:text-foreground"
+                        className="bd-hover-mix flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 hover:text-foreground"
                         activeClassName="sidebar-active-item"
                       >
                         <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -432,20 +432,20 @@ export async function SidebarServer({ session }: { session: Session }) {
               {userRole.charAt(0) + userRole.slice(1).toLowerCase()}
             </p>
           </div>
-
-          <form action={logoutAction} className="ml-auto">
-            <button
-              type="submit"
-              className="flex items-center gap-1 rounded-md border border-border/70 px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:border-accent/30 hover:bg-accent/10 hover:text-accent"
-              title={locale === "bn" ? "লগআউট" : "Log out"}
-              aria-label={locale === "bn" ? "লগআউট" : "Log out"}
-              data-testid="sidebar-logout-button"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              <span>{locale === "bn" ? "লগআউট" : "Logout"}</span>
-            </button>
-          </form>
         </div>
+
+        <form action={logoutAction} className="mt-2.5">
+          <button
+            type="submit"
+            className="bd-hover-mix flex w-full items-center justify-center gap-2 rounded-lg border border-border/70 px-2 py-2 text-[11px] font-semibold text-muted-foreground transition-colors hover:border-primary/35 hover:text-foreground"
+            title={locale === "bn" ? "লগআউট" : "Log out"}
+            aria-label={locale === "bn" ? "লগআউট" : "Log out"}
+            data-testid="sidebar-logout-button"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            <span>{locale === "bn" ? "লগআউট" : "Logout"}</span>
+          </button>
+        </form>
       </div>
     </aside>
   );
