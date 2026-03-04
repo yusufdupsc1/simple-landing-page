@@ -3,13 +3,15 @@
 import { useEffect } from "react";
 
 const LOADING_MESSAGES = [
-  "Sharpening pencils",
-  "Taking attendance",
-  "Polishing report cards",
-  "Ringing the class bell",
+  "চায়ের কাপে ডেটা নেড়ে দিচ্ছি",
+  "খাতায় উপস্থিতি গুনছি",
+  "রিপোর্ট কার্ডে চকচকে ফিনিশ",
+  "ঘণ্টা পড়ল, সিস্টেম রেডি",
 ];
+const TICKER_JOINER = " • ";
+const TICKER_WINDOW = 24;
 
-const DOTS = ["", ".", "..", "..."];
+const TICKER_SOURCE = `${LOADING_MESSAGES.join(TICKER_JOINER)}${TICKER_JOINER}`;
 
 function getFaviconLink() {
   const existing = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
@@ -36,6 +38,8 @@ export function TabLoadingIndicator() {
     let stopTimer: number | null = null;
     let animationTimer: number | null = null;
     let latestTitle = document.title;
+    const tickerChars = Array.from(TICKER_SOURCE);
+    const tickerLength = tickerChars.length;
 
     const canvas = document.createElement("canvas");
     canvas.width = 32;
@@ -94,10 +98,14 @@ export function TabLoadingIndicator() {
       ctx.fill();
 
       faviconLink.href = canvas.toDataURL("image/png");
-      const msg =
-        LOADING_MESSAGES[Math.floor(frame / 8) % LOADING_MESSAGES.length];
-      const dots = DOTS[frame % DOTS.length];
-      document.title = `${msg}${dots} | ${latestTitle}`;
+      const offset = frame % tickerLength;
+      let windowChars = "";
+      for (let idx = 0; idx < TICKER_WINDOW; idx += 1) {
+        const tickerIndex = (offset + idx) % tickerLength;
+        windowChars += tickerChars[tickerIndex];
+      }
+
+      document.title = `${windowChars} | ${latestTitle}`;
       frame += 1;
     };
 
