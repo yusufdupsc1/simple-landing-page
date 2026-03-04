@@ -9,7 +9,7 @@ test.describe("Authentication Flows", () => {
       page.getByRole("heading", { name: "Welcome back" }),
     ).toBeVisible();
     await expect(
-      page.getByLabel("Institution Slug (optional for Admin)"),
+      page.getByLabel("School Code (optional for Admin)"),
     ).toBeVisible();
     await expect(page.getByLabel("Email address")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();

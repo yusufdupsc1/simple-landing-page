@@ -64,7 +64,7 @@ const LoginSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message:
-          "Institution slug is required for teacher/student/parent login scope.",
+          "School code is required for teacher/student/parent login scope.",
         path: ["institution"],
       });
     }
@@ -347,7 +347,7 @@ export function LoginForm({
     setValue("phone", currentPhone);
 
     if (currentScope !== "ADMIN" && !currentInstitution) {
-      setFormError("Institution slug is required for this scope.");
+      setFormError("School code is required for this scope.");
       return;
     }
 
@@ -508,13 +508,13 @@ export function LoginForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="institution">
-            Institution Slug (optional for Admin)
+            School Code (optional for Admin)
           </Label>
           <Input
             id="institution"
             type="text"
             autoComplete="organization"
-            placeholder="e.g. greenfield-school"
+            placeholder="e.g. greenfield"
             disabled={isPending || isSendingOtp}
             onBlur={(e) => {
               const normalized = normalizeInstitutionSlug(e.target.value);
@@ -522,6 +522,9 @@ export function LoginForm({
             }}
             {...register("institution")}
           />
+          <p className="text-xs text-muted-foreground">
+            Use the school code provided during institution onboarding.
+          </p>
           {scopeInfoError && institutionSlug ? (
             <p className="text-xs text-muted-foreground">{scopeInfoError}</p>
           ) : null}

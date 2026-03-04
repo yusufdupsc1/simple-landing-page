@@ -24,9 +24,7 @@ export default async function LoginPage({
   }
 
   const params = await searchParams;
-  const googleEnabled = Boolean(
-    process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET,
-  );
+  const googleEnabled = true;
 
   return (
     <main className="min-h-screen bg-background">
