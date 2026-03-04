@@ -105,7 +105,7 @@ export async function ModernToolkit() {
         {features.map((feature, i) => (
           <Card
             key={i}
-            className="group relative overflow-hidden border-border/70 bg-card p-4 transition-premium hover:border-primary/35 hover:bg-primary/5"
+            className="group relative overflow-hidden border-border/70 bg-card p-4 transition-premium hover:border-primary/35 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10"
           >
             <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary/60 via-accent/70 to-primary/60" />
 

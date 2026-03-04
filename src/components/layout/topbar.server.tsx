@@ -59,7 +59,7 @@ export async function TopBarServer({ session }: { session: Session }) {
         />
         <Link
           href={homeHref}
-          className="min-w-0 rounded-md px-1 py-0.5 transition-colors hover:bg-muted/60"
+          className="min-w-0 rounded-md px-1 py-0.5 transition-colors hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10"
           data-testid="topbar-home-link"
           aria-label="Go to home dashboard"
         >
@@ -70,7 +70,7 @@ export async function TopBarServer({ session }: { session: Session }) {
       <div className="flex items-center gap-1.5 sm:gap-2">
         <LanguageToggle />
         <button
-          className="rounded-xl border border-border/70 p-2 text-muted-foreground transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+          className="rounded-xl border border-border/70 p-2 text-muted-foreground transition-colors hover:border-primary/35 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 hover:text-primary"
           aria-label={t("notifications")}
         >
           <Bell className="h-4 w-4" />

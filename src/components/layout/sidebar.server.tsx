@@ -370,7 +370,7 @@ export async function SidebarServer({ session }: { session: Session }) {
                       <ActiveLink
                         key={item.href}
                         href={item.href}
-                        className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-primary/5 hover:text-primary"
+                        className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 hover:text-foreground"
                         activeClassName="sidebar-active-item"
                       >
                         <item.icon className="h-4 w-4 flex-shrink-0" />
@@ -394,7 +394,7 @@ export async function SidebarServer({ session }: { session: Session }) {
                     <div key={item.href} className="space-y-1">
                       <ActiveLink
                         href={item.href}
-                        className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-primary/5 hover:text-primary"
+                        className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 hover:text-foreground"
                         activeClassName="sidebar-active-item"
                       >
                         <item.icon className="h-4 w-4 flex-shrink-0" />

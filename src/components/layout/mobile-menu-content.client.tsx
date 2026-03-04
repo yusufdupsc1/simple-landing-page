@@ -112,13 +112,13 @@ export function MobileMenuContent({
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-foreground/90 transition-colors",
-                        "hover:bg-muted/70 active:scale-[0.99]",
+                        "group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-foreground/90 transition-colors",
+                        "hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10 active:scale-[0.99]",
                       )}
                       data-testid={hrefToTestId(item.href)}
                     >
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-card">
-                        <Icon className="h-4 w-4 text-primary" />
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-card transition-colors group-hover:border-primary/30">
+                        <Icon className="h-4 w-4 text-primary transition-colors group-hover:text-accent" />
                       </div>
                       <span className="truncate">{item.label}</span>
                     </Link>

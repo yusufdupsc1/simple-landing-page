@@ -115,7 +115,7 @@ export async function QuickActions() {
             <Link
               key={action.href}
               href={action.href}
-              className="group/action flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-background/70 px-1.5 py-2 transition-colors hover:border-primary/30 hover:bg-primary/5"
+              className="group/action flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-background/70 px-1.5 py-2 transition-colors hover:border-primary/30 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10"
               data-testid={`quick-action-${action.label.en.toLowerCase().replace(/\s+/g, "-")}`}
             >
               <div
@@ -126,6 +126,7 @@ export async function QuickActions() {
                   "border-current/15 hover:scale-105 hover:shadow-md active:scale-95",
                 )}
               >
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-primary/0 via-accent/0 to-accent/20 opacity-0 transition-opacity duration-300 group-hover/action:opacity-100" />
                 <Icon className="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-500 group-hover/action:rotate-6" />
               </div>
               <span className="w-full px-0.5 text-center text-[10px] font-semibold leading-tight text-muted-foreground transition-colors group-hover/action:text-primary sm:text-[11px]">

@@ -111,7 +111,7 @@ export async function MobileNavServer({ session }: { session: Session }) {
           className="group flex h-full flex-1 flex-col items-center justify-center gap-1 transition-premium active:scale-90"
           activeClassName="mobile-nav-active"
         >
-          <div className="relative flex h-9 w-[78%] items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-all duration-300 group-[.mobile-nav-active]:border-primary/30 group-[.mobile-nav-active]:bg-primary/10 group-[.mobile-nav-active]:text-primary">
+          <div className="relative flex h-9 w-[78%] items-center justify-center rounded-xl border border-transparent text-muted-foreground transition-all duration-300 group-[.mobile-nav-active]:border-primary/30 group-[.mobile-nav-active]:bg-gradient-to-r group-[.mobile-nav-active]:from-primary/15 group-[.mobile-nav-active]:to-accent/15 group-[.mobile-nav-active]:text-primary">
             <item.icon className="h-5 w-5 transition-all duration-300 group-[.mobile-nav-active]:scale-110" />
           </div>
 

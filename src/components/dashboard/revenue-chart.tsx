@@ -28,7 +28,7 @@ export function RevenueChart({
           data.map((row, idx) => (
             <div
               key={`${row.paidAt.toISOString()}-${idx}`}
-              className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-3 py-2.5 transition-colors hover:border-primary/30 hover:bg-primary/5"
+              className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-3 py-2.5 transition-colors hover:border-primary/30 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10"
             >
               <span className="text-sm text-muted-foreground">
                 {formatDate(row.paidAt)}

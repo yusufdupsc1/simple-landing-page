@@ -83,7 +83,7 @@ export function StatsGrid({
           <Link
             key={card.label}
             href={card.href}
-            className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5"
+            className="group rounded-2xl border border-border bg-card p-5 shadow-sm transition-colors hover:border-primary/30 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10"
             data-testid={`stats-card-${card.id}`}
           >
             <div>

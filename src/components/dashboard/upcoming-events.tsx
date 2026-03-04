@@ -19,7 +19,7 @@ export function UpcomingEvents({
   isBangla = false,
 }: UpcomingEventsProps) {
   return (
-    <section className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-sm transition-premium hover:border-primary/25">
+    <section className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-border bg-card p-6 shadow-sm transition-premium hover:border-primary/25 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary/60 via-accent/60 to-primary/60" />
       <div className="flex items-center justify-between mb-6">
         <div className="flex flex-col">
@@ -44,7 +44,7 @@ export function UpcomingEvents({
           events.map((event, i) => (
             <div
               key={event.id}
-              className="group/item relative overflow-hidden rounded-2xl border border-border bg-muted/20 px-4 py-4 transition-premium hover:border-primary/20 hover:bg-primary/5"
+              className="group/item relative overflow-hidden rounded-2xl border border-border bg-muted/20 px-4 py-4 transition-premium hover:border-primary/20 hover:bg-gradient-to-r hover:from-primary/10 hover:to-accent/10"
               style={{ animationDelay: `${i * 100}ms` }}
             >
               <div className="flex items-center justify-between">
