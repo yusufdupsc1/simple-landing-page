@@ -67,7 +67,7 @@ function resolvePortalReturnPath(role: string) {
 }
 
 function normalizeCurrency(value: string | undefined, fallback: string) {
-  return (value?.trim().toUpperCase() || fallback.trim().toUpperCase() || "BDT");
+  return value?.trim().toUpperCase() || fallback.trim().toUpperCase() || "BDT";
 }
 
 async function resolveAuthorizedFee(input: {
@@ -100,7 +100,14 @@ async function resolveAuthorizedFee(input: {
         student: {
           OR: [
             ...(input.email
-              ? [{ email: { equals: input.email, mode: "insensitive" as const } }]
+              ? [
+                  {
+                    email: {
+                      equals: input.email,
+                      mode: "insensitive" as const,
+                    },
+                  },
+                ]
               : []),
             ...(phoneLike ? [{ phone: { contains: phoneLike } }] : []),
           ],
@@ -127,7 +134,14 @@ async function resolveAuthorizedFee(input: {
             some: {
               OR: [
                 ...(input.email
-                  ? [{ email: { equals: input.email, mode: "insensitive" as const } }]
+                  ? [
+                      {
+                        email: {
+                          equals: input.email,
+                          mode: "insensitive" as const,
+                        },
+                      },
+                    ]
                   : []),
                 ...(phoneLike ? [{ phone: { contains: phoneLike } }] : []),
               ],
@@ -161,7 +175,10 @@ async function createStripeCheckoutSession(input: {
   }
 
   if (!["USD", "EUR"].includes(input.currency)) {
-    return { success: false as const, error: "Stripe is limited to USD/EUR for this app." };
+    return {
+      success: false as const,
+      error: "Stripe is limited to USD/EUR for this app.",
+    };
   }
 
   const returnPath = resolvePortalReturnPath(input.role);
@@ -218,11 +235,15 @@ async function createSslCommerzSession(input: {
   }
 
   const institutionCountry = (input.institution.country ?? "BD").toUpperCase();
-  const institutionCurrency = normalizeCurrency(input.institution.currency ?? "BDT", "BDT");
+  const institutionCurrency = normalizeCurrency(
+    input.institution.currency ?? "BDT",
+    "BDT",
+  );
   if (institutionCountry !== "BD" && institutionCurrency !== "BDT") {
     return {
       success: false as const,
-      error: "SSLCommerz payments are only available for Bangladesh tenants (BDT).",
+      error:
+        "SSLCommerz payments are only available for Bangladesh tenants (BDT).",
     };
   }
 
@@ -231,7 +252,8 @@ async function createSslCommerzSession(input: {
   const tranId = `SSLCZ-${input.fee.id}-${Date.now()}`;
   const amount = Number(input.fee.amount).toFixed(2);
   const customerName =
-    `${input.fee.student?.firstName ?? ""} ${input.fee.student?.lastName ?? ""}`.trim() || "Student";
+    `${input.fee.student?.firstName ?? ""} ${input.fee.student?.lastName ?? ""}`.trim() ||
+    "Student";
   const customerEmail =
     input.fee.student?.email ||
     input.fee.student?.parents?.[0]?.email ||
@@ -293,13 +315,18 @@ async function createSslCommerzSession(input: {
 }
 
 export async function createCheckoutSession(
-  payload: string | { feeId: string; gateway?: "STRIPE" | "SSLCOMMERZ"; currency?: string },
+  payload:
+    | string
+    | { feeId: string; gateway?: "STRIPE" | "SSLCOMMERZ"; currency?: string },
 ): Promise<ActionResult<{ sessionId: string }>> {
   try {
     const feeId = typeof payload === "string" ? payload : payload.feeId;
     const gateway =
-      typeof payload === "string" ? "SSLCOMMERZ" : payload.gateway ?? "SSLCOMMERZ";
-    const requestedCurrency = typeof payload === "string" ? undefined : payload.currency;
+      typeof payload === "string"
+        ? "SSLCOMMERZ"
+        : (payload.gateway ?? "SSLCOMMERZ");
+    const requestedCurrency =
+      typeof payload === "string" ? undefined : payload.currency;
 
     const parsed = CreateCheckoutSchema.safeParse({
       feeId,
@@ -320,12 +347,19 @@ export async function createCheckoutSession(
       };
     }
 
-    const { institutionId, userId, role, email, phone } = await getAuthContext();
+    const { institutionId, userId, role, email, phone } =
+      await getAuthContext();
     if (!isPrivilegedRole(role) && !["STUDENT", "PARENT"].includes(role)) {
-      return { success: false, error: "You are not allowed to initiate fee payments." };
+      return {
+        success: false,
+        error: "You are not allowed to initiate fee payments.",
+      };
     }
     if (!isPrivilegedRole(role) && !email && !phone) {
-      return { success: false, error: "Your account email or phone is required for scoped payments." };
+      return {
+        success: false,
+        error: "Your account email or phone is required for scoped payments.",
+      };
     }
 
     const fee = await resolveAuthorizedFee({
@@ -340,7 +374,10 @@ export async function createCheckoutSession(
       return { success: false, error: "Fee not found for your tenant scope." };
     }
 
-    const paid = (fee.payments ?? []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+    const paid = (fee.payments ?? []).reduce(
+      (sum: number, p: any) => sum + Number(p.amount),
+      0,
+    );
     const remaining = Number(fee.amount) - paid;
     if (remaining <= 0.01) {
       return { success: false, error: "This fee is already settled." };
@@ -367,7 +404,10 @@ export async function createCheckoutSession(
       });
     }
 
-    const currency = normalizeCurrency(parsed.data.currency, institution.currency || "USD");
+    const currency = normalizeCurrency(
+      parsed.data.currency,
+      institution.currency || "USD",
+    );
     return createStripeCheckoutSession({
       fee: {
         ...fee,
@@ -422,7 +462,10 @@ export async function createBulkCheckoutSession(
     if (!institution) {
       return { success: false, error: "Institution not found" };
     }
-    const currency = normalizeCurrency(undefined, institution.currency || "USD");
+    const currency = normalizeCurrency(
+      undefined,
+      institution.currency || "USD",
+    );
     if (!["USD", "EUR"].includes(currency)) {
       return {
         success: false,

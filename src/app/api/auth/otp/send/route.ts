@@ -30,9 +30,17 @@ export async function POST(req: NextRequest) {
       return apiError(400, "VALIDATION_ERROR", "Invalid phone number format");
     }
 
-    const rate = checkRateLimit(`otp-send:${ip}:${payload.institutionSlug}:${phone}`, 8, 10 * 60);
+    const rate = checkRateLimit(
+      `otp-send:${ip}:${payload.institutionSlug}:${phone}`,
+      8,
+      10 * 60,
+    );
     if (!rate.success) {
-      return apiError(429, "RATE_LIMITED", "Too many OTP attempts. Try again later.");
+      return apiError(
+        429,
+        "RATE_LIMITED",
+        "Too many OTP attempts. Try again later.",
+      );
     }
 
     const institution = await db.institution.findFirst({
@@ -69,15 +77,27 @@ export async function POST(req: NextRequest) {
     }
 
     if (!user.isActive) {
-      return apiError(403, "ACCOUNT_INACTIVE", "Your account is inactive. Contact your administrator.");
+      return apiError(
+        403,
+        "ACCOUNT_INACTIVE",
+        "Your account is inactive. Contact your administrator.",
+      );
     }
 
     if (user.approvalStatus === "PENDING") {
-      return apiError(403, "ACCOUNT_PENDING", "Your account is pending approval.");
+      return apiError(
+        403,
+        "ACCOUNT_PENDING",
+        "Your account is pending approval.",
+      );
     }
 
     if (user.approvalStatus === "REJECTED") {
-      return apiError(403, "ACCOUNT_REJECTED", "Your access request was rejected. Contact your administrator.");
+      return apiError(
+        403,
+        "ACCOUNT_REJECTED",
+        "Your access request was rejected. Contact your administrator.",
+      );
     }
 
     const challenge = await createOtpChallenge({
@@ -92,7 +112,10 @@ export async function POST(req: NextRequest) {
         429,
         "OTP_COOLDOWN",
         `Please wait ${challenge.cooldownSeconds}s before requesting another code.`,
-        { challengeId: challenge.challengeId, cooldownSeconds: challenge.cooldownSeconds },
+        {
+          challengeId: challenge.challengeId,
+          cooldownSeconds: challenge.cooldownSeconds,
+        },
       );
     }
 
@@ -110,7 +133,12 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     if (error instanceof ZodError) {
-      return apiError(400, "VALIDATION_ERROR", "Invalid request payload", error.flatten());
+      return apiError(
+        400,
+        "VALIDATION_ERROR",
+        "Invalid request payload",
+        error.flatten(),
+      );
     }
 
     logApiError("API_AUTH_OTP_SEND_POST", error, { ip });

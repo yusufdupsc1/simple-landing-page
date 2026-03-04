@@ -84,7 +84,9 @@ export default async function ReceiptPrintPage({ params }: PageProps) {
         <h1 className="text-xl font-bold">ফি রশিদ</h1>
         <p className="text-xs text-slate-600">Fee Receipt</p>
         <p className="mt-2 text-sm font-semibold">{payment.institution.name}</p>
-        <p className="text-xs text-slate-600">{payment.institution.address ?? "Bangladesh"}</p>
+        <p className="text-xs text-slate-600">
+          {payment.institution.address ?? "Bangladesh"}
+        </p>
         {payment.institution.phone ? (
           <p className="text-xs text-slate-600">{payment.institution.phone}</p>
         ) : null}
@@ -92,23 +94,28 @@ export default async function ReceiptPrintPage({ params }: PageProps) {
 
       <section className="mb-4 grid grid-cols-2 gap-2 text-sm">
         <p>
-          <span className="font-semibold">রশিদ নং:</span> {payment.receiptNumber ?? "N/A"}
+          <span className="font-semibold">রশিদ নং:</span>{" "}
+          {payment.receiptNumber ?? "N/A"}
         </p>
         <p>
-          <span className="font-semibold">Receipt No:</span> {payment.receiptNumber ?? "N/A"}
+          <span className="font-semibold">Receipt No:</span>{" "}
+          {payment.receiptNumber ?? "N/A"}
         </p>
         <p>
-          <span className="font-semibold">তারিখ:</span> {formatDate(payment.paidAt)}
+          <span className="font-semibold">তারিখ:</span>{" "}
+          {formatDate(payment.paidAt)}
         </p>
         <p>
-          <span className="font-semibold">পেমেন্ট পদ্ধতি:</span> {payment.method}
+          <span className="font-semibold">পেমেন্ট পদ্ধতি:</span>{" "}
+          {payment.method}
         </p>
       </section>
 
       <section className="mb-5 rounded border border-slate-300 p-3 text-sm">
         <h2 className="mb-2 font-semibold">শিক্ষার্থীর তথ্য (Student)</h2>
         <p>
-          {payment.fee.student.firstName} {payment.fee.student.lastName} ({payment.fee.student.studentId})
+          {payment.fee.student.firstName} {payment.fee.student.lastName} (
+          {payment.fee.student.studentId})
         </p>
         <p>
           {payment.fee.class?.name ?? "-"} / {payment.fee.class?.section ?? "-"}
@@ -127,7 +134,9 @@ export default async function ReceiptPrintPage({ params }: PageProps) {
           <tr>
             <td>1</td>
             <td>{payment.fee.title}</td>
-            <td className="text-right">{formatCurrency(Number(payment.amount))}</td>
+            <td className="text-right">
+              {formatCurrency(Number(payment.amount))}
+            </td>
           </tr>
         </tbody>
         <tfoot>
@@ -135,25 +144,33 @@ export default async function ReceiptPrintPage({ params }: PageProps) {
             <td colSpan={2} className="text-right font-semibold">
               মোট / Total
             </td>
-            <td className="text-right font-semibold">{formatCurrency(Number(payment.amount))}</td>
+            <td className="text-right font-semibold">
+              {formatCurrency(Number(payment.amount))}
+            </td>
           </tr>
         </tfoot>
       </table>
 
       <div className="mt-4 text-right">
         <p className="text-sm">মোট পরিশোধ / Total Paid</p>
-        <p className="text-lg font-bold">{formatCurrency(Number(payment.amount))}</p>
+        <p className="text-lg font-bold">
+          {formatCurrency(Number(payment.amount))}
+        </p>
       </div>
 
       <footer className="mt-12 text-sm">
         <div className="receipt-signature grid grid-cols-1 gap-8 sm:grid-cols-2">
           <div className="text-left">
-            <p className="signature-line">....................................</p>
+            <p className="signature-line">
+              ....................................
+            </p>
             <p className="font-semibold">প্রস্তুতকারী</p>
             <p className="text-xs text-slate-600">Prepared By</p>
           </div>
           <div className="text-right">
-            <p className="signature-line">....................................</p>
+            <p className="signature-line">
+              ....................................
+            </p>
             <p className="font-semibold">স্বাক্ষর</p>
             <p className="text-xs text-slate-600">Authorized Signature</p>
           </div>

@@ -21,9 +21,14 @@ async function run(req: NextRequest) {
 
     return apiOk(result, { job: "progress-quarterly" });
   } catch (error) {
-    return apiError(500, "CRON_FAILED", "Failed to generate quarterly progress", {
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
+    return apiError(
+      500,
+      "CRON_FAILED",
+      "Failed to generate quarterly progress",
+      {
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    );
   }
 }
 

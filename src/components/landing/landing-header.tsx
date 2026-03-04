@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Shield, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { ShieldCheck } from "lucide-react";
 
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
@@ -10,127 +9,64 @@ import { useT } from "@/lib/i18n/client";
 
 export function LandingHeader() {
   const { t } = useT();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-md shadow-primary/20">
-            <Shield className="h-5 w-5 text-primary-foreground" />
+    <header className="safe-top sticky top-0 z-50 border-b border-border/40 bg-background/60 backdrop-blur-xl transition-premium">
+      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-8">
+        <Link
+          href="/"
+          className="flex items-center gap-3 group transition-premium"
+        >
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-[0_2px_10px_-3px_rgba(var(--primary),0.5)] transition-transform group-hover:scale-105">
+            <ShieldCheck className="h-5 w-5" aria-hidden="true" />
           </div>
-          <span className="text-lg font-bold tracking-tight">Dhadash</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-base font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70 leading-none">
+              Dhadash
+            </span>
+            <span className="text-[9px] font-bold text-primary tracking-widest uppercase opacity-70 leading-none mt-1">
+              National Ops
+            </span>
+          </div>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav
           aria-label="Marketing"
           className="hidden items-center gap-8 md:flex"
         >
-          <a
-            href="#features"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ফিচার
-          </a>
-          <a
-            href="#pricing"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            মূল্য
-          </a>
-          <a
-            href="#testimonials"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            মতামত
-          </a>
-          <a
-            href="#contact"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            যোগাযোগ
-          </a>
+          {["ফিচার", "প্ল্যান", "মতামত"].map((item, i) => (
+            <a
+              key={i}
+              href={`#${["features", "pricing", "testimonials"][i]}`}
+              className="text-sm font-medium text-muted-foreground transition-premium hover:text-primary relative group"
+            >
+              {item}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
+            </a>
+          ))}
         </nav>
 
-        {/* Right side */}
         <div className="flex items-center gap-3">
-          <LanguageToggle />
-
-          {/* Desktop buttons */}
-          <div className="hidden sm:flex items-center gap-2">
-            <Button asChild variant="ghost" className="font-medium">
-              <Link href="/auth/login" prefetch={false}>
-                লগইন
-              </Link>
-            </Button>
-            <Button
-              asChild
-              className="rounded-full px-5 font-medium shadow-md shadow-primary/20"
-            >
-              <Link href="/#demo-booking" prefetch={false}>
-                ডেমো বুক
-              </Link>
-            </Button>
+          <div className="hidden xs:block">
+            <LanguageToggle />
           </div>
-
-          {/* Mobile menu button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          <Link
+            href="/auth/login"
+            prefetch={false}
+            className="hidden sm:inline-flex text-sm font-bold text-muted-foreground hover:text-foreground transition-premium px-3"
           >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            লগইন
+          </Link>
+          <Button
+            asChild
+            className="primary-cta group rounded-xl px-6 font-bold shadow-sm transition-premium active:scale-95"
+          >
+            <Link href="/#demo-booking" prefetch={false}>
+              {t("demo_cta")}
+            </Link>
           </Button>
         </div>
       </div>
-
-      {/* Mobile Navigation */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl">
-          <nav className="flex flex-col p-4 space-y-2">
-            <a
-              href="#features"
-              className="px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              ফিচার
-            </a>
-            <a
-              href="#pricing"
-              className="px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              মূল্য
-            </a>
-            <a
-              href="#testimonials"
-              className="px-4 py-3 text-sm font-medium rounded-lg hover:bg-muted transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              মতামত
-            </a>
-            <div className="flex gap-2 pt-2">
-              <Button asChild variant="outline" className="flex-1">
-                <Link href="/auth/login" prefetch={false}>
-                  লগইন
-                </Link>
-              </Button>
-              <Button asChild className="flex-1">
-                <Link href="/#demo-booking" prefetch={false}>
-                  ডেমো বুক
-                </Link>
-              </Button>
-            </div>
-          </nav>
-        </div>
-      )}
     </header>
   );
 }

@@ -5,11 +5,14 @@
 import { auth } from "@/lib/auth";
 import { isGovtPrimaryModeEnabled, PRIMARY_GRADES } from "@/lib/config";
 import { db } from "@/lib/db";
-import { buildStudentVisibilityWhere, isPrivilegedOrStaff } from "@/lib/server/role-scope";
+import {
+  buildStudentVisibilityWhere,
+  isPrivilegedOrStaff,
+} from "@/lib/server/role-scope";
 import { asPlainArray, toIsoDate } from "@/lib/server/serializers";
 import {
-    provisionRoleUser,
-    type ProvisionedCredential,
+  provisionRoleUser,
+  type ProvisionedCredential,
 } from "@/server/services/user-provisioning";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -50,7 +53,8 @@ const VALIDATION_MESSAGES: Record<
     sectionRequired: "Section is required",
     rollRequired: "Roll is required",
     rollNumericRequired: "Roll must be numeric",
-    birthRegOrDateOfBirthRequired: "Birth registration number or date of birth is required",
+    birthRegOrDateOfBirthRequired:
+      "Birth registration number or date of birth is required",
   },
   bn: {
     studentNameEnRequired: "শিক্ষার্থীর ইংরেজি নাম আবশ্যক",
@@ -62,11 +66,13 @@ const VALIDATION_MESSAGES: Record<
     motherNameRequired: "মায়ের নাম আবশ্যক",
     guardianPhoneRequired: "গার্ডিয়ানের মোবাইল নম্বর আবশ্যক",
     classRequired: "শ্রেণি নির্বাচন করুন",
-    classRangeRestricted: "সরকারি প্রাথমিক মোডে শুধুমাত্র ১ম থেকে ৫ম শ্রেণি অনুমোদিত",
+    classRangeRestricted:
+      "সরকারি প্রাথমিক মোডে শুধুমাত্র ১ম থেকে ৫ম শ্রেণি অনুমোদিত",
     sectionRequired: "সেকশন আবশ্যক",
     rollRequired: "রোল নম্বর আবশ্যক",
     rollNumericRequired: "রোল নম্বর শুধু সংখ্যা হতে হবে",
-    birthRegOrDateOfBirthRequired: "জন্ম নিবন্ধন নম্বর অথবা জন্ম তারিখের অন্তত একটি আবশ্যক",
+    birthRegOrDateOfBirthRequired:
+      "জন্ম নিবন্ধন নম্বর অথবা জন্ম তারিখের অন্তত একটি আবশ্যক",
   },
 };
 
@@ -124,17 +130,23 @@ type StudentStatus = (typeof VALID_STUDENT_STATUSES)[number];
 type ActionResult<T = void> =
   | { success: true; data?: T; error?: never }
   | {
-    success: false;
-    error: string;
-    fieldErrors?: Record<string, string[]>;
-    data?: never;
-  };
+      success: false;
+      error: string;
+      fieldErrors?: Record<string, string[]>;
+      data?: never;
+    };
 
 // ─── Helper: get session + institution ─────
 async function getAuthContext() {
   const session = await auth();
   const user = session?.user as
-    | { id?: string; institutionId?: string; role?: string; email?: string | null; phone?: string | null }
+    | {
+        id?: string;
+        institutionId?: string;
+        role?: string;
+        email?: string | null;
+        phone?: string | null;
+      }
     | undefined;
 
   if (!user?.id || !user.institutionId || !user.role) {
@@ -156,7 +168,10 @@ async function generateStudentId(institutionId: string): Promise<string> {
   return `STU-${year}-${String(count + 1).padStart(4, "0")}`;
 }
 
-async function validateGovtPrimaryClass(institutionId: string, classId?: string) {
+async function validateGovtPrimaryClass(
+  institutionId: string,
+  classId?: string,
+) {
   if (!isGovtPrimaryModeEnabled() || !classId) return { valid: true as const };
   const cls = await db.class.findFirst({
     where: {
@@ -192,9 +207,12 @@ function validateStudentFields(
   const govtPrimaryMode = isGovtPrimaryModeEnabled();
 
   if (govtPrimaryMode) {
-    if (!data.studentNameEn?.trim()) fieldErrors.studentNameEn = [m.studentNameEnRequired];
-    if (!data.guardianName?.trim()) fieldErrors.guardianName = [m.guardianNameRequired];
-    if (!data.guardianPhone?.trim()) fieldErrors.guardianPhone = [m.guardianPhoneRequired];
+    if (!data.studentNameEn?.trim())
+      fieldErrors.studentNameEn = [m.studentNameEnRequired];
+    if (!data.guardianName?.trim())
+      fieldErrors.guardianName = [m.guardianNameRequired];
+    if (!data.guardianPhone?.trim())
+      fieldErrors.guardianPhone = [m.guardianPhoneRequired];
     if (!data.birthRegNo?.trim() && !data.dateOfBirth?.trim()) {
       fieldErrors.birthRegNo = [m.birthRegOrDateOfBirthRequired];
       fieldErrors.dateOfBirth = [m.birthRegOrDateOfBirthRequired];
@@ -206,15 +224,23 @@ function validateStudentFields(
       fieldErrors.rollNo = [m.rollNumericRequired];
     }
   } else {
-    if (!data.studentNameEn?.trim() && !(data.firstName?.trim() && data.lastName?.trim())) {
+    if (
+      !data.studentNameEn?.trim() &&
+      !(data.firstName?.trim() && data.lastName?.trim())
+    ) {
       fieldErrors.studentNameEn = [m.studentNameEnRequired];
     }
-    if (!data.fatherName?.trim()) fieldErrors.fatherName = [m.fatherNameRequired];
-    if (!data.motherName?.trim()) fieldErrors.motherName = [m.motherNameRequired];
-    if (!data.guardianPhone?.trim()) fieldErrors.guardianPhone = [m.guardianPhoneRequired];
+    if (!data.fatherName?.trim())
+      fieldErrors.fatherName = [m.fatherNameRequired];
+    if (!data.motherName?.trim())
+      fieldErrors.motherName = [m.motherNameRequired];
+    if (!data.guardianPhone?.trim())
+      fieldErrors.guardianPhone = [m.guardianPhoneRequired];
   }
 
-  const studentNameEn = data.studentNameEn?.trim() || `${data.firstName ?? ""} ${data.lastName ?? ""}`.trim();
+  const studentNameEn =
+    data.studentNameEn?.trim() ||
+    `${data.firstName ?? ""} ${data.lastName ?? ""}`.trim();
   const resolvedNames = splitEnglishName(studentNameEn);
 
   return {
@@ -249,7 +275,10 @@ export async function createStudent(
     if (!parsed.success) {
       return {
         success: false,
-        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        error:
+          currentLocale === "bn"
+            ? "তথ্য যাচাই ব্যর্থ হয়েছে"
+            : "Validation failed",
         fieldErrors: parsed.error.flatten().fieldErrors as Record<
           string,
           string[]
@@ -262,23 +291,35 @@ export async function createStudent(
     if (validated.hasErrors) {
       return {
         success: false,
-        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        error:
+          currentLocale === "bn"
+            ? "তথ্য যাচাই ব্যর্থ হয়েছে"
+            : "Validation failed",
         fieldErrors: validated.fieldErrors,
       };
     }
-    const classValidation = await validateGovtPrimaryClass(institutionId, data.classId);
+    const classValidation = await validateGovtPrimaryClass(
+      institutionId,
+      data.classId,
+    );
     if (!classValidation.valid) {
       const m = VALIDATION_MESSAGES[currentLocale];
       if (classValidation.reason === "SECTION_REQUIRED") {
         return {
           success: false,
-          error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+          error:
+            currentLocale === "bn"
+              ? "তথ্য যাচাই ব্যর্থ হয়েছে"
+              : "Validation failed",
           fieldErrors: { section: [m.sectionRequired] },
         };
       }
       return {
         success: false,
-        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        error:
+          currentLocale === "bn"
+            ? "তথ্য যাচাই ব্যর্থ হয়েছে"
+            : "Validation failed",
         fieldErrors: { classId: [m.classRangeRestricted] },
       };
     }
@@ -333,7 +374,8 @@ export async function createStudent(
 
       // Create parent if provided
       if (data.parentFirstName && data.parentLastName) {
-        const parentName = `${data.parentFirstName} ${data.parentLastName}`.trim();
+        const parentName =
+          `${data.parentFirstName} ${data.parentLastName}`.trim();
         if (data.parentEmail) {
           const provisionedParent = await provisionRoleUser({
             tx,
@@ -416,7 +458,10 @@ export async function updateStudent(
     if (!parsed.success) {
       return {
         success: false,
-        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        error:
+          currentLocale === "bn"
+            ? "তথ্য যাচাই ব্যর্থ হয়েছে"
+            : "Validation failed",
         fieldErrors: parsed.error.flatten().fieldErrors as Record<
           string,
           string[]
@@ -437,23 +482,35 @@ export async function updateStudent(
     if (validated.hasErrors) {
       return {
         success: false,
-        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        error:
+          currentLocale === "bn"
+            ? "তথ্য যাচাই ব্যর্থ হয়েছে"
+            : "Validation failed",
         fieldErrors: validated.fieldErrors,
       };
     }
-    const classValidation = await validateGovtPrimaryClass(institutionId, data.classId);
+    const classValidation = await validateGovtPrimaryClass(
+      institutionId,
+      data.classId,
+    );
     if (!classValidation.valid) {
       const m = VALIDATION_MESSAGES[currentLocale];
       if (classValidation.reason === "SECTION_REQUIRED") {
         return {
           success: false,
-          error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+          error:
+            currentLocale === "bn"
+              ? "তথ্য যাচাই ব্যর্থ হয়েছে"
+              : "Validation failed",
           fieldErrors: { section: [m.sectionRequired] },
         };
       }
       return {
         success: false,
-        error: currentLocale === "bn" ? "তথ্য যাচাই ব্যর্থ হয়েছে" : "Validation failed",
+        error:
+          currentLocale === "bn"
+            ? "তথ্য যাচাই ব্যর্থ হয়েছে"
+            : "Validation failed",
         fieldErrors: { classId: [m.classRangeRestricted] },
       };
     }
@@ -497,7 +554,10 @@ export async function updateStudent(
             firstName: existing.firstName,
             lastName: existing.lastName,
           },
-          newValues: { firstName: validated.firstName, lastName: validated.lastName },
+          newValues: {
+            firstName: validated.firstName,
+            lastName: validated.lastName,
+          },
           userId,
         },
       });
@@ -527,7 +587,9 @@ export async function getStudentById(id: string) {
     where: {
       id,
       institutionId,
-      ...(isGovtPrimaryModeEnabled() ? { class: { grade: { in: [...PRIMARY_GRADES] } } } : {}),
+      ...(isGovtPrimaryModeEnabled()
+        ? { class: { grade: { in: [...PRIMARY_GRADES] } } }
+        : {}),
       ...visibilityWhere,
     },
     include: {
@@ -696,7 +758,9 @@ export async function getStudents({
 
   const where: Record<string, unknown> = {
     institutionId,
-    ...(isGovtPrimaryModeEnabled() ? { class: { grade: { in: [...PRIMARY_GRADES] } } } : {}),
+    ...(isGovtPrimaryModeEnabled()
+      ? { class: { grade: { in: [...PRIMARY_GRADES] } } }
+      : {}),
     ...(await buildStudentVisibilityWhere({
       institutionId,
       role,
@@ -865,7 +929,7 @@ export async function exportStudentsToCSV(params: {
       return { success: false, error: "Unauthorized" };
     }
 
-    const where: Parameters<typeof db.student.findMany>[0]["where"] = {
+    const where: any = {
       institutionId,
     };
 

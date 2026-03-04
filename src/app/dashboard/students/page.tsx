@@ -3,7 +3,9 @@ import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { getStudents } from "@/server/actions/students";
 import { db } from "@/lib/db";
-import { StudentsTable } from "@/components/students/students-table";
+import { StudentsTableServer } from "@/components/students/students-table.server";
+import { StudentsToolbar } from "@/components/students/students-toolbar.client";
+import { StudentDialogs } from "@/components/students/student-dialogs.client";
 import { StudentsHeader } from "@/components/students/students-header";
 import { TableSkeleton } from "@/components/ui/skeletons";
 import { safeLoader } from "@/lib/server/safe-loader";
@@ -20,13 +22,17 @@ interface PageProps {
     search?: string;
     classId?: string;
     status?: string;
+    dialog?: string;
+    edit?: string;
   }>;
 }
 
 export default async function StudentsPage({ searchParams }: PageProps) {
-  const params = await searchParams; // Next.js 15+ — searchParams is a Promise
+  const params = await searchParams;
   const session = await auth();
-  const institutionId = (session?.user as { institutionId?: string } | undefined)?.institutionId;
+  const institutionId = (
+    session?.user as { institutionId?: string } | undefined
+  )?.institutionId;
   if (!institutionId) {
     return null;
   }
@@ -42,6 +48,7 @@ export default async function StudentsPage({ searchParams }: PageProps) {
     { students: [], total: 0, pages: 1, page },
     { institutionId, page, classId, status },
   );
+
   const classes = await safeLoader(
     "DASHBOARD_STUDENTS_CLASSES",
     () =>
@@ -64,15 +71,20 @@ export default async function StudentsPage({ searchParams }: PageProps) {
     <div className="space-y-6 animate-fade-in">
       <StudentsHeader total={data.total} />
 
-      <Suspense fallback={<TableSkeleton />}>
-        <StudentsTable
-          students={data.students}
-          classes={classes}
+      <section className="rounded-lg border border-border bg-card p-4">
+        <StudentsToolbar
           total={data.total}
-          pages={data.pages}
           currentPage={page}
+          pages={data.pages}
+          hasStudents={data.students.length > 0}
         />
-      </Suspense>
+
+        <Suspense fallback={<TableSkeleton />}>
+          <StudentsTableServer students={data.students as any} />
+        </Suspense>
+
+        <StudentDialogs classes={classes} allStudents={data.students as any} />
+      </section>
     </div>
   );
 }

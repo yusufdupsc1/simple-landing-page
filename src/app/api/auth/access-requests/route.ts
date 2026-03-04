@@ -35,7 +35,11 @@ export async function POST(req: NextRequest) {
     ].join(":");
     const rate = checkRateLimit(limiterKey, 10, 10 * 60);
     if (!rate.success) {
-      return apiError(429, "RATE_LIMITED", "Too many access requests. Please try again later.");
+      return apiError(
+        429,
+        "RATE_LIMITED",
+        "Too many access requests. Please try again later.",
+      );
     }
 
     const created = await createAccessRequest({
@@ -59,13 +63,19 @@ export async function POST(req: NextRequest) {
         requestedAt: created.requestedAt,
       },
       {
-        message: "Access request submitted. Your institution admin will review it.",
+        message:
+          "Access request submitted. Your institution admin will review it.",
       },
       { status: 201 },
     );
   } catch (error) {
     if (error instanceof ZodError) {
-      return apiError(400, "VALIDATION_ERROR", "Invalid request payload", error.flatten());
+      return apiError(
+        400,
+        "VALIDATION_ERROR",
+        "Invalid request payload",
+        error.flatten(),
+      );
     }
     if (error instanceof Error) {
       const known = [

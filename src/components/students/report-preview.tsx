@@ -1,15 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
-import {
-  Download,
-  Eye,
-  RefreshCw,
-  Printer,
-  File,
-  FileText,
-  X,
-} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Download, Eye, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -83,7 +75,6 @@ export function ReportPreview({
   onPreviewRecordHandled,
 }: ReportPreviewProps) {
   const [manualPreviewId, setManualPreviewId] = useState<string | null>(null);
-
   const groups = Object.entries(grouped);
   const recordById = useMemo(
     () =>
@@ -99,7 +90,6 @@ export function ReportPreview({
   const previewRecord = activePreviewId
     ? (recordById[activePreviewId] ?? null)
     : null;
-
   const previewUrl = useMemo(() => {
     if (!previewRecord) return null;
     if (isDataPdfUrl(previewRecord.fileUrl)) {
@@ -145,39 +135,6 @@ export function ReportPreview({
 
     if (resolved.startsWith("blob:")) {
       window.setTimeout(() => URL.revokeObjectURL(resolved), 5_000);
-    }
-  }
-
-  function printRecord(record: StudentRecordItem) {
-    const resolved = isDataPdfUrl(record.fileUrl)
-      ? toBlobUrl(record.fileUrl)
-      : isSupportedUrl(record.fileUrl)
-        ? record.fileUrl
-        : null;
-    if (!resolved) return;
-
-    if (resolved.startsWith("blob:") || resolved.startsWith("data:")) {
-      const printWindow = window.open("", "_blank");
-      if (!printWindow) return;
-
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>${record.title}</title>
-            <style>
-              @page { margin: 0; }
-              body { margin: 0; padding: 0; }
-              iframe { width: 100%; height: 100%; border: none; }
-            </style>
-          </head>
-          <body>
-            <iframe src="${resolved}" onload="this.contentWindow.print();"></iframe>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-    } else {
-      window.open(resolved, "_blank", "noopener,noreferrer");
     }
   }
 
@@ -231,11 +188,8 @@ export function ReportPreview({
                         size="sm"
                         variant="outline"
                         onClick={() => {
-                          console.log(
-                            "[ReportPreview] Preview button clicked, ID:",
-                            record.id,
-                          );
                           setManualPreviewId(record.id);
+                          onPreviewRecordHandled?.();
                         }}
                       >
                         <Eye className="mr-1 h-3.5 w-3.5" /> Preview
@@ -273,96 +227,68 @@ export function ReportPreview({
       )}
 
       <Dialog
-        open={Boolean(activePreviewId)}
+        open={Boolean(previewRecord)}
         onOpenChange={(open) => {
-          if (!open) {
+          if (open) return;
+          if (manualPreviewId) {
             setManualPreviewId(null);
-            onPreviewRecordHandled?.();
+            return;
           }
+          onPreviewRecordHandled?.();
         }}
       >
-        <DialogContent className="w-[min(96vw,80rem)] max-w-7xl p-0 gap-0 overflow-hidden">
-          {/* Header with close button */}
-          <div className="flex items-center justify-between px-6 py-4 border-b bg-muted/20">
-            <div>
-              <DialogTitle className="text-lg font-semibold">
-                {previewRecord?.title ?? "Record Preview"}
-              </DialogTitle>
-              <DialogDescription className="text-sm">
-                {previewRecord
-                  ? `${templateLabel(previewRecord.recordType)} · ${previewRecord.periodLabel} · ${new Date(previewRecord.generatedAt).toLocaleString()}`
-                  : "Select a record to preview"}
-              </DialogDescription>
-            </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                setManualPreviewId(record.id);
-              }}
-            >
-              <Eye className="mr-1 h-3.5 w-3.5" /> Preview
-            </Button>
-          </div>
+        <DialogContent className="w-[min(96vw,74rem)] max-w-6xl p-4 sm:p-5">
+          <DialogHeader>
+            <DialogTitle>
+              {previewRecord?.title ?? "Record Preview"}
+            </DialogTitle>
+            <DialogDescription>
+              {previewRecord
+                ? `${templateLabel(previewRecord.recordType)} · ${new Date(previewRecord.generatedAt).toLocaleString()}`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
 
-          {/* Preview Content */}
-          {previewRecord && previewUrl ? (
-            <div className="flex flex-col">
-              <div className="h-[70vh] overflow-hidden bg-muted/5">
-                <iframe
-                  src={previewUrl}
-                  title={`${previewRecord.title} Preview`}
-                  className="h-full w-full border-0"
-                />
+          {previewRecord ? (
+            <div className="space-y-3">
+              <div className="h-[72svh] overflow-hidden rounded-xl border border-border bg-muted/15">
+                {previewUrl ? (
+                  <object
+                    data={previewUrl}
+                    type="application/pdf"
+                    className="h-full w-full"
+                  >
+                    <iframe
+                      title={`${previewRecord.title} Preview`}
+                      src={previewUrl}
+                      className="h-full w-full"
+                    />
+                  </object>
+                ) : (
+                  <div className="flex h-full items-center justify-center px-4 text-center text-sm text-muted-foreground">
+                    Unable to render preview. Use open/download below.
+                  </div>
+                )}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center justify-between px-6 py-4 border-t bg-muted/20">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs">
-                    {previewRecord.recordType}
-                  </Badge>
-                  <Badge variant="secondary" className="text-xs">
-                    {previewRecord.periodLabel}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => printRecord(previewRecord)}
-                  >
-                    <Printer className="mr-2 h-4 w-4" />
-                    Print
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => downloadRecord(previewRecord)}
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    Download PDF
-                  </Button>
-                </div>
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => openInNewTab(previewRecord)}
+                  className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+                >
+                  Open in new tab
+                </button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => downloadRecord(previewRecord)}
+                >
+                  <Download className="mr-1 h-3.5 w-3.5" /> Download
+                </Button>
               </div>
             </div>
-          ) : (
-            <div className="flex flex-col h-[60vh]">
-              <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
-                <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
-                  <FileText className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="font-medium text-lg">Unable to load preview</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Please try clicking Preview again or download the PDF.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          ) : null}
         </DialogContent>
       </Dialog>
     </section>

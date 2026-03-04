@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { saveClassRoutine } from "@/server/actions/class-routine";
 import { AlertCircle, Printer, Save } from "lucide-react";
@@ -71,7 +71,9 @@ export function GovtPrimaryRoutineClient({
   const [pending, startTransition] = useTransition();
 
   const filteredClasses = useMemo(() => {
-    const primary = classes.filter((c) => GOVT_PRIMARY_ROUTINE_GRADES.has(c.grade));
+    const primary = classes.filter((c) =>
+      GOVT_PRIMARY_ROUTINE_GRADES.has(c.grade),
+    );
     return primary.length > 0 ? primary : classes;
   }, [classes]);
 
@@ -80,9 +82,15 @@ export function GovtPrimaryRoutineClient({
     filteredClasses[0] ??
     null;
 
-  const [selectedGrade, setSelectedGrade] = useState(selectedClass?.grade ?? "");
-  const [selectedSection, setSelectedSection] = useState(selectedClass?.section ?? "");
-  const [matrix, setMatrix] = useState<Record<string, string>>(() => mapFromRoutine(routine));
+  const [selectedGrade, setSelectedGrade] = useState(
+    selectedClass?.grade ?? "",
+  );
+  const [selectedSection, setSelectedSection] = useState(
+    selectedClass?.section ?? "",
+  );
+  const [matrix, setMatrix] = useState<Record<string, string>>(() =>
+    mapFromRoutine(routine),
+  );
 
   useEffect(() => {
     setSelectedGrade(selectedClass?.grade ?? "");
@@ -133,7 +141,8 @@ export function GovtPrimaryRoutineClient({
   };
 
   const handleGradeChange = (grade: string) => {
-    const firstForGrade = filteredClasses.find((item) => item.grade === grade) ?? null;
+    const firstForGrade =
+      filteredClasses.find((item) => item.grade === grade) ?? null;
     setSelectedGrade(grade);
     setSelectedSection(firstForGrade?.section ?? "");
     pushClass(firstForGrade?.id ?? "");
@@ -173,9 +182,12 @@ export function GovtPrimaryRoutineClient({
 
     if (emptyPeriods.length > 0) {
       if (emptyPeriods.length > 5) {
-        toast.warning(`${emptyPeriods.length} periods are empty. Save anyway?`, {
-          action: { label: "Save", onClick: performSave },
-        });
+        toast.warning(
+          `${emptyPeriods.length} periods are empty. Save anyway?`,
+          {
+            action: { label: "Save", onClick: performSave },
+          },
+        );
       } else {
         toast.warning(`Empty periods found: ${emptyPeriods.join(", ")}`, {
           action: { label: "Save Anyway", onClick: performSave },
@@ -209,9 +221,10 @@ export function GovtPrimaryRoutineClient({
         router.refresh();
       } else {
         toast.error(result.error || "Failed to save routine");
-        if (result.fieldErrors) {
-          Object.entries(result.fieldErrors).forEach(([field, messages]) => {
-            toast.error(`${field}: ${messages.join(", ")}`);
+        const fieldErrors = (result as any).fieldErrors;
+        if (fieldErrors) {
+          Object.entries(fieldErrors).forEach(([field, messages]) => {
+            toast.error(`${field}: ${(messages as string[]).join(", ")}`);
           });
         }
       }
@@ -269,12 +282,21 @@ export function GovtPrimaryRoutineClient({
             </Select>
           </div>
 
-          <Button type="button" variant="outline" onClick={openPrintView} className="sm:col-span-1">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={openPrintView}
+            className="sm:col-span-1"
+          >
             <Printer className="mr-1.5 h-4 w-4" />
             Print A4
           </Button>
 
-          <Button type="button" onClick={handleSave} disabled={pending || !activeClass}>
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={pending || !activeClass}
+          >
             <Save className="mr-1.5 h-4 w-4" />
             {pending ? "Saving..." : "Save Routine"}
           </Button>
@@ -302,9 +324,15 @@ export function GovtPrimaryRoutineClient({
                   {row.periods.map((period) => (
                     <td key={`${row.dayOfWeek}-${period.periodNo}`}>
                       <Input
-                        value={matrix[cellKey(row.dayOfWeek, period.periodNo)] ?? ""}
+                        value={
+                          matrix[cellKey(row.dayOfWeek, period.periodNo)] ?? ""
+                        }
                         onChange={(event) =>
-                          updateCell(row.dayOfWeek, period.periodNo, event.target.value)
+                          updateCell(
+                            row.dayOfWeek,
+                            period.periodNo,
+                            event.target.value,
+                          )
                         }
                         placeholder="বাংলা / Math / বিজ্ঞান"
                         className="h-9"
@@ -319,8 +347,12 @@ export function GovtPrimaryRoutineClient({
       ) : (
         <div className="rounded-lg border border-dashed border-border p-10 text-center">
           <AlertCircle className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
-          <p className="font-medium text-foreground mb-1">No classes available</p>
-          <p className="text-sm text-muted-foreground">Classes 1-5 not found. Create classes in settings first.</p>
+          <p className="font-medium text-foreground mb-1">
+            No classes available
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Classes 1-5 not found. Create classes in settings first.
+          </p>
         </div>
       )}
     </div>

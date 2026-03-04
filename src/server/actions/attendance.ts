@@ -2,17 +2,21 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { isGovtPrimaryModeEnabled, isPrimaryGrade, PRIMARY_GRADES } from "@/lib/config";
+import {
+  isGovtPrimaryModeEnabled,
+  isPrimaryGrade,
+  PRIMARY_GRADES,
+} from "@/lib/config";
 import { db } from "@/lib/db";
 import {
-    buildStudentVisibilityWhere,
-    getTeacherClassScope,
-    isPrivilegedOrStaff,
+  buildStudentVisibilityWhere,
+  getTeacherClassScope,
+  isPrivilegedOrStaff,
 } from "@/lib/server/role-scope";
 import {
-    asPlainArray,
-    normalizeGroupCount,
-    toIsoDate,
+  asPlainArray,
+  normalizeGroupCount,
+  toIsoDate,
 } from "@/lib/server/serializers";
 import { createDomainEvent, publishDomainEvent } from "@/server/events/publish";
 import { revalidatePath } from "next/cache";
@@ -35,22 +39,22 @@ export type MarkAttendanceData = z.infer<typeof MarkAttendanceSchema>;
 type ActionResult<T = void> =
   | { success: true; data?: T; error?: never }
   | {
-      success: false;
-      error: string;
-      fieldErrors?: Record<string, string[]>;
-      data?: never;
-    };
+    success: false;
+    error: string;
+    fieldErrors?: Record<string, string[]>;
+    data?: never;
+  };
 
 async function getAuthContext() {
   const session = await auth();
   const user = session?.user as
     | {
-        id?: string;
-        institutionId?: string;
-        role?: string;
-        email?: string | null;
-        phone?: string | null;
-      }
+      id?: string;
+      institutionId?: string;
+      role?: string;
+      email?: string | null;
+      phone?: string | null;
+    }
     | undefined;
 
   if (!user?.id || !user.institutionId || !user.role) {
@@ -69,7 +73,8 @@ export async function markAttendance(
   formData: MarkAttendanceData,
 ): Promise<ActionResult> {
   try {
-    const { institutionId, userId, role, email, phone } = await getAuthContext();
+    const { institutionId, userId, role, email, phone } =
+      await getAuthContext();
     const parsed = MarkAttendanceSchema.safeParse(formData);
 
     if (!parsed.success) {
@@ -99,7 +104,10 @@ export async function markAttendance(
         phone,
       });
       if (!classIds.includes(data.classId)) {
-        return { success: false, error: "You can only mark attendance for assigned classes." };
+        return {
+          success: false,
+          error: "You can only mark attendance for assigned classes.",
+        };
       }
     }
 
@@ -110,7 +118,10 @@ export async function markAttendance(
     });
     if (!cls) return { success: false, error: "Class not found" };
     if (isGovtPrimaryModeEnabled() && !isPrimaryGrade(cls.grade)) {
-      return { success: false, error: "Only Class 1 to 5 attendance is allowed in Govt Primary mode." };
+      return {
+        success: false,
+        error: "Only Class 1 to 5 attendance is allowed in Govt Primary mode.",
+      };
     }
 
     const studentIds = data.entries.map((entry) => entry.studentId);
@@ -122,7 +133,10 @@ export async function markAttendance(
       },
     });
     if (validStudents !== studentIds.length) {
-      return { success: false, error: "Some students are not in the selected class." };
+      return {
+        success: false,
+        error: "Some students are not in the selected class.",
+      };
     }
 
     // Upsert attendance records
@@ -228,7 +242,9 @@ export async function getAttendanceForClass({
     where: {
       id: classId,
       institutionId,
-      ...(isGovtPrimaryModeEnabled() ? { grade: { in: [...PRIMARY_GRADES] } } : {}),
+      ...(isGovtPrimaryModeEnabled()
+        ? { grade: { in: [...PRIMARY_GRADES] } }
+        : {}),
     },
     select: { id: true },
   });
@@ -278,7 +294,9 @@ export async function getAttendanceSummary({
 
   let where: Record<string, unknown> = {
     institutionId,
-    ...(isGovtPrimaryModeEnabled() ? { class: { grade: { in: [...PRIMARY_GRADES] } } } : {}),
+    ...(isGovtPrimaryModeEnabled()
+      ? { class: { grade: { in: [...PRIMARY_GRADES] } } }
+      : {}),
     date: {
       gte: new Date(startDate),
       lte: new Date(endDate),
@@ -342,10 +360,13 @@ export async function getAttendanceSummary({
   }));
 
   const total = breakdown.reduce((sum, item) => sum + item._count, 0);
-  const present = breakdown.find((item) => item.status === "PRESENT")?._count ?? 0;
-  const absent = breakdown.find((item) => item.status === "ABSENT")?._count ?? 0;
+  const present =
+    breakdown.find((item) => item.status === "PRESENT")?._count ?? 0;
+  const absent =
+    breakdown.find((item) => item.status === "ABSENT")?._count ?? 0;
   const late = breakdown.find((item) => item.status === "LATE")?._count ?? 0;
-  const excused = breakdown.find((item) => item.status === "EXCUSED")?._count ?? 0;
+  const excused =
+    breakdown.find((item) => item.status === "EXCUSED")?._count ?? 0;
 
   return {
     total,
@@ -372,7 +393,9 @@ export async function getAttendanceTrend({
 
   let where: Record<string, unknown> = {
     institutionId,
-    ...(isGovtPrimaryModeEnabled() ? { class: { grade: { in: [...PRIMARY_GRADES] } } } : {}),
+    ...(isGovtPrimaryModeEnabled()
+      ? { class: { grade: { in: [...PRIMARY_GRADES] } } }
+      : {}),
     date: { gte: startDate },
   };
 
@@ -447,19 +470,19 @@ export async function exportAttendanceRegisterToCSV(params: {
     const session = await auth();
     const user = session?.user as
       | {
-          id?: string;
-          institutionId?: string;
-          role?: string;
-          email?: string | null;
-          phone?: string | null;
-        }
+        id?: string;
+        institutionId?: string;
+        role?: string;
+        email?: string | null;
+        phone?: string | null;
+      }
       | undefined;
 
     if (!user?.institutionId) {
       return { success: false, error: "Unauthorized" };
     }
 
-    const { institutionId, id: userId, role, email, phone } = user;
+    const { institutionId } = user;
 
     // Verify class exists
     const classExists = await db.class.findUnique({
@@ -496,10 +519,7 @@ export async function exportAttendanceRegisterToCSV(params: {
           take: 1,
         },
       },
-      orderBy: [
-        { rollNo: "asc" },
-        { firstName: "asc" },
-      ],
+      orderBy: [{ rollNo: "asc" }, { firstName: "asc" }],
     });
 
     const exportData = asPlainArray(students).map((student, index) => ({

@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-03-03T19:52:19.043Z",
+  "baseUrl": "http://localhost:3000",
+  "results": [
+    {
+      "slug": "dashboard",
+      "score": 58,
+      "fcp": "1.2 s",
+      "lcp": "2.9 s",
+      "tbt": "1,830 ms",
+      "ttfb": "Root document took 5,740 ms",
+      "cls": "0",
+      "si": "14.8 s",
+      "jsBytes": 628962,
+      "htmlPath": "/home/neo/Videos/dhadash/perf/lh/dashboard-2026-03-03T19-51-46.html",
+      "jsonPath": "/home/neo/Videos/dhadash/perf/lh/dashboard-2026-03-03T19-51-46.json"
+    },
+    {
+      "slug": "students",
+      "score": 53,
+      "fcp": "1.1 s",
+      "lcp": "4.1 s",
+      "tbt": "1,940 ms",
+      "ttfb": "Root document took 160 ms",
+      "cls": "0",
+      "si": "7.1 s",
+      "jsBytes": 670663,
+      "htmlPath": "/home/neo/Videos/dhadash/perf/lh/students-2026-03-03T19-52-02.html",
+      "jsonPath": "/home/neo/Videos/dhadash/perf/lh/students-2026-03-03T19-52-02.json"
+    },
+    {
+      "slug": "finance",
+      "score": 46,
+      "fcp": "1.1 s",
+      "lcp": "5.9 s",
+      "tbt": "1,760 ms",
+      "ttfb": "Root document took 1,430 ms",
+      "cls": "0",
+      "si": "6.0 s",
+      "jsBytes": 711364,
+      "htmlPath": "/home/neo/Videos/dhadash/perf/lh/finance-2026-03-03T19-52-19.html",
+      "jsonPath": "/home/neo/Videos/dhadash/perf/lh/finance-2026-03-03T19-52-19.json"
+    }
+  ]
+}

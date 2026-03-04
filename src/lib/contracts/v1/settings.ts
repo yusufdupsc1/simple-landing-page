@@ -32,4 +32,6 @@ export const InstitutionSettingsSchema = z.object({
 });
 
 export type InstitutionProfileInput = z.infer<typeof InstitutionProfileSchema>;
-export type InstitutionSettingsInput = z.infer<typeof InstitutionSettingsSchema>;
+export type InstitutionSettingsInput = z.infer<
+  typeof InstitutionSettingsSchema
+>;

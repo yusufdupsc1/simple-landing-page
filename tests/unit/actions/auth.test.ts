@@ -33,6 +33,9 @@ vi.mock("@/lib/db", () => ({
       findFirst: vi.fn(),
       delete: vi.fn(),
     },
+    feeCategory: {
+      createMany: vi.fn().mockResolvedValue({ count: 1 }),
+    },
     $transaction: vi.fn((arg) => {
       if (typeof arg === "function") return arg(db);
       return Promise.all(arg);
@@ -57,9 +60,15 @@ describe("Auth Server Actions", () => {
 
   it("registers institution and super admin", async () => {
     (db.user.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    (db.institution.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    (db.institution.create as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "inst-1" });
-    (db.user.create as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "user-1" });
+    (db.institution.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(
+      null,
+    );
+    (db.institution.create as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "inst-1",
+    });
+    (db.user.create as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "user-1",
+    });
 
     const result = await registerInstitution({
       institutionName: "Greenfield School",
@@ -77,7 +86,9 @@ describe("Auth Server Actions", () => {
   });
 
   it("rejects duplicate admin email during register", async () => {
-    (db.user.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "existing" });
+    (db.user.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "existing",
+    });
 
     const result = await registerInstitution({
       institutionName: "Greenfield School",
@@ -92,7 +103,9 @@ describe("Auth Server Actions", () => {
   });
 
   it("sends reset email for known account", async () => {
-    (db.user.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "user-1" });
+    (db.user.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "user-1",
+    });
 
     const result = await forgotPassword({ email: "admin@greenfield.edu" });
 
@@ -110,7 +123,9 @@ describe("Auth Server Actions", () => {
   });
 
   it("rejects reset with invalid token", async () => {
-    (db.verificationToken.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    (
+      db.verificationToken.findFirst as ReturnType<typeof vi.fn>
+    ).mockResolvedValue(null);
 
     const result = await resetPassword("admin@greenfield.edu", {
       token: "bad-token",
@@ -123,14 +138,22 @@ describe("Auth Server Actions", () => {
   });
 
   it("resets password with valid token", async () => {
-    (db.verificationToken.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (
+      db.verificationToken.findFirst as ReturnType<typeof vi.fn>
+    ).mockResolvedValue({
       identifier: "admin@greenfield.edu",
       token: "hashed",
       expires: new Date(Date.now() + 3600_000),
     });
-    (db.user.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "user-1" });
-    (db.user.update as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "user-1" });
-    (db.verificationToken.delete as ReturnType<typeof vi.fn>).mockResolvedValue({});
+    (db.user.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "user-1",
+    });
+    (db.user.update as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "user-1",
+    });
+    (db.verificationToken.delete as ReturnType<typeof vi.fn>).mockResolvedValue(
+      {},
+    );
 
     const result = await resetPassword("admin@greenfield.edu", {
       token: "valid-token",

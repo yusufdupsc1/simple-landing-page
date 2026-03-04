@@ -69,14 +69,18 @@ const REPORT_TEMPLATES = new Set<StudentRecordType>([
 ]);
 
 function escapePdfText(value: string) {
-  return value.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)");
 }
 
 function hexToRgb(hex: string): [number, number, number] {
   const cleaned = hex.replace("#", "");
-  const full = cleaned.length === 3
-    ? `${cleaned[0]}${cleaned[0]}${cleaned[1]}${cleaned[1]}${cleaned[2]}${cleaned[2]}`
-    : cleaned;
+  const full =
+    cleaned.length === 3
+      ? `${cleaned[0]}${cleaned[0]}${cleaned[1]}${cleaned[1]}${cleaned[2]}${cleaned[2]}`
+      : cleaned;
   const r = parseInt(full.slice(0, 2), 16) / 255;
   const g = parseInt(full.slice(2, 4), 16) / 255;
   const b = parseInt(full.slice(4, 6), 16) / 255;
@@ -87,7 +91,14 @@ function fmt(value: number) {
   return Number.isInteger(value) ? String(value) : value.toFixed(2);
 }
 
-function fillRect(ops: string[], x: number, y: number, w: number, h: number, hex: string) {
+function fillRect(
+  ops: string[],
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  hex: string,
+) {
   const [r, g, b] = hexToRgb(hex);
   ops.push(`${fmt(r)} ${fmt(g)} ${fmt(b)} rg`);
   ops.push(`${fmt(x)} ${fmt(y)} ${fmt(w)} ${fmt(h)} re f`);
@@ -195,7 +206,8 @@ function periodLabelValue(periodType: RecordPeriodType, provided: string) {
 
   if (periodType === "WEEKLY") return `Week ${yyyy}-${mm}-${dd}`;
   if (periodType === "MONTHLY") return `Month ${yyyy}-${mm}`;
-  if (periodType === "QUARTERLY") return `Quarter ${yyyy} Q${Math.ceil((now.getUTCMonth() + 1) / 3)}`;
+  if (periodType === "QUARTERLY")
+    return `Quarter ${yyyy} Q${Math.ceil((now.getUTCMonth() + 1) / 3)}`;
   if (periodType === "ANNUAL") return `Annual ${yyyy}`;
   return `Custom ${yyyy}-${mm}-${dd}`;
 }
@@ -262,17 +274,73 @@ function buildIdCardSpec(
     drawText(ops, "LOGO", 12, pageHeight - 24, 7, "F2", "#1e3a8a");
   }
 
-  drawText(ops, context.institutionName.slice(0, 26), 44, pageHeight - 18, 9, "F2", "#ffffff");
+  drawText(
+    ops,
+    context.institutionName.slice(0, 26),
+    44,
+    pageHeight - 18,
+    9,
+    "F2",
+    "#ffffff",
+  );
   drawText(ops, "STUDENT ID CARD", 44, pageHeight - 31, 8, "F1", "#dbeafe");
 
-  drawText(ops, studentName.slice(0, 26), 12, pageHeight - 58, 11, "F2", "#0f172a");
-  drawText(ops, `ID: ${context.student.studentId}`, 12, pageHeight - 73, 9, "F1", "#1e293b");
-  drawText(ops, `Class: ${context.student.className ?? "N/A"}`, 12, pageHeight - 86, 9, "F1", "#1e293b");
-  drawText(ops, `Valid: ${periodLabel}`, 12, pageHeight - 99, 8, "F1", "#475569");
+  drawText(
+    ops,
+    studentName.slice(0, 26),
+    12,
+    pageHeight - 58,
+    11,
+    "F2",
+    "#0f172a",
+  );
+  drawText(
+    ops,
+    `ID: ${context.student.studentId}`,
+    12,
+    pageHeight - 73,
+    9,
+    "F1",
+    "#1e293b",
+  );
+  drawText(
+    ops,
+    `Class: ${context.student.className ?? "N/A"}`,
+    12,
+    pageHeight - 86,
+    9,
+    "F1",
+    "#1e293b",
+  );
+  drawText(
+    ops,
+    `Valid: ${periodLabel}`,
+    12,
+    pageHeight - 99,
+    8,
+    "F1",
+    "#475569",
+  );
 
   drawLine(ops, pageWidth - 95, 34, pageWidth - 14, 34, "#334155", 0.8);
-  drawText(ops, context.signatory.signatoryName ?? "Principal", pageWidth - 95, 22, 7.5, "F2", "#f8fafc");
-  drawText(ops, context.signatory.signatoryTitle ?? "Principal", pageWidth - 95, 14, 6.5, "F1", "#cbd5e1");
+  drawText(
+    ops,
+    context.signatory.signatoryName ?? "Principal",
+    pageWidth - 95,
+    22,
+    7.5,
+    "F2",
+    "#f8fafc",
+  );
+  drawText(
+    ops,
+    context.signatory.signatoryTitle ?? "Principal",
+    pageWidth - 95,
+    14,
+    6.5,
+    "F1",
+    "#cbd5e1",
+  );
 
   drawText(ops, title, 10, 8, 7, "F1", "#cbd5e1");
 
@@ -302,9 +370,33 @@ function buildCertificateSpec(
     drawText(ops, "LOGO", 78, pageHeight - 81, 12, "F2", "#64748b");
   }
 
-  drawCenteredText(ops, context.institutionName.toUpperCase(), pageWidth, pageHeight - 78, 25, "F2", "#0f172a");
-  drawCenteredText(ops, context.institutionAddress ?? "", pageWidth, pageHeight - 102, 11, "F1", "#475569");
-  drawCenteredText(ops, title.toUpperCase(), pageWidth, pageHeight - 164, 30, "F2", "#1d4ed8");
+  drawCenteredText(
+    ops,
+    context.institutionName.toUpperCase(),
+    pageWidth,
+    pageHeight - 78,
+    25,
+    "F2",
+    "#0f172a",
+  );
+  drawCenteredText(
+    ops,
+    context.institutionAddress ?? "",
+    pageWidth,
+    pageHeight - 102,
+    11,
+    "F1",
+    "#475569",
+  );
+  drawCenteredText(
+    ops,
+    title.toUpperCase(),
+    pageWidth,
+    pageHeight - 164,
+    30,
+    "F2",
+    "#1d4ed8",
+  );
 
   const lines = [
     "This is to certify that",
@@ -313,12 +405,52 @@ function buildCertificateSpec(
     `has successfully completed the requirements for ${periodLabel}.`,
   ];
 
-  drawCenteredText(ops, lines[0], pageWidth, pageHeight - 230, 15, "F1", "#334155");
-  drawCenteredText(ops, lines[1], pageWidth, pageHeight - 268, 32, "F2", "#0f172a");
-  drawCenteredText(ops, lines[2], pageWidth, pageHeight - 302, 13, "F1", "#334155");
-  drawCenteredText(ops, lines[3], pageWidth, pageHeight - 332, 13, "F1", "#334155");
+  drawCenteredText(
+    ops,
+    lines[0],
+    pageWidth,
+    pageHeight - 230,
+    15,
+    "F1",
+    "#334155",
+  );
+  drawCenteredText(
+    ops,
+    lines[1],
+    pageWidth,
+    pageHeight - 268,
+    32,
+    "F2",
+    "#0f172a",
+  );
+  drawCenteredText(
+    ops,
+    lines[2],
+    pageWidth,
+    pageHeight - 302,
+    13,
+    "F1",
+    "#334155",
+  );
+  drawCenteredText(
+    ops,
+    lines[3],
+    pageWidth,
+    pageHeight - 332,
+    13,
+    "F1",
+    "#334155",
+  );
 
-  drawText(ops, `Issued on ${context.generatedAt.toISOString().slice(0, 10)}`, 56, 130, 11, "F1", "#334155");
+  drawText(
+    ops,
+    `Issued on ${context.generatedAt.toISOString().slice(0, 10)}`,
+    56,
+    130,
+    11,
+    "F1",
+    "#334155",
+  );
 
   renderSignatureBlock(
     ops,
@@ -373,24 +505,88 @@ function buildReportSpec(
     drawText(ops, "LOGO", 47, pageHeight - 53, 9, "F2", "#dbeafe");
   }
 
-  drawText(ops, context.institutionName, 96, pageHeight - 44, 18, "F2", "#ffffff");
-  drawText(ops, context.institutionAddress ?? "", 96, pageHeight - 64, 10, "F1", "#dbeafe");
+  drawText(
+    ops,
+    context.institutionName,
+    96,
+    pageHeight - 44,
+    18,
+    "F2",
+    "#ffffff",
+  );
+  drawText(
+    ops,
+    context.institutionAddress ?? "",
+    96,
+    pageHeight - 64,
+    10,
+    "F1",
+    "#dbeafe",
+  );
 
   drawText(ops, title, 30, pageHeight - 128, 22, "F2", "#0f172a");
-  drawText(ops, `Period: ${periodLabel}`, 30, pageHeight - 148, 11, "F1", "#334155");
+  drawText(
+    ops,
+    `Period: ${periodLabel}`,
+    30,
+    pageHeight - 148,
+    11,
+    "F1",
+    "#334155",
+  );
 
   fillRect(ops, 30, pageHeight - 234, pageWidth - 60, 72, "#f8fafc");
   strokeRect(ops, 30, pageHeight - 234, pageWidth - 60, 72, "#e2e8f0", 1);
 
-  drawText(ops, `Student: ${studentName}`, 42, pageHeight - 186, 12, "F2", "#0f172a");
-  drawText(ops, `Student ID: ${context.student.studentId}`, 42, pageHeight - 206, 11, "F1", "#334155");
-  drawText(ops, `Class: ${context.student.className ?? "N/A"}`, 290, pageHeight - 186, 11, "F1", "#334155");
-  drawText(ops, `Generated: ${context.generatedAt.toISOString().slice(0, 10)}`, 290, pageHeight - 206, 11, "F1", "#334155");
+  drawText(
+    ops,
+    `Student: ${studentName}`,
+    42,
+    pageHeight - 186,
+    12,
+    "F2",
+    "#0f172a",
+  );
+  drawText(
+    ops,
+    `Student ID: ${context.student.studentId}`,
+    42,
+    pageHeight - 206,
+    11,
+    "F1",
+    "#334155",
+  );
+  drawText(
+    ops,
+    `Class: ${context.student.className ?? "N/A"}`,
+    290,
+    pageHeight - 186,
+    11,
+    "F1",
+    "#334155",
+  );
+  drawText(
+    ops,
+    `Generated: ${context.generatedAt.toISOString().slice(0, 10)}`,
+    290,
+    pageHeight - 206,
+    11,
+    "F1",
+    "#334155",
+  );
 
   drawText(ops, "Subject", 42, pageHeight - 262, 11, "F2", "#0f172a");
   drawText(ops, "Score", 372, pageHeight - 262, 11, "F2", "#0f172a");
   drawText(ops, "Max", 460, pageHeight - 262, 11, "F2", "#0f172a");
-  drawLine(ops, 30, pageHeight - 268, pageWidth - 30, pageHeight - 268, "#cbd5e1", 1);
+  drawLine(
+    ops,
+    30,
+    pageHeight - 268,
+    pageWidth - 30,
+    pageHeight - 268,
+    "#cbd5e1",
+    1,
+  );
 
   let y = pageHeight - 288;
   const visibleSubjects = context.subjects.slice(0, 10);
@@ -416,8 +612,17 @@ function buildReportSpec(
 
   const totalScore = context.subjects.reduce((sum, row) => sum + row.score, 0);
   const maxScore = context.subjects.reduce((sum, row) => sum + row.maxScore, 0);
-  const percentage = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(2) : "0.00";
-  drawText(ops, `Overall: ${totalScore}/${maxScore} (${percentage}%)`, 42, 184, 11, "F2", "#1e3a8a");
+  const percentage =
+    maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(2) : "0.00";
+  drawText(
+    ops,
+    `Overall: ${totalScore}/${maxScore} (${percentage}%)`,
+    42,
+    184,
+    11,
+    "F2",
+    "#1e3a8a",
+  );
 
   renderSignatureBlock(
     ops,
@@ -463,8 +668,14 @@ function buildPdfBuffer(
   const content = Buffer.from(ops.join("\n"), "utf8");
 
   const objects: Array<{ id: number; body: Buffer }> = [];
-  objects.push({ id: 1, body: Buffer.from("<< /Type /Catalog /Pages 2 0 R >>", "utf8") });
-  objects.push({ id: 2, body: Buffer.from("<< /Type /Pages /Kids [3 0 R] /Count 1 >>", "utf8") });
+  objects.push({
+    id: 1,
+    body: Buffer.from("<< /Type /Catalog /Pages 2 0 R >>", "utf8"),
+  });
+  objects.push({
+    id: 2,
+    body: Buffer.from("<< /Type /Pages /Kids [3 0 R] /Count 1 >>", "utf8"),
+  });
   objects.push({
     id: 3,
     body: Buffer.from(
@@ -482,11 +693,17 @@ function buildPdfBuffer(
   });
   objects.push({
     id: 5,
-    body: Buffer.from("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>", "utf8"),
+    body: Buffer.from(
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+      "utf8",
+    ),
   });
   objects.push({
     id: 6,
-    body: Buffer.from("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>", "utf8"),
+    body: Buffer.from(
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>",
+      "utf8",
+    ),
   });
 
   if (logo) {
@@ -560,7 +777,12 @@ async function loadLogoImage(url?: string | null): Promise<LogoImage | null> {
   try {
     const transformed = await sharp(raw)
       .flatten({ background: "#ffffff" })
-      .resize({ width: 320, height: 320, fit: "inside", withoutEnlargement: true })
+      .resize({
+        width: 320,
+        height: 320,
+        fit: "inside",
+        withoutEnlargement: true,
+      })
       .jpeg({ quality: 86 })
       .toBuffer({ resolveWithObject: true });
 
@@ -580,7 +802,10 @@ async function loadLogoImage(url?: string | null): Promise<LogoImage | null> {
 
 export async function buildStudentRecordPdf(context: StudentRecordPdfContext) {
   const title = titleForTemplate(context.template);
-  const effectivePeriod = periodLabelValue(context.periodType, context.periodLabel);
+  const effectivePeriod = periodLabelValue(
+    context.periodType,
+    context.periodLabel,
+  );
 
   const logo = await loadLogoImage(context.institutionLogoUrl);
 

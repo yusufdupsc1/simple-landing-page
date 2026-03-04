@@ -3,7 +3,12 @@
  * Tests role-based access control and data scoping
  */
 
-import { buildStudentExportWhere, canExport, checkExportAccess, getExportScope } from "@/lib/exports/access-control";
+import {
+  buildStudentExportWhere,
+  canExport,
+  checkExportAccess,
+  getExportScope,
+} from "@/lib/exports/access-control";
 import { describe, expect, it } from "vitest";
 
 describe("Export Access Control", () => {

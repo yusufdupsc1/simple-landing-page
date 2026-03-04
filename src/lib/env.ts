@@ -14,7 +14,9 @@ const envSchema = z.object({
   AUTH_GOOGLE_SECRET: z.string().optional(),
 
   // App
-  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  NODE_ENV: z
+    .enum(["development", "test", "production"])
+    .default("development"),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   GOVT_PRIMARY_MODE: z
     .union([z.literal("true"), z.literal("false")])
@@ -82,7 +84,7 @@ function createEnv(): Env {
   if (!parsed.success) {
     console.error(
       "❌ Invalid environment variables:",
-      JSON.stringify(parsed.error.flatten().fieldErrors, null, 2)
+      JSON.stringify(parsed.error.flatten().fieldErrors, null, 2),
     );
     if (process.env.NODE_ENV === "production") {
       throw new Error("Invalid environment variables");
@@ -94,7 +96,9 @@ function createEnv(): Env {
     parsed.data.NODE_ENV === "production" &&
     !parsed.data.CRON_SECRET
   ) {
-    console.warn("⚠️ CRON_SECRET is not set; cron routes will reject requests.");
+    console.warn(
+      "⚠️ CRON_SECRET is not set; cron routes will reject requests.",
+    );
   }
 
   return parsed.data as Env;

@@ -69,9 +69,7 @@ async function findRegistryMatch(input: RegistryMatchInput) {
         ...(email && !phoneTail
           ? { email: { equals: email, mode: "insensitive" } }
           : {}),
-        ...(phoneTail && !email
-          ? { phone: { contains: phoneTail } }
-          : {}),
+        ...(phoneTail && !email ? { phone: { contains: phoneTail } } : {}),
         ...(email && phoneTail
           ? {
               AND: [
@@ -92,9 +90,7 @@ async function findRegistryMatch(input: RegistryMatchInput) {
         ...(email && !phoneTail
           ? { email: { equals: email, mode: "insensitive" } }
           : {}),
-        ...(phoneTail && !email
-          ? { phone: { contains: phoneTail } }
-          : {}),
+        ...(phoneTail && !email ? { phone: { contains: phoneTail } } : {}),
         ...(email && phoneTail
           ? {
               AND: [
@@ -134,10 +130,7 @@ function makeSyntheticEmail(phone: string, institutionSlug: string) {
   return `phone-${local}@${institutionSlug}.local`;
 }
 
-async function findConflictingUser(input: {
-  email?: string;
-  phone?: string;
-}) {
+async function findConflictingUser(input: { email?: string; phone?: string }) {
   const conditions: Array<Record<string, unknown>> = [];
   if (input.email) {
     conditions.push({ email: { equals: input.email, mode: "insensitive" } });
@@ -197,7 +190,9 @@ export async function createAccessRequest(input: CreateAccessRequestInput) {
   });
 
   if (!registryMatch) {
-    throw new Error("Provided email/phone is not registered for this role in the institution");
+    throw new Error(
+      "Provided email/phone is not registered for this role in the institution",
+    );
   }
 
   const duplicate = await db.accessRequest.findFirst({
@@ -226,7 +221,9 @@ export async function createAccessRequest(input: CreateAccessRequestInput) {
 
   if (conflictingUser) {
     if (conflictingUser.institutionId !== institution.id) {
-      throw new Error("This account is already attached to another institution");
+      throw new Error(
+        "This account is already attached to another institution",
+      );
     }
 
     if (conflictingUser.role !== input.requestedScope) {
@@ -307,7 +304,8 @@ export async function approveAccessRequest(input: ReviewAccessRequestInput) {
 
   const email = normalizeEmail(request.email);
   const phone = normalizePhone(request.phone);
-  const resolvedEmail = email || (phone ? makeSyntheticEmail(phone, request.institution.slug) : "");
+  const resolvedEmail =
+    email || (phone ? makeSyntheticEmail(phone, request.institution.slug) : "");
 
   if (!resolvedEmail) {
     throw new Error("Access request has no valid email/phone identifier");
@@ -456,7 +454,8 @@ export async function rejectAccessRequest(input: ReviewAccessRequestInput) {
         status: "REJECTED",
         reviewedAt: new Date(),
         reviewedByUserId: input.reviewerUserId,
-        rejectionReason: input.rejectionReason?.trim() || "Rejected by reviewer",
+        rejectionReason:
+          input.rejectionReason?.trim() || "Rejected by reviewer",
       },
     });
 

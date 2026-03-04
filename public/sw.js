@@ -26,16 +26,18 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter(
-            (key) =>
-              ![STATIC_CACHE, RUNTIME_CACHE, DASHBOARD_CACHE].includes(key),
-          )
-          .map((key) => caches.delete(key)),
-      )
-    ),
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter(
+              (key) =>
+                ![STATIC_CACHE, RUNTIME_CACHE, DASHBOARD_CACHE].includes(key),
+            )
+            .map((key) => caches.delete(key)),
+        ),
+      ),
   );
   self.clients.claim();
 });
@@ -80,7 +82,9 @@ self.addEventListener("fetch", (event) => {
       caches.match(req).then((cached) => {
         const networkFetch = fetch(req)
           .then((res) => {
-            caches.open(STATIC_CACHE).then((cache) => cache.put(req, res.clone()));
+            caches
+              .open(STATIC_CACHE)
+              .then((cache) => cache.put(req, res.clone()));
             return res;
           })
           .catch(() => cached);

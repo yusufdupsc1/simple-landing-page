@@ -76,11 +76,11 @@ export const rateLimiter = new RateLimiter();
 export function checkRateLimit(
   identifier: string,
   limit = 100,
-  windowSeconds = 60
+  windowSeconds = 60,
 ): { success: boolean; remaining: number; resetAt: number } {
   const success = rateLimiter.check(identifier, limit, windowSeconds);
   const remaining = rateLimiter.getRemaining(identifier);
-  
+
   // Get reset time (approximate)
   const now = Date.now();
   const resetAt = now + windowSeconds * 1000;
@@ -95,14 +95,15 @@ export async function withRateLimit(
     limit?: number;
     windowSeconds?: number;
     identifier?: string;
-  } = {}
+  } = {},
 ): Promise<{ success: boolean; status: number }> {
   const { limit = 100, windowSeconds = 60 } = options;
 
   // Use IP address as identifier (or custom identifier)
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ||
-             req.headers.get("x-real-ip") ||
-             "unknown";
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0] ||
+    req.headers.get("x-real-ip") ||
+    "unknown";
 
   const identifier = options.identifier || ip;
 

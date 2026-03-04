@@ -2,7 +2,11 @@ import type { NextRequest } from "next/server";
 import { apiForbidden, apiUnauthorized } from "@/lib/api/response";
 import { getApiAuthContext } from "@/lib/api/auth";
 import type { ApiAuthContext } from "@/lib/api/auth";
-import { can, type PermissionAction, type PermissionResource } from "@/lib/rbac";
+import {
+  can,
+  type PermissionAction,
+  type PermissionResource,
+} from "@/lib/rbac";
 
 type PermissionResult =
   | { ctx: ApiAuthContext; response: null }

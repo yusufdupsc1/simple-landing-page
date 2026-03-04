@@ -28,8 +28,9 @@ export default async function PrimaryExamsPage({ searchParams }: PageProps) {
 
   const params = await searchParams;
   const session = await auth();
-  const institutionId =
-    (session?.user as { institutionId?: string } | undefined)?.institutionId;
+  const institutionId = (
+    session?.user as { institutionId?: string } | undefined
+  )?.institutionId;
 
   if (!institutionId) {
     redirect("/auth/login");

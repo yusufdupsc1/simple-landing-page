@@ -31,7 +31,9 @@ export function isPrimaryGrade(value?: string | null): boolean {
 
 export function assertPrimaryGrade(value?: string | null): void {
   if (!isPrimaryGrade(value)) {
-    throw new Error("Only Pre-Primary to Class 5 is supported in Govt Primary mode.");
+    throw new Error(
+      "Only Pre-Primary to Class 5 is supported in Govt Primary mode.",
+    );
   }
 }
 
@@ -39,7 +41,11 @@ export function normalizeGradeValue(value?: string | null): string {
   if (typeof value !== "string") return "";
   const normalized = value.trim().toUpperCase();
   if (!normalized) return "";
-  if (["PRE-PRIMARY", "PRE PRIMARY", "PREPRIMARY", "PP", "KG"].includes(normalized)) {
+  if (
+    ["PRE-PRIMARY", "PRE PRIMARY", "PREPRIMARY", "PP", "KG"].includes(
+      normalized,
+    )
+  ) {
     return "PP";
   }
   if (/^\d+$/.test(normalized)) {

@@ -2,7 +2,10 @@
 import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { getAttendanceSummary, getAttendanceTrend } from "@/server/actions/attendance";
+import {
+  getAttendanceSummary,
+  getAttendanceTrend,
+} from "@/server/actions/attendance";
 import { getGradeDistribution } from "@/server/actions/grades";
 import { getFinanceSummary } from "@/server/actions/finance";
 import { AnalyticsClient } from "@/components/analytics/analytics-client";
@@ -17,7 +20,9 @@ export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
   const session = await auth();
-  const institutionId = (session?.user as { institutionId?: string } | undefined)?.institutionId;
+  const institutionId = (
+    session?.user as { institutionId?: string } | undefined
+  )?.institutionId;
   if (!institutionId) return null;
 
   const today = new Date();
@@ -114,7 +119,8 @@ export default async function AnalyticsPage() {
 
   const averagePresent =
     dailyPresent.length > 0
-      ? dailyPresent.reduce((sum, day) => sum + day.count, 0) / dailyPresent.length
+      ? dailyPresent.reduce((sum, day) => sum + day.count, 0) /
+        dailyPresent.length
       : 0;
 
   const attendanceAnomalies = dailyPresent

@@ -149,7 +149,6 @@ export async function registerInstitution(
         })),
         skipDuplicates: true,
       });
-
     });
 
     // Send welcome email (non-blocking)

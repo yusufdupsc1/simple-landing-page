@@ -7,7 +7,10 @@ test.describe("Landing page", () => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
     await expect(
-      page.getByRole("heading", { level: 1, name: /run your school in one place/i }),
+      page.getByRole("heading", {
+        level: 1,
+        name: /run your school in one place/i,
+      }),
     ).toBeVisible();
     await expect(
       page.getByRole("link", { name: /start free trial|start trial/i }).first(),
@@ -17,7 +20,11 @@ test.describe("Landing page", () => {
   test("renders module and pricing sections", async ({ page }) => {
     await page.goto("/", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByRole("heading", { name: /core product modules/i })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /simple school pricing/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /core product modules/i }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /simple school pricing/i }),
+    ).toBeVisible();
   });
 });

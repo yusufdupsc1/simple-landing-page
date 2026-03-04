@@ -30,7 +30,11 @@ export async function POST(req: NextRequest) {
       payload.studentId,
     );
     if (!allowed) {
-      return apiError(403, "FORBIDDEN", "You are not allowed to generate records for this student");
+      return apiError(
+        403,
+        "FORBIDDEN",
+        "You are not allowed to generate records for this student",
+      );
     }
 
     const recordType = mapTemplateToRecordType(payload.template);
@@ -66,7 +70,12 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     if (error instanceof ZodError) {
-      return apiError(400, "VALIDATION_ERROR", "Invalid request payload", error.flatten());
+      return apiError(
+        400,
+        "VALIDATION_ERROR",
+        "Invalid request payload",
+        error.flatten(),
+      );
     }
     logApiError("API_V1_STUDENT_REPORTS_GENERATE_POST", error);
     return apiError(500, "INTERNAL_ERROR", "Failed to generate student report");

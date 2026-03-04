@@ -50,7 +50,9 @@ vi.mock("next/cache", () => ({
 describe("Classes Server Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation((callback) => callback(db));
+    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
+      (callback) => callback(db),
+    );
   });
 
   describe("createClass", () => {
@@ -186,7 +188,7 @@ describe("Classes Server Actions", () => {
       expect(db.class.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ isActive: false }),
-        })
+        }),
       );
     });
 
@@ -221,7 +223,9 @@ describe("Classes Server Actions", () => {
           classTeacher: null,
         },
       ];
-      (db.class.findMany as ReturnType<typeof vi.fn>).mockResolvedValue(mockClasses);
+      (db.class.findMany as ReturnType<typeof vi.fn>).mockResolvedValue(
+        mockClasses,
+      );
       (db.class.count as ReturnType<typeof vi.fn>).mockResolvedValue(2);
 
       // Act
@@ -251,7 +255,7 @@ describe("Classes Server Actions", () => {
           where: expect.objectContaining({
             academicYear: "2024-2025",
           }),
-        })
+        }),
       );
     });
   });
@@ -266,7 +270,9 @@ describe("Classes Server Actions", () => {
 
     it("should create a new subject", async () => {
       // Arrange
-      (db.subject.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+      (db.subject.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(
+        null,
+      );
       (db.subject.create as ReturnType<typeof vi.fn>).mockResolvedValue({
         id: "subject-123",
         ...validFormData,
@@ -329,7 +335,9 @@ describe("Classes Server Actions", () => {
           _count: { teachers: 1, grades: 8 },
         },
       ];
-      (db.subject.findMany as ReturnType<typeof vi.fn>).mockResolvedValue(mockSubjects);
+      (db.subject.findMany as ReturnType<typeof vi.fn>).mockResolvedValue(
+        mockSubjects,
+      );
 
       // Act
       const result = await getSubjects();
@@ -355,10 +363,12 @@ describe("Classes Server Actions", () => {
         expect.objectContaining({
           where: expect.objectContaining({
             OR: expect.arrayContaining([
-              expect.objectContaining({ name: expect.objectContaining({ contains: "Math" }) }),
+              expect.objectContaining({
+                name: expect.objectContaining({ contains: "Math" }),
+              }),
             ]),
           }),
-        })
+        }),
       );
     });
   });

@@ -24,7 +24,9 @@ export interface ExportAuditEntry {
  * Log export activity to database
  * Called after export completes (success or failure)
  */
-export async function logExportActivity(entry: ExportAuditEntry): Promise<void> {
+export async function logExportActivity(
+  entry: ExportAuditEntry,
+): Promise<void> {
   try {
     await db.exportAuditLog.create({
       data: {
@@ -111,7 +113,9 @@ export async function getInstitutionExportHistory(
 
     return { logs, total, limit, offset };
   } catch (error) {
-    logApiError("GET_INSTITUTION_EXPORT_HISTORY_FAILED", error, { institutionId });
+    logApiError("GET_INSTITUTION_EXPORT_HISTORY_FAILED", error, {
+      institutionId,
+    });
     return { logs: [], total: 0, limit, offset };
   }
 }
@@ -158,7 +162,8 @@ export async function getExportStats(
             .reduce((sum, l) => sum + l.fileSize, 0),
         },
         ATTENDANCE_REGISTER: {
-          count: logs.filter((l) => l.exportType === "ATTENDANCE_REGISTER").length,
+          count: logs.filter((l) => l.exportType === "ATTENDANCE_REGISTER")
+            .length,
           records: logs
             .filter((l) => l.exportType === "ATTENDANCE_REGISTER")
             .reduce((sum, l) => sum + l.recordCount, 0),
@@ -191,7 +196,9 @@ export async function getExportStats(
  * Typically called by a cron job
  * @param retentionDays - Keep logs for this many days (default: 90)
  */
-export async function cleanupOldExportLogs(retentionDays: number = 90): Promise<number> {
+export async function cleanupOldExportLogs(
+  retentionDays: number = 90,
+): Promise<number> {
   try {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - retentionDays);

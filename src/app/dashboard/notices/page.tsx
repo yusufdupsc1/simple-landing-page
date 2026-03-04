@@ -20,8 +20,9 @@ interface PageProps {
 export default async function NoticesPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const session = await auth();
-  const institutionId =
-    (session?.user as { institutionId?: string } | undefined)?.institutionId;
+  const institutionId = (
+    session?.user as { institutionId?: string } | undefined
+  )?.institutionId;
 
   if (!institutionId) {
     redirect("/auth/login");
@@ -49,7 +50,8 @@ export default async function NoticesPage({ searchParams }: PageProps) {
   );
 
   const selectedClassId =
-    params.classId && classes.some((classItem) => classItem.id === params.classId)
+    params.classId &&
+    classes.some((classItem) => classItem.id === params.classId)
       ? params.classId
       : "";
 

@@ -45,7 +45,9 @@ vi.mock("next/cache", () => ({
 describe("Attendance Server Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation((callback) => callback(db));
+    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
+      (callback) => callback(db),
+    );
   });
 
   it("marks attendance for entries", async () => {
@@ -99,14 +101,29 @@ describe("Attendance Server Actions", () => {
       grade: "3",
     });
     (db.student.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([
-      { id: "student-1", studentId: "STU-1", firstName: "Hasib", lastName: "Bhuiyan", photo: null },
-      { id: "student-2", studentId: "STU-2", firstName: "Ashik", lastName: "Biswas", photo: null },
+      {
+        id: "student-1",
+        studentId: "STU-1",
+        firstName: "Hasib",
+        lastName: "Bhuiyan",
+        photo: null,
+      },
+      {
+        id: "student-2",
+        studentId: "STU-2",
+        firstName: "Ashik",
+        lastName: "Biswas",
+        photo: null,
+      },
     ]);
     (db.attendance.findMany as ReturnType<typeof vi.fn>).mockResolvedValue([
       { studentId: "student-1", status: "PRESENT", remarks: null },
     ]);
 
-    const result = await getAttendanceForClass({ classId: "class-1", date: "2026-02-01" });
+    const result = await getAttendanceForClass({
+      classId: "class-1",
+      date: "2026-02-01",
+    });
 
     expect(result).toHaveLength(2);
     expect(result[0].attendance).toMatchObject({ status: "PRESENT" });

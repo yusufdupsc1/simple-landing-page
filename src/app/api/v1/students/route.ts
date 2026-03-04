@@ -46,11 +46,15 @@ export async function POST(req: NextRequest) {
 
   try {
     const payload = await req.json();
-    const locale = req.cookies.get("locale")?.value ?? req.headers.get("accept-language") ?? "en";
+    const locale =
+      req.cookies.get("locale")?.value ??
+      req.headers.get("accept-language") ??
+      "en";
     const result = await createStudent(payload, locale);
 
     if (!result.success) {
-      const fieldErrors = "fieldErrors" in result ? result.fieldErrors : undefined;
+      const fieldErrors =
+        "fieldErrors" in result ? result.fieldErrors : undefined;
       return apiError(400, "VALIDATION_ERROR", result.error, fieldErrors);
     }
 

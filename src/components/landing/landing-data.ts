@@ -18,8 +18,7 @@ export type FeatureItem = {
 export const featureItems: FeatureItem[] = [
   {
     title: "উপস্থিতি রেজিস্টার + প্রিন্ট",
-    description:
-      "দৈনিক উপস্থিতি নিন, এক ক্লিকে A4 রেজিস্টার প্রিন্ট করুন।",
+    description: "দৈনিক উপস্থিতি নিন, এক ক্লিকে A4 রেজিস্টার প্রিন্ট করুন।",
     icon: CalendarCheck2,
   },
   {
@@ -36,20 +35,17 @@ export const featureItems: FeatureItem[] = [
   },
   {
     title: "Class 1-5 Focus",
-    description:
-      "শুধু ১ম–৫ম শ্রেণির workflow; জটিলতা ছাড়াই দ্রুত adoption.",
+    description: "শুধু ১ম–৫ম শ্রেণির workflow; জটিলতা ছাড়াই দ্রুত adoption.",
     icon: BookOpen,
   },
   {
     title: "SMS নোটিশ",
-    description:
-      "স্কুল নোটিশ দ্রুত parent/guardian communication-ready flow.",
+    description: "স্কুল নোটিশ দ্রুত parent/guardian communication-ready flow.",
     icon: MessageSquareText,
   },
   {
     title: "Secure & Audit-ready",
-    description:
-      "Role-based access এবং ট্র্যাকযোগ্য action history.",
+    description: "Role-based access এবং ট্র্যাকযোগ্য action history.",
     icon: ShieldCheck,
   },
 ];
@@ -65,7 +61,8 @@ export const roleHighlights = [
   },
   {
     role: "Accounts",
-    outcome: "Preset fee setup, payment record, and receipt print without complexity.",
+    outcome:
+      "Preset fee setup, payment record, and receipt print without complexity.",
   },
 ];
 
@@ -82,7 +79,11 @@ export const pricingTiers = [
     cadence: "60-day pilot",
     cta: "ডেমো দেখুন",
     href: "/#demo-booking",
-    features: ["Class 1-5 workflow", "Attendance + register print", "Fee + receipt print"],
+    features: [
+      "Class 1-5 workflow",
+      "Attendance + register print",
+      "Fee + receipt print",
+    ],
     highlighted: true,
   },
   {
@@ -91,7 +92,11 @@ export const pricingTiers = [
     cadence: "per month",
     cta: "শুরু করুন",
     href: "/auth/register",
-    features: ["Full office operations", "Bangla-first interface", "Priority onboarding"],
+    features: [
+      "Full office operations",
+      "Bangla-first interface",
+      "Priority onboarding",
+    ],
     highlighted: false,
   },
   {
@@ -113,14 +118,12 @@ export const testimonialItems = [
     role: "Govt Primary",
   },
   {
-    quote:
-      "ফি রশিদ প্রিন্ট এখন দ্রুত হয়, staff training time অনেক কমেছে।",
+    quote: "ফি রশিদ প্রিন্ট এখন দ্রুত হয়, staff training time অনেক কমেছে।",
     author: "Accounts Operator",
     role: "Govt Primary",
   },
   {
-    quote:
-      "Class 1-5 focused হওয়ায় unnecessary feature distraction নেই।",
+    quote: "Class 1-5 focused হওয়ায় unnecessary feature distraction নেই।",
     author: "Assistant Teacher",
     role: "Govt Primary",
   },

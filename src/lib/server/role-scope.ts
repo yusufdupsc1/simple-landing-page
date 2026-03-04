@@ -97,7 +97,9 @@ export async function buildStudentVisibilityWhere(identity: ViewerIdentity) {
 
     return {
       OR: [
-        ...(email ? [{ email: { equals: email, mode: "insensitive" as const } }] : []),
+        ...(email
+          ? [{ email: { equals: email, mode: "insensitive" as const } }]
+          : []),
         ...(tail ? [{ phone: { contains: tail } }] : []),
       ],
     };
@@ -114,7 +116,9 @@ export async function buildStudentVisibilityWhere(identity: ViewerIdentity) {
       parents: {
         some: {
           OR: [
-            ...(email ? [{ email: { equals: email, mode: "insensitive" as const } }] : []),
+            ...(email
+              ? [{ email: { equals: email, mode: "insensitive" as const } }]
+              : []),
             ...(tail ? [{ phone: { contains: tail } }] : []),
           ],
         },
@@ -125,7 +129,10 @@ export async function buildStudentVisibilityWhere(identity: ViewerIdentity) {
   return { id: "__NO_MATCH__" };
 }
 
-export async function canAccessStudentId(identity: ViewerIdentity, studentId: string) {
+export async function canAccessStudentId(
+  identity: ViewerIdentity,
+  studentId: string,
+) {
   const where = await buildStudentVisibilityWhere(identity);
   const student = await db.student.findFirst({
     where: {

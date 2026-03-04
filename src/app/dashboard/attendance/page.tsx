@@ -19,7 +19,9 @@ interface PageProps {
 export default async function AttendancePage({ searchParams }: PageProps) {
   const params = await searchParams;
   const session = await auth();
-  const institutionId = (session?.user as { institutionId?: string } | undefined)?.institutionId;
+  const institutionId = (
+    session?.user as { institutionId?: string } | undefined
+  )?.institutionId;
   if (!institutionId) return null;
 
   const today = new Date().toISOString().slice(0, 10);

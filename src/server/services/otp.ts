@@ -55,7 +55,9 @@ function generateOtpCode() {
 
 function twilioConfigured() {
   return Boolean(
-    env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && env.TWILIO_VERIFY_SERVICE_SID,
+    env.TWILIO_ACCOUNT_SID &&
+    env.TWILIO_AUTH_TOKEN &&
+    env.TWILIO_VERIFY_SERVICE_SID,
   );
 }
 
@@ -83,7 +85,11 @@ async function sendViaTwilioVerify(phone: string) {
     },
   );
 
-  const json = (await res.json().catch(() => ({}))) as { sid?: string; status?: string; message?: string };
+  const json = (await res.json().catch(() => ({}))) as {
+    sid?: string;
+    status?: string;
+    message?: string;
+  };
   if (!res.ok || !json.sid) {
     throw new Error(json.message || "Failed to send OTP via Twilio Verify");
   }
@@ -136,7 +142,10 @@ export async function createOtpChallenge(input: OtpSendInput) {
   if (latest?.resendAfter && latest.resendAfter > now) {
     return {
       challengeId: latest.id,
-      cooldownSeconds: Math.max(1, Math.ceil((latest.resendAfter.getTime() - now.getTime()) / 1000)),
+      cooldownSeconds: Math.max(
+        1,
+        Math.ceil((latest.resendAfter.getTime() - now.getTime()) / 1000),
+      ),
       sent: false,
       devCode: null as string | null,
     };
@@ -185,7 +194,8 @@ export async function createOtpChallenge(input: OtpSendInput) {
     },
   });
 
-  const devCode = twilioConfigured() || env.NODE_ENV === "production" ? null : code;
+  const devCode =
+    twilioConfigured() || env.NODE_ENV === "production" ? null : code;
 
   return {
     challengeId: created.id,
@@ -242,7 +252,10 @@ export async function verifyOtpChallenge(input: OtpVerifyInput) {
 
   let verified = false;
   if (twilioConfigured() && challenge.twilioSid) {
-    verified = await verifyViaTwilio({ phone: challenge.phone, code: input.code.trim() });
+    verified = await verifyViaTwilio({
+      phone: challenge.phone,
+      code: input.code.trim(),
+    });
   } else {
     const expectedHash = buildCodeHash({
       challengeId: challenge.id,

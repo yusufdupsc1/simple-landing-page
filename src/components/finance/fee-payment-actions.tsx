@@ -11,7 +11,10 @@ interface FeePaymentActionsProps {
   className?: string;
 }
 
-export function FeePaymentActions({ feeId, className }: FeePaymentActionsProps) {
+export function FeePaymentActions({
+  feeId,
+  className,
+}: FeePaymentActionsProps) {
   const [pending, startTransition] = useTransition();
   const [gateway, setGateway] = useState<"SSLCOMMERZ" | null>(null);
 

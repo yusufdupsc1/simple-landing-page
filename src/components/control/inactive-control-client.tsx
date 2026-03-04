@@ -96,7 +96,9 @@ function SummaryCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <p className="text-2xl font-bold tracking-tight">{count.toLocaleString()}</p>
+        <p className="text-2xl font-bold tracking-tight">
+          {count.toLocaleString()}
+        </p>
         <p className="text-xs text-muted-foreground">
           Inactive now • {activeCount.toLocaleString()} active
         </p>
@@ -215,16 +217,28 @@ export function InactiveControlClient({
 
       <Tabs defaultValue="students" className="space-y-4">
         <TabsList className="flex w-full flex-wrap justify-start gap-2 rounded-xl border border-primary/20 bg-primary/5 p-1">
-          <TabsTrigger value="students" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger
+            value="students"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
             Students ({counts.students.inactive})
           </TabsTrigger>
-          <TabsTrigger value="teachers" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger
+            value="teachers"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
             Teachers ({counts.teachers.inactive})
           </TabsTrigger>
-          <TabsTrigger value="classes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger
+            value="classes"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
             Classes ({counts.classes.inactive})
           </TabsTrigger>
-          <TabsTrigger value="subjects" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TabsTrigger
+            value="subjects"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
             Subjects ({counts.subjects.inactive})
           </TabsTrigger>
         </TabsList>
@@ -238,25 +252,47 @@ export function InactiveControlClient({
                 <table className="w-full min-w-[700px] text-sm">
                   <thead className="border-b border-border bg-muted/30">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Student</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">ID</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Class</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Updated</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Action</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Student
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Class
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Updated
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60">
                     {students.map((student) => (
                       <tr key={student.id} className="hover:bg-muted/30">
-                        <td className="px-4 py-3 font-medium">{student.firstName} {student.lastName}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{student.studentId}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{student.className ?? "—"}</td>
-                        <td className="px-4 py-3">
-                          <Badge className="bg-red-500/10 text-red-600">Inactive</Badge>
+                        <td className="px-4 py-3 font-medium">
+                          {student.firstName} {student.lastName}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                          {student.studentId}
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">
-                          {student.updatedAt ? formatDate(student.updatedAt) : "—"}
+                          {student.className ?? "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge className="bg-red-500/10 text-red-600">
+                            Inactive
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {student.updatedAt
+                            ? formatDate(student.updatedAt)
+                            : "—"}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Button
@@ -266,7 +302,8 @@ export function InactiveControlClient({
                             onClick={() => handleReactivateStudent(student.id)}
                             disabled={pending}
                           >
-                            <UserCheck className="mr-1.5 h-3.5 w-3.5" /> Reactivate
+                            <UserCheck className="mr-1.5 h-3.5 w-3.5" />{" "}
+                            Reactivate
                           </Button>
                         </td>
                       </tr>
@@ -287,25 +324,47 @@ export function InactiveControlClient({
                 <table className="w-full min-w-[700px] text-sm">
                   <thead className="border-b border-border bg-muted/30">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Teacher</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">ID</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Specialization</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Updated</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Action</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Teacher
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Specialization
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Updated
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60">
                     {teachers.map((teacher) => (
                       <tr key={teacher.id} className="hover:bg-muted/30">
-                        <td className="px-4 py-3 font-medium">{teacher.firstName} {teacher.lastName}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{teacher.teacherId}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{teacher.specialization ?? "—"}</td>
-                        <td className="px-4 py-3">
-                          <Badge className="bg-red-500/10 text-red-600">Inactive</Badge>
+                        <td className="px-4 py-3 font-medium">
+                          {teacher.firstName} {teacher.lastName}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                          {teacher.teacherId}
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">
-                          {teacher.updatedAt ? formatDate(teacher.updatedAt) : "—"}
+                          {teacher.specialization ?? "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge className="bg-red-500/10 text-red-600">
+                            Inactive
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {teacher.updatedAt
+                            ? formatDate(teacher.updatedAt)
+                            : "—"}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Button
@@ -315,7 +374,8 @@ export function InactiveControlClient({
                             onClick={() => handleReactivateTeacher(teacher.id)}
                             disabled={pending}
                           >
-                            <UserCheck className="mr-1.5 h-3.5 w-3.5" /> Reactivate
+                            <UserCheck className="mr-1.5 h-3.5 w-3.5" />{" "}
+                            Reactivate
                           </Button>
                         </td>
                       </tr>
@@ -336,25 +396,47 @@ export function InactiveControlClient({
                 <table className="w-full min-w-[700px] text-sm">
                   <thead className="border-b border-border bg-muted/30">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Class</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Grade/Section</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Students</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Updated</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Action</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Class
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Grade/Section
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Students
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Updated
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60">
                     {classes.map((classItem) => (
                       <tr key={classItem.id} className="hover:bg-muted/30">
-                        <td className="px-4 py-3 font-medium">{classItem.name}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{classItem.grade}-{classItem.section}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{classItem.studentCount}</td>
-                        <td className="px-4 py-3">
-                          <Badge className="bg-red-500/10 text-red-600">Inactive</Badge>
+                        <td className="px-4 py-3 font-medium">
+                          {classItem.name}
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">
-                          {classItem.updatedAt ? formatDate(classItem.updatedAt) : "—"}
+                          {classItem.grade}-{classItem.section}
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {classItem.studentCount}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge className="bg-red-500/10 text-red-600">
+                            Inactive
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {classItem.updatedAt
+                            ? formatDate(classItem.updatedAt)
+                            : "—"}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Button
@@ -364,7 +446,8 @@ export function InactiveControlClient({
                             onClick={() => handleReactivateClass(classItem.id)}
                             disabled={pending}
                           >
-                            <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Reactivate
+                            <RefreshCw className="mr-1.5 h-3.5 w-3.5" />{" "}
+                            Reactivate
                           </Button>
                         </td>
                       </tr>
@@ -385,25 +468,47 @@ export function InactiveControlClient({
                 <table className="w-full min-w-[700px] text-sm">
                   <thead className="border-b border-border bg-muted/30">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Subject</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Code</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Teachers</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Status</th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">Updated</th>
-                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">Action</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Subject
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Code
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Teachers
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Updated
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Action
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60">
                     {subjects.map((subject) => (
                       <tr key={subject.id} className="hover:bg-muted/30">
-                        <td className="px-4 py-3 font-medium">{subject.name}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{subject.code}</td>
-                        <td className="px-4 py-3 text-muted-foreground">{subject.teacherCount}</td>
-                        <td className="px-4 py-3">
-                          <Badge className="bg-red-500/10 text-red-600">Inactive</Badge>
+                        <td className="px-4 py-3 font-medium">
+                          {subject.name}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                          {subject.code}
                         </td>
                         <td className="px-4 py-3 text-muted-foreground">
-                          {subject.updatedAt ? formatDate(subject.updatedAt) : "—"}
+                          {subject.teacherCount}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Badge className="bg-red-500/10 text-red-600">
+                            Inactive
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {subject.updatedAt
+                            ? formatDate(subject.updatedAt)
+                            : "—"}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <Button
@@ -413,7 +518,8 @@ export function InactiveControlClient({
                             onClick={() => handleReactivateSubject(subject.id)}
                             disabled={pending}
                           >
-                            <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Reactivate
+                            <RefreshCw className="mr-1.5 h-3.5 w-3.5" />{" "}
+                            Reactivate
                           </Button>
                         </td>
                       </tr>

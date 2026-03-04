@@ -67,12 +67,14 @@ export const metadata: Metadata = {
     locale: "bn_BD",
     siteName: "Dhadash",
     title: "Dhadash — সরকারি প্রাথমিক বিদ্যালয়ের ডিজিটাল অফিস সিস্টেম",
-    description: "Attendance register, fee receipt ও নোটিশ workflow এক প্ল্যাটফর্মে।",
+    description:
+      "Attendance register, fee receipt ও নোটিশ workflow এক প্ল্যাটফর্মে।",
   },
   twitter: {
     card: "summary_large_image",
     title: "Dhadash",
-    description: "Govt. Primary schools (Class 1–5) এর জন্য Bangladesh-first platform.",
+    description:
+      "Govt. Primary schools (Class 1–5) এর জন্য Bangladesh-first platform.",
   },
   robots: {
     index: true,

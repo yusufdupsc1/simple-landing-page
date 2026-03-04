@@ -8,7 +8,9 @@ import { isGovtPrimaryModeEnabled } from "@/lib/config";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: isGovtPrimaryModeEnabled() ? "Assistant Teacher Portal" : "Teacher Portal",
+  title: isGovtPrimaryModeEnabled()
+    ? "Assistant Teacher Portal"
+    : "Teacher Portal",
 };
 export const dynamic = "force-dynamic";
 
@@ -20,8 +22,12 @@ async function getTeacherPortalData(
   const byUser = await db.teacher.findFirst({
     where: { institutionId, userId },
     include: {
-      classTeacher: { select: { id: true, name: true, grade: true, section: true } },
-      subjects: { include: { subject: { select: { id: true, name: true, code: true } } } },
+      classTeacher: {
+        select: { id: true, name: true, grade: true, section: true },
+      },
+      subjects: {
+        include: { subject: { select: { id: true, name: true, code: true } } },
+      },
     },
   });
   if (byUser) return byUser;
@@ -34,8 +40,12 @@ async function getTeacherPortalData(
       email: { equals: email.trim().toLowerCase(), mode: "insensitive" },
     },
     include: {
-      classTeacher: { select: { id: true, name: true, grade: true, section: true } },
-      subjects: { include: { subject: { select: { id: true, name: true, code: true } } } },
+      classTeacher: {
+        select: { id: true, name: true, grade: true, section: true },
+      },
+      subjects: {
+        include: { subject: { select: { id: true, name: true, code: true } } },
+      },
     },
   });
 }
@@ -45,7 +55,13 @@ export default async function TeacherPortalPage() {
   const roleLabel = govtPrimaryMode ? "Assistant Teacher" : "Teacher";
   const session = await auth();
   const user = session?.user as
-    | { id?: string; institutionId?: string; role?: string; email?: string | null; name?: string | null }
+    | {
+        id?: string;
+        institutionId?: string;
+        role?: string;
+        email?: string | null;
+        name?: string | null;
+      }
     | undefined;
 
   if (!user?.id || !user?.institutionId) {
@@ -69,7 +85,8 @@ export default async function TeacherPortalPage() {
         <Card className="w-full max-w-md">
           <CardContent className="pt-6 text-center">
             <p className="text-muted-foreground">
-              No {roleLabel.toLowerCase()} profile found. Please contact your administrator.
+              No {roleLabel.toLowerCase()} profile found. Please contact your
+              administrator.
             </p>
           </CardContent>
         </Card>
@@ -92,18 +109,26 @@ export default async function TeacherPortalPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Specialization</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Specialization
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold">{teacher.specialization || "General"}</p>
+            <p className="text-lg font-semibold">
+              {teacher.specialization || "General"}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Assigned Classes</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Assigned Classes
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg font-semibold">{teacher.classTeacher.length}</p>
+            <p className="text-lg font-semibold">
+              {teacher.classTeacher.length}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -122,7 +147,9 @@ export default async function TeacherPortalPage() {
         </CardHeader>
         <CardContent>
           {teacher.subjects.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No subjects assigned yet.</p>
+            <p className="text-sm text-muted-foreground">
+              No subjects assigned yet.
+            </p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {teacher.subjects.map((item: any) => (
@@ -141,11 +168,16 @@ export default async function TeacherPortalPage() {
         </CardHeader>
         <CardContent>
           {teacher.classTeacher.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No class assigned yet.</p>
+            <p className="text-sm text-muted-foreground">
+              No class assigned yet.
+            </p>
           ) : (
             <div className="space-y-2">
               {teacher.classTeacher.map((cls: any) => (
-                <div key={cls.id} className="rounded-lg border border-border p-3">
+                <div
+                  key={cls.id}
+                  className="rounded-lg border border-border p-3"
+                >
                   <p className="font-medium">{cls.name}</p>
                   <p className="text-xs text-muted-foreground">
                     Grade {cls.grade} • Section {cls.section}

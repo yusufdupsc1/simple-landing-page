@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import { getApiAuthContext } from "@/lib/api/auth";
-import { apiError, apiForbidden, apiOk, apiUnauthorized } from "@/lib/api/response";
+import {
+  apiError,
+  apiForbidden,
+  apiOk,
+  apiUnauthorized,
+} from "@/lib/api/response";
 import { logApiError } from "@/lib/logger";
 import { approveAccessRequest } from "@/server/services/access-requests";
 import { isReviewerRole } from "@/lib/auth-scope";

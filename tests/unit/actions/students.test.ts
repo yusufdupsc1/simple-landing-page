@@ -61,10 +61,17 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
+vi.mock("@/lib/config", () => ({
+  isGovtPrimaryModeEnabled: vi.fn().mockReturnValue(false),
+  PRIMARY_GRADES: ["1", "2", "3", "4", "5"],
+}));
+
 describe("Students Server Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation((callback) => callback(db));
+    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
+      (callback) => callback(db),
+    );
   });
 
   it("creates a student and provisions student user when email exists", async () => {
@@ -108,7 +115,9 @@ describe("Students Server Actions", () => {
   });
 
   it("updates existing student", async () => {
-    (db.student.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "student-1" });
+    (db.student.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "student-1",
+    });
     (db.class.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "class-1",
       grade: "1",
@@ -131,7 +140,9 @@ describe("Students Server Actions", () => {
   });
 
   it("deactivates an existing student", async () => {
-    (db.student.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "student-1" });
+    (db.student.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "student-1",
+    });
 
     const result = await deleteStudent("student-1");
 

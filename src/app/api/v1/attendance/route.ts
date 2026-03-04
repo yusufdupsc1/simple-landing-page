@@ -27,9 +27,17 @@ export async function GET(req: NextRequest) {
 
     if (mode === "class") {
       const classId = queryString(req.nextUrl.searchParams, "classId");
-      const date = queryString(req.nextUrl.searchParams, "date", isoDate(new Date()));
+      const date = queryString(
+        req.nextUrl.searchParams,
+        "date",
+        isoDate(new Date()),
+      );
       if (!classId) {
-        return apiError(400, "BAD_REQUEST", "classId is required for class mode");
+        return apiError(
+          400,
+          "BAD_REQUEST",
+          "classId is required for class mode",
+        );
       }
       const result = await getAttendanceForClass({ classId, date });
       return apiOk(result, { mode, classId, date });
@@ -42,7 +50,11 @@ export async function GET(req: NextRequest) {
       return apiOk(result, { mode, classId, days });
     }
 
-    const endDate = queryString(req.nextUrl.searchParams, "endDate", isoDate(new Date()));
+    const endDate = queryString(
+      req.nextUrl.searchParams,
+      "endDate",
+      isoDate(new Date()),
+    );
     const startDate = queryString(
       req.nextUrl.searchParams,
       "startDate",

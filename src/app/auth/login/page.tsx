@@ -5,13 +5,6 @@ import { auth } from "@/lib/auth";
 import { LoginForm } from "@/components/forms/login-form";
 import { isGovtPrimaryModeEnabled } from "@/lib/config";
 import type { Metadata } from "next";
-import {
-  Shield,
-  GraduationCap,
-  Users,
-  CreditCard,
-  CalendarCheck,
-} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Sign In — Dhadash",
@@ -35,115 +28,88 @@ export default async function LoginPage({
   );
   const govtPrimaryMode = isGovtPrimaryModeEnabled();
 
-  const features = [
-    { icon: CalendarCheck, label: "উপস্থিতি", desc: "Digital attendance" },
-    { icon: CreditCard, label: "ফি সংগ্রহ", desc: "Online collection" },
-    { icon: GraduationCap, label: "গ্রেড ম্যানেজমেন্ট", desc: "Auto results" },
-    { icon: Users, label: "অ্যাডমিশন", desc: "Student records" },
-  ];
-
   return (
-    <main className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex">
+    <main className="min-h-screen bg-background flex">
       {/* Left panel — branding */}
-      <div className="hidden lg:flex lg:w-[55%] relative bg-card border-r border-border/50 flex-col justify-between p-8 xl:p-12 overflow-hidden">
-        {/* Animated background */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl" />
-          <div
-            className="absolute inset-0 opacity-[0.02]"
-            style={{
-              backgroundImage: `
+      <div className="hidden lg:flex lg:w-1/2 relative bg-card border-r border-border flex-col justify-between p-12 overflow-hidden">
+        {/* Grid pattern */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `
               linear-gradient(hsl(var(--foreground)) 1px, transparent 1px),
               linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)
             `,
-              backgroundSize: "40px 40px",
-            }}
-          />
-        </div>
+            backgroundSize: "40px 40px",
+          }}
+        />
+
+        {/* Amber glow */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
 
         <div className="relative z-10">
-          {/* Logo */}
-          <div className="flex items-center gap-3 mb-12">
-            <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-              <Shield className="h-6 w-6 text-primary-foreground" />
+          <div className="flex items-center gap-3 mb-16">
+            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">
+                D
+              </span>
             </div>
-            <div>
-              <span className="font-bold text-2xl tracking-tight">Dhadash</span>
-              <p className="text-xs text-muted-foreground">
-                School Management System
-              </p>
-            </div>
+            <span className="font-bold text-xl tracking-tight">Dhadash</span>
           </div>
 
-          {/* Main tagline */}
-          <blockquote className="space-y-4">
-            <h2 className="text-3xl xl:text-4xl font-bold leading-tight text-foreground">
-              স্কুল ম্যানেজমেন্টে
-              <span className="text-primary"> স্মার্ট সলিউশন</span>
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-md">
-              {govtPrimaryMode
-                ? "সরকারি প্রাথমিক বিদ্যালয়ের জন্য ডিজিটাল workflow। attendance, fee, notice — সবকিছু এক জায়গায়।"
-                : "আধুনিক স্কুল অপারেশন সিস্টেম। শিক্ষক, শিক্ষার্থী ও অভিভাবকদের জন্য।"}
+          <blockquote className="space-y-3">
+            <p className="text-3xl font-semibold leading-snug tracking-tight text-balance">
+              &ldquo;The modern operating system for institutions that care
+              about outcomes.&rdquo;
             </p>
+            <footer className="text-sm text-muted-foreground">
+              {govtPrimaryMode
+                ? "Built for head teachers, assistant teachers, and school administrators"
+                : "Built for principals, teachers, and administrators"}
+            </footer>
           </blockquote>
         </div>
 
-        {/* Feature grid */}
+        {/* Feature list */}
         <div className="relative z-10 grid grid-cols-2 gap-4">
-          {features.map((f) => (
+          {[
+            { icon: "⚡", label: "Real-time attendance" },
+            { icon: "📊", label: "Analytics dashboard" },
+            { icon: "💳", label: "Fee management" },
+            { icon: "🎓", label: "Grade tracking" },
+          ].map((f) => (
             <div
               key={f.label}
-              className="flex items-start gap-3 p-4 rounded-xl bg-muted/40 border border-border/30 hover:bg-muted/60 transition-colors"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-muted/50 border border-border/50"
             >
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <f.icon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">{f.label}</p>
-                <p className="text-xs text-muted-foreground">{f.desc}</p>
-              </div>
+              <span className="text-base">{f.icon}</span>
+              <span className="text-xs font-medium text-muted-foreground">
+                {f.label}
+              </span>
             </div>
           ))}
-        </div>
-
-        {/* Bottom info */}
-        <div className="relative z-10 flex items-center justify-between text-xs text-muted-foreground pt-6 border-t border-border/30">
-          <p>© 2024 Dhadash. বাংলাদেশে তৈরি।</p>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/terms"
-              className="hover:text-foreground transition-colors"
-            >
-              Terms
-            </Link>
-            <Link
-              href="/privacy"
-              className="hover:text-foreground transition-colors"
-            >
-              Privacy
-            </Link>
-          </div>
         </div>
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-8 xl:px-12">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-md">
-              <Shield className="h-5 w-5 text-primary-foreground" />
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-xs">
+                D
+              </span>
             </div>
-            <span className="font-bold text-xl">Dhadash</span>
+            <span className="font-bold text-lg tracking-tight">Dhadash</span>
           </div>
 
           <div className="space-y-2 mb-8">
-            <h1 className="text-2xl xl:text-3xl font-bold tracking-tight">
-              স্বাগতম!
-            </h1>
-            <p className="text-muted-foreground">আপনার একাউন্টে লগইন করুন</p>
+            <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
+            <p className="text-sm text-muted-foreground">
+              Sign in to your institution account
+            </p>
           </div>
 
           <LoginForm
@@ -152,32 +118,31 @@ export default async function LoginPage({
             googleEnabled={googleEnabled}
           />
 
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            নতুন স্কুল?{" "}
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            New school?{" "}
             <Link
               href="/auth/register"
-              className="font-semibold text-primary hover:text-primary/80 transition-colors"
+              className="font-medium text-primary underline-offset-4 hover:underline"
             >
-              এখনই রেজিস্টার করুন
+              Create your institution
             </Link>
           </p>
 
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            লগইন করে আপনি আমাদের{" "}
+          <p className="mt-3 text-center text-xs text-muted-foreground">
+            By signing in, you agree to our{" "}
             <Link
               href="/terms"
               className="underline underline-offset-4 hover:text-foreground"
             >
               Terms
             </Link>{" "}
-            এবং{" "}
+            and{" "}
             <Link
               href="/privacy"
               className="underline underline-offset-4 hover:text-foreground"
             >
               Privacy Policy
-            </Link>{" "}
-            গ্রহণ করেন।
+            </Link>
           </p>
         </div>
       </div>

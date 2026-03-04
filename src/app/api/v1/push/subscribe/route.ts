@@ -42,6 +42,10 @@ export async function POST(req: NextRequest) {
     return apiOk({ success: true }, { channel: "web-push" }, { status: 201 });
   } catch (error) {
     logApiError("API_V1_PUSH_SUBSCRIBE_POST", error);
-    return apiError(500, "INTERNAL_ERROR", "Failed to register push subscription");
+    return apiError(
+      500,
+      "INTERNAL_ERROR",
+      "Failed to register push subscription",
+    );
   }
 }

@@ -61,11 +61,17 @@ export function DemoBookingForm() {
   };
 
   return (
-    <section id="demo-booking" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+    <section
+      id="demo-booking"
+      className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6"
+    >
       <div className="rounded-lg border border-ui-border bg-surface p-5 sm:p-6">
-        <h2 className="text-xl font-bold text-text sm:text-2xl">ডেমো বুকিং ফর্ম</h2>
+        <h2 className="text-xl font-bold text-text sm:text-2xl">
+          ডেমো বুকিং ফর্ম
+        </h2>
         <p className="mt-1 text-sm text-muted-text">
-          আপনার স্কুলের জন্য ডেমো সেশন বুক করুন। ফি ও রশিদ প্রিন্টিং ফ্লো লাইভ দেখানো হবে।
+          আপনার স্কুলের জন্য ডেমো সেশন বুক করুন। ফি ও রশিদ প্রিন্টিং ফ্লো লাইভ
+          দেখানো হবে।
         </p>
 
         <form onSubmit={onSubmit} className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -116,7 +122,11 @@ export function DemoBookingForm() {
             />
           </div>
           <div className="sm:col-span-2">
-            <Button type="submit" disabled={pending} className="primary-cta w-full sm:w-auto">
+            <Button
+              type="submit"
+              disabled={pending}
+              className="primary-cta w-full sm:w-auto"
+            >
               {pending ? "পাঠানো হচ্ছে..." : "ডেমো বুকিং পাঠান"}
             </Button>
           </div>
@@ -125,9 +135,10 @@ export function DemoBookingForm() {
         {message ? (
           <p className="mt-3 text-sm font-medium text-green-700">{message}</p>
         ) : null}
-        {error ? <p className="mt-3 text-sm font-medium text-red-600">{error}</p> : null}
+        {error ? (
+          <p className="mt-3 text-sm font-medium text-red-600">{error}</p>
+        ) : null}
       </div>
     </section>
   );
 }
-

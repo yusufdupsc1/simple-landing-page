@@ -18,7 +18,10 @@ export type UserRole =
  * Defines export permissions per role per export type
  * FORMAT: { role: { exportType: canExport } }
  */
-const EXPORT_PERMISSIONS: Record<UserRole, Record<ExportType | "all", boolean>> = {
+const EXPORT_PERMISSIONS: Record<
+  UserRole,
+  Record<ExportType | "all", boolean>
+> = {
   SUPER_ADMIN: { STUDENT_LIST: true, ATTENDANCE_REGISTER: true, all: true },
   ADMIN: { STUDENT_LIST: true, ATTENDANCE_REGISTER: true, all: true },
   PRINCIPAL: { STUDENT_LIST: true, ATTENDANCE_REGISTER: true, all: true },
@@ -32,7 +35,10 @@ const EXPORT_PERMISSIONS: Record<UserRole, Record<ExportType | "all", boolean>> 
  * Check if a role can perform an export
  * @returns boolean - true if allowed, false otherwise
  */
-export function canExport(role: string | undefined, exportType: ExportType): boolean {
+export function canExport(
+  role: string | undefined,
+  exportType: ExportType,
+): boolean {
   if (!role || !(role in EXPORT_PERMISSIONS)) return false;
 
   const permissions = EXPORT_PERMISSIONS[role as UserRole];
@@ -123,7 +129,9 @@ export function getExportScope(
  * Build Prisma `where` filter for student exports based on role
  * Prevents unauthorized data access
  */
-export function buildStudentExportWhere(scope: ExportScope): Record<string, any> {
+export function buildStudentExportWhere(
+  scope: ExportScope,
+): Record<string, any> {
   if (scope.canAccessFullInstitution) {
     return {}; // Admin/Principal can see all students
   }
@@ -190,7 +198,9 @@ export function checkExportAccess(
 
   // For attendance exports, only admin/principal/teacher allowed
   if (exportType === "ATTENDANCE_REGISTER") {
-    if (!["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "TEACHER"].includes(role || "")) {
+    if (
+      !["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "TEACHER"].includes(role || "")
+    ) {
       return {
         allowed: false,
         reason: "Only administrators and teachers can export attendance",
@@ -202,15 +212,20 @@ export function checkExportAccess(
   if (scope) {
     if (!scope.canAccessFullInstitution) {
       // Check if they have any access
-      if (scope.isTeacher && (!scope.allowedClassIds || scope.allowedClassIds.length === 0)) {
+      if (
+        scope.isTeacher &&
+        (!scope.allowedClassIds || scope.allowedClassIds.length === 0)
+      ) {
         return {
           allowed: false,
           reason: "Teacher not assigned to any classes",
         };
       }
 
-      if ((scope.isStudent || scope.isParent) &&
-          (!scope.allowedStudentIds || scope.allowedStudentIds.length === 0)) {
+      if (
+        (scope.isStudent || scope.isParent) &&
+        (!scope.allowedStudentIds || scope.allowedStudentIds.length === 0)
+      ) {
         return {
           allowed: false,
           reason: "No students associated with this account",

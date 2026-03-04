@@ -259,7 +259,11 @@ export function TimetableClient({
       <PageHeader title="Timetable" description="Manage class schedules">
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="w-full sm:w-auto" onClick={() => setEditEntry(null)}>
+            <Button
+              size="sm"
+              className="w-full sm:w-auto"
+              onClick={() => setEditEntry(null)}
+            >
               <Plus className="h-4 w-4 mr-1.5" /> Add Entry
             </Button>
           </DialogTrigger>
@@ -335,7 +339,9 @@ export function TimetableClient({
                       {entry.teacher.firstName} {entry.teacher.lastName}
                     </p>
                     {entry.roomNumber && (
-                      <p className="text-muted-foreground">{entry.roomNumber}</p>
+                      <p className="text-muted-foreground">
+                        {entry.roomNumber}
+                      </p>
                     )}
                     <div className="flex gap-1 mt-2">
                       <Button

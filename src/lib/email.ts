@@ -16,7 +16,12 @@ interface EmailResult {
   error?: string;
 }
 
-export async function sendEmail({ to, subject, html, from }: SendEmailOptions): Promise<EmailResult> {
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  from,
+}: SendEmailOptions): Promise<EmailResult> {
   const sender = from ?? env.EMAIL_FROM;
 
   // Fallback: log to console when no API key is configured
@@ -42,7 +47,10 @@ export async function sendEmail({ to, subject, html, from }: SendEmailOptions): 
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      return { success: false, error: (err as { message?: string }).message ?? "Failed to send email" };
+      return {
+        success: false,
+        error: (err as { message?: string }).message ?? "Failed to send email",
+      };
     }
 
     const data = (await response.json()) as { id: string };
@@ -98,9 +106,12 @@ const baseLayout = (content: string) => `
 </html>
 `;
 
-const textStyle = "color:#e5e7eb;font-size:15px;line-height:1.6;margin:0 0 16px 0;";
-const headingStyle = "color:#f9fafb;font-size:24px;font-weight:700;margin:0 0 12px 0;letter-spacing:-0.5px;";
-const btnStyle = "display:inline-block;padding:12px 28px;background:#7c6fff;color:#fff;font-size:14px;font-weight:600;text-decoration:none;border-radius:8px;margin:8px 0 24px;";
+const textStyle =
+  "color:#e5e7eb;font-size:15px;line-height:1.6;margin:0 0 16px 0;";
+const headingStyle =
+  "color:#f9fafb;font-size:24px;font-weight:700;margin:0 0 12px 0;letter-spacing:-0.5px;";
+const btnStyle =
+  "display:inline-block;padding:12px 28px;background:#7c6fff;color:#fff;font-size:14px;font-weight:600;text-decoration:none;border-radius:8px;margin:8px 0 24px;";
 const mutedStyle = "color:#9ca3af;font-size:13px;line-height:1.5;margin:0;";
 
 export function passwordResetEmail(resetUrl: string, expiresMinutes = 60) {
@@ -115,7 +126,11 @@ export function passwordResetEmail(resetUrl: string, expiresMinutes = 60) {
   `);
 }
 
-export function welcomeEmail(name: string, institutionName: string, loginUrl: string) {
+export function welcomeEmail(
+  name: string,
+  institutionName: string,
+  loginUrl: string,
+) {
   return baseLayout(`
     <h1 style="${headingStyle}">Welcome to Dhadash! 🎉</h1>
     <p style="${textStyle}">Hi ${name},</p>
@@ -125,7 +140,11 @@ export function welcomeEmail(name: string, institutionName: string, loginUrl: st
   `);
 }
 
-export function newStudentEmail(studentName: string, studentId: string, institutionName: string) {
+export function newStudentEmail(
+  studentName: string,
+  studentId: string,
+  institutionName: string,
+) {
   return baseLayout(`
     <h1 style="${headingStyle}">New Student Enrolled</h1>
     <p style="${textStyle}">A new student has been registered at <strong style="color:#7c6fff;">${institutionName}</strong>.</p>

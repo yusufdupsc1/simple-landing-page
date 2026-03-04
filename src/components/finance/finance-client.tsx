@@ -103,7 +103,9 @@ function FeeForm({
 }) {
   const [pending, startTransition] = useTransition();
   const initialPreset = feePresets[0];
-  const [selectedPreset, setSelectedPreset] = useState(initialPreset?.key ?? "");
+  const [selectedPreset, setSelectedPreset] = useState(
+    initialPreset?.key ?? "",
+  );
   const [form, setForm] = useState<FeeFormData>({
     title: initialPreset?.titleEn ?? "",
     amount: 0,
@@ -159,7 +161,11 @@ function FeeForm({
 
       <div className="space-y-1.5">
         <Label>Student *</Label>
-        <Select value={form.studentId} onValueChange={(v) => set("studentId", v)} required>
+        <Select
+          value={form.studentId}
+          onValueChange={(v) => set("studentId", v)}
+          required
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select student" />
           </SelectTrigger>
@@ -267,7 +273,9 @@ function PaymentForm({ fee, onSuccess }: { fee: Fee; onSuccess: () => void }) {
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Paid:</span>
-          <span className="font-medium text-green-600">{formatCurrency(totalPaid)}</span>
+          <span className="font-medium text-green-600">
+            {formatCurrency(totalPaid)}
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Remaining:</span>
@@ -356,7 +364,11 @@ export function FinanceClient({
 
   const openReceipt = (paymentId?: string) => {
     if (!paymentId) return;
-    window.open(`/dashboard/finance/receipt/${paymentId}`, "_blank", "noopener,noreferrer");
+    window.open(
+      `/dashboard/finance/receipt/${paymentId}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   return (
@@ -382,24 +394,36 @@ export function FinanceClient({
       </PageHeader>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-        {summaryCards.map(({ label, value, icon: Icon, color, count, isCount }) => (
-          <div key={label} className="rounded-xl border border-border bg-card p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</p>
-              <Icon className={`h-4 w-4 ${color}`} />
+        {summaryCards.map(
+          ({ label, value, icon: Icon, color, count, isCount }) => (
+            <div
+              key={label}
+              className="rounded-xl border border-border bg-card p-3 sm:p-4"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  {label}
+                </p>
+                <Icon className={`h-4 w-4 ${color}`} />
+              </div>
+              <p className={`text-lg font-bold sm:text-xl ${color}`}>
+                {isCount ? value : formatCurrency(value)}
+              </p>
+              {count !== undefined ? (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {count} fees
+                </p>
+              ) : null}
             </div>
-            <p className={`text-lg font-bold sm:text-xl ${color}`}>
-              {isCount ? value : formatCurrency(value)}
-            </p>
-            {count !== undefined ? (
-              <p className="text-xs text-muted-foreground mt-0.5">{count} fees</p>
-            ) : null}
-          </div>
-        ))}
+          ),
+        )}
       </div>
 
       <div className="flex w-full flex-wrap gap-3">
-        <SearchInput placeholder={`${t("fees")}...`} className="w-full sm:w-64" />
+        <SearchInput
+          placeholder={`${t("fees")}...`}
+          className="w-full sm:w-64"
+        />
       </div>
 
       <div className="rounded-xl border border-border bg-card overflow-hidden">
@@ -407,7 +431,15 @@ export function FinanceClient({
           <table className="table-dense w-full min-w-[760px] text-sm">
             <thead className="border-b border-border bg-muted/30">
               <tr>
-                {[t("students"), t("fees"), "Amount", "Paid", "Due Date", "Status", "Actions"].map((h) => (
+                {[
+                  t("students"),
+                  t("fees"),
+                  "Amount",
+                  "Paid",
+                  "Due Date",
+                  "Status",
+                  "Actions",
+                ].map((h) => (
                   <th
                     key={h}
                     className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
@@ -420,7 +452,10 @@ export function FinanceClient({
             <tbody className="divide-y divide-border/60">
               {fees.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-12 text-center text-muted-foreground"
+                  >
                     No fees found.
                   </td>
                 </tr>
@@ -429,19 +464,30 @@ export function FinanceClient({
                   const paid = f.payments.reduce((s, p) => s + p.amount, 0);
                   const latestPayment = f.payments[0];
                   return (
-                    <tr key={f.id} className="hover:bg-muted/30 transition-colors">
+                    <tr
+                      key={f.id}
+                      className="hover:bg-muted/30 transition-colors"
+                    >
                       <td className="px-4 py-3">
                         <p className="font-medium">
                           {f.student.firstName} {f.student.lastName}
                         </p>
-                        <p className="text-xs font-mono text-muted-foreground">{f.student.studentId}</p>
+                        <p className="text-xs font-mono text-muted-foreground">
+                          {f.student.studentId}
+                        </p>
                       </td>
                       <td className="px-4 py-3">
                         <p>{f.title}</p>
-                        <p className="text-xs text-muted-foreground">{f.term}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {f.term}
+                        </p>
                       </td>
-                      <td className="px-4 py-3 font-medium">{formatCurrency(f.amount)}</td>
-                      <td className="px-4 py-3 text-green-600">{formatCurrency(paid)}</td>
+                      <td className="px-4 py-3 font-medium">
+                        {formatCurrency(f.amount)}
+                      </td>
+                      <td className="px-4 py-3 text-green-600">
+                        {formatCurrency(paid)}
+                      </td>
                       <td className="px-4 py-3 text-muted-foreground">
                         {f.dueDate ? formatDate(f.dueDate) : "—"}
                       </td>
@@ -488,14 +534,23 @@ export function FinanceClient({
         </div>
       </div>
 
-      <DataTablePagination currentPage={currentPage} totalPages={pages} total={total} />
+      <DataTablePagination
+        currentPage={currentPage}
+        totalPages={pages}
+        total={total}
+      />
 
       <Dialog open={payOpen} onOpenChange={setPayOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Record Payment</DialogTitle>
           </DialogHeader>
-          {selectedFee ? <PaymentForm fee={selectedFee} onSuccess={() => setPayOpen(false)} /> : null}
+          {selectedFee ? (
+            <PaymentForm
+              fee={selectedFee}
+              onSuccess={() => setPayOpen(false)}
+            />
+          ) : null}
         </DialogContent>
       </Dialog>
     </>

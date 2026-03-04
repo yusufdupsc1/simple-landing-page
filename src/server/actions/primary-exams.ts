@@ -32,7 +32,9 @@ const SavePrimaryExamMarksSchema = z.object({
 });
 
 export type CreatePrimaryExamInput = z.infer<typeof CreatePrimaryExamSchema>;
-export type SavePrimaryExamMarksInput = z.infer<typeof SavePrimaryExamMarksSchema>;
+export type SavePrimaryExamMarksInput = z.infer<
+  typeof SavePrimaryExamMarksSchema
+>;
 
 type ActionResult<T = void> =
   | { success: true; data?: T; error?: never }
@@ -67,7 +69,13 @@ type MarkCell = {
 
 function getResultStatus(cells: MarkCell[]): "PASS" | "FAIL" | "INCOMPLETE" {
   if (cells.some((cell) => cell.isMissing)) return "INCOMPLETE";
-  if (cells.some((cell) => cell.isAbsent || (typeof cell.score === "number" && cell.score < PASS_MARK_THRESHOLD))) {
+  if (
+    cells.some(
+      (cell) =>
+        cell.isAbsent ||
+        (typeof cell.score === "number" && cell.score < PASS_MARK_THRESHOLD),
+    )
+  ) {
     return "FAIL";
   }
   return "PASS";
@@ -91,7 +99,9 @@ async function getAuthContext() {
 }
 
 function canManagePrimaryExams(role: string): boolean {
-  return ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"].includes(role);
+  return ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"].includes(
+    role,
+  );
 }
 
 export async function createPrimaryExam(
@@ -113,7 +123,10 @@ export async function createPrimaryExam(
       return {
         success: false,
         error: "Validation failed",
-        fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<
+          string,
+          string[]
+        >,
       };
     }
 
@@ -138,7 +151,10 @@ export async function createPrimaryExam(
     }
 
     if (!GOVT_PRIMARY_EXAM_GRADES.has(classroom.grade)) {
-      return { success: false, error: "Primary exam is only available for Class 1 to 5." };
+      return {
+        success: false,
+        error: "Primary exam is only available for Class 1 to 5.",
+      };
     }
 
     const exam = await db.$transaction(async (tx) => {
@@ -295,14 +311,30 @@ export async function getPrimaryExamResultData(examId: string) {
     for (const subject of subjects) {
       const mark = markMap.get(`${student.id}::${subject}`);
       if (!mark) {
-        marksBySubject[subject] = { score: null, isAbsent: false, isMissing: true };
+        marksBySubject[subject] = {
+          score: null,
+          isAbsent: false,
+          isMissing: true,
+        };
       } else if (mark.isAbsent) {
-        marksBySubject[subject] = { score: null, isAbsent: true, isMissing: false };
+        marksBySubject[subject] = {
+          score: null,
+          isAbsent: true,
+          isMissing: false,
+        };
       } else if (typeof mark.score === "number") {
-        marksBySubject[subject] = { score: mark.score, isAbsent: false, isMissing: false };
+        marksBySubject[subject] = {
+          score: mark.score,
+          isAbsent: false,
+          isMissing: false,
+        };
         total += mark.score;
       } else {
-        marksBySubject[subject] = { score: null, isAbsent: false, isMissing: true };
+        marksBySubject[subject] = {
+          score: null,
+          isAbsent: false,
+          isMissing: true,
+        };
       }
     }
 
@@ -356,7 +388,10 @@ export async function savePrimaryExamMarks(
       return {
         success: false,
         error: "Validation failed",
-        fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<
+          string,
+          string[]
+        >,
       };
     }
 
@@ -384,11 +419,16 @@ export async function savePrimaryExamMarks(
     }
 
     if (!GOVT_PRIMARY_EXAM_GRADES.has(exam.class.grade)) {
-      return { success: false, error: "Primary exam is only available for Class 1 to 5." };
+      return {
+        success: false,
+        error: "Primary exam is only available for Class 1 to 5.",
+      };
     }
 
     const allowedSubjects = new Set(normalizeSubjects(exam.subjectsText));
-    const submittedStudentIds = Array.from(new Set(data.entries.map((entry) => entry.studentId)));
+    const submittedStudentIds = Array.from(
+      new Set(data.entries.map((entry) => entry.studentId)),
+    );
 
     const validStudents = await db.student.findMany({
       where: {
@@ -400,12 +440,20 @@ export async function savePrimaryExamMarks(
     });
 
     if (validStudents.length !== submittedStudentIds.length) {
-      return { success: false, error: "Some students are not in the selected class." };
+      return {
+        success: false,
+        error: "Some students are not in the selected class.",
+      };
     }
 
     const normalizedMap = new Map<
       string,
-      { studentId: string; subjectName: string; score: number | null; isAbsent: boolean }
+      {
+        studentId: string;
+        subjectName: string;
+        score: number | null;
+        isAbsent: boolean;
+      }
     >();
 
     for (const entry of data.entries) {
@@ -419,7 +467,7 @@ export async function savePrimaryExamMarks(
       normalizedMap.set(key, {
         studentId: entry.studentId,
         subjectName,
-        score: isAbsent ? null : entry.score ?? null,
+        score: isAbsent ? null : (entry.score ?? null),
         isAbsent,
       });
     }

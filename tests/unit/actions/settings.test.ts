@@ -41,6 +41,11 @@ vi.mock("@/lib/db", () => {
       auditLog: {
         create: auditLogCreate,
       },
+      feeCategory: {
+        count: vi.fn().mockResolvedValue(0),
+        createMany: vi.fn().mockResolvedValue({ count: 1 }),
+        findMany: vi.fn().mockResolvedValue([]),
+      },
       $transaction: vi.fn(async (callback: (tx: unknown) => unknown) =>
         callback(tx),
       ),

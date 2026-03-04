@@ -5,7 +5,11 @@ type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
   variant?: "default" | "destructive";
 };
 
-export function Alert({ className, variant = "default", ...props }: AlertProps) {
+export function Alert({
+  className,
+  variant = "default",
+  ...props
+}: AlertProps) {
   return (
     <div
       role="alert"
@@ -14,13 +18,16 @@ export function Alert({ className, variant = "default", ...props }: AlertProps) 
         variant === "destructive"
           ? "border-red-200 bg-red-50 text-red-900"
           : "border-border bg-background",
-        className
+        className,
       )}
       {...props}
     />
   );
 }
 
-export function AlertDescription({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function AlertDescription({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("text-sm", className)} {...props} />;
 }

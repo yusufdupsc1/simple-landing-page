@@ -94,7 +94,8 @@ export function TabLoadingIndicator() {
       ctx.fill();
 
       faviconLink.href = canvas.toDataURL("image/png");
-      const msg = LOADING_MESSAGES[Math.floor(frame / 8) % LOADING_MESSAGES.length];
+      const msg =
+        LOADING_MESSAGES[Math.floor(frame / 8) % LOADING_MESSAGES.length];
       const dots = DOTS[frame % DOTS.length];
       document.title = `${msg}${dots} | ${latestTitle}`;
       frame += 1;

@@ -4,7 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Dhadash",
     short_name: "Dhadash",
-    description: "Govt. Primary school operations: attendance register, fees, receipt, and notices.",
+    description:
+      "Govt. Primary school operations: attendance register, fees, receipt, and notices.",
     start_url: "/",
     display: "standalone",
     background_color: "#f8fafc",

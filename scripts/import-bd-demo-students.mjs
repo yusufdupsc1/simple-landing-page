@@ -51,14 +51,18 @@ function parseCsv(content) {
 }
 
 function normalizeGender(value) {
-  const v = String(value || "").trim().toLowerCase();
+  const v = String(value || "")
+    .trim()
+    .toLowerCase();
   if (v === "male") return Gender.MALE;
   if (v === "female") return Gender.FEMALE;
   return null;
 }
 
 function normalizeStatus(value) {
-  const v = String(value || "").trim().toLowerCase();
+  const v = String(value || "")
+    .trim()
+    .toLowerCase();
   if (v === "active") return StudentStatus.ACTIVE;
   if (v === "inactive") return StudentStatus.INACTIVE;
   if (v === "graduated") return StudentStatus.GRADUATED;
@@ -108,8 +112,12 @@ async function cleanInstitutionData(institutionId) {
     }
 
     if (studentIds.length) {
-      await tx.studentRecord.deleteMany({ where: { studentId: { in: studentIds } } });
-      await tx.attendance.deleteMany({ where: { studentId: { in: studentIds } } });
+      await tx.studentRecord.deleteMany({
+        where: { studentId: { in: studentIds } },
+      });
+      await tx.attendance.deleteMany({
+        where: { studentId: { in: studentIds } },
+      });
       await tx.grade.deleteMany({ where: { studentId: { in: studentIds } } });
       await tx.parent.deleteMany({ where: { studentId: { in: studentIds } } });
     }
@@ -162,18 +170,26 @@ async function main() {
 
   const institution = await db.institution.findUnique({
     where: { slug: institutionSlug },
-    select: { id: true, name: true, settings: { select: { academicYear: true } } },
+    select: {
+      id: true,
+      name: true,
+      settings: { select: { academicYear: true } },
+    },
   });
 
   if (!institution) {
     throw new Error(`Institution slug not found: ${institutionSlug}`);
   }
 
-  const csvContent = fs.readFileSync(absoluteCsvPath, "utf8").replace(/^\uFEFF/, "");
+  const csvContent = fs
+    .readFileSync(absoluteCsvPath, "utf8")
+    .replace(/^\uFEFF/, "");
   const rows = parseCsv(csvContent);
 
   if (rows.length < TARGET_STUDENTS) {
-    throw new Error(`CSV needs at least ${TARGET_STUDENTS} rows, found ${rows.length}`);
+    throw new Error(
+      `CSV needs at least ${TARGET_STUDENTS} rows, found ${rows.length}`,
+    );
   }
 
   const selectedRows = rows.slice(0, TARGET_STUDENTS);
@@ -205,7 +221,8 @@ async function main() {
     const [guardianFirstName, ...guardianLastParts] = guardianName.split(/\s+/);
     const guardianLastName = guardianLastParts.join(" ") || "Guardian";
 
-    const studentId = String(row.Student_ID || "").trim() || `STU-CSV-${index + 1}`;
+    const studentId =
+      String(row.Student_ID || "").trim() || `STU-CSV-${index + 1}`;
 
     const student = await db.student.create({
       data: {
@@ -213,14 +230,18 @@ async function main() {
         classId,
         studentId,
         firstName:
-          String(row.First_Name || "").trim() || fullName.split(" ")[0] || "Student",
+          String(row.First_Name || "").trim() ||
+          fullName.split(" ")[0] ||
+          "Student",
         lastName:
           String(row.Last_Name || "").trim() ||
           fullName.split(" ").slice(1).join(" ") ||
           "Name",
         gender: normalizeGender(row.Gender),
         dateOfBirth: row.Date_of_Birth ? new Date(row.Date_of_Birth) : null,
-        enrollmentDate: row.Admission_Date ? new Date(row.Admission_Date) : new Date(),
+        enrollmentDate: row.Admission_Date
+          ? new Date(row.Admission_Date)
+          : new Date(),
         status: normalizeStatus(row.Status),
         bloodGroup: String(row.Blood_Group || "") || null,
         phone: String(row.Guardian_Phone || "") || null,
@@ -244,7 +265,9 @@ async function main() {
   }
 
   console.log(`Imported ${inserted} students from ${absoluteCsvPath}`);
-  console.log(`Class distribution: ${STUDENTS_PER_CLASS} x ${FIXED_CLASSES.length}`);
+  console.log(
+    `Class distribution: ${STUDENTS_PER_CLASS} x ${FIXED_CLASSES.length}`,
+  );
   console.log(`Institution: ${institution.name} (${institutionSlug})\n`);
 }
 

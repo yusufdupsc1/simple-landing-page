@@ -36,9 +36,18 @@ async function getParentData(
       student: { institutionId },
       OR: [
         ...(normalizedEmail
-          ? [{ email: { equals: normalizedEmail, mode: "insensitive" as const } }]
+          ? [
+              {
+                email: {
+                  equals: normalizedEmail,
+                  mode: "insensitive" as const,
+                },
+              },
+            ]
           : []),
-        ...(normalizedPhoneTail ? [{ phone: { contains: normalizedPhoneTail } }] : []),
+        ...(normalizedPhoneTail
+          ? [{ phone: { contains: normalizedPhoneTail } }]
+          : []),
       ],
     },
     include: {
@@ -91,7 +100,12 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const session = await auth();
   const user = session?.user as
-    | { institutionId?: string; role?: string; email?: string | null; phone?: string | null }
+    | {
+        institutionId?: string;
+        role?: string;
+        email?: string | null;
+        phone?: string | null;
+      }
     | undefined;
 
   if (!user?.institutionId) {
@@ -106,7 +120,11 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
     "DASHBOARD_PARENT_PORTAL",
     () => getParentData(user.institutionId, user.email, user.phone),
     null,
-    { institutionId: user.institutionId, userEmail: user.email, userPhone: user.phone },
+    {
+      institutionId: user.institutionId,
+      userEmail: user.email,
+      userPhone: user.phone,
+    },
   );
 
   if (!data) {
@@ -128,7 +146,10 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
     const unpaidTotal = row.student.fees
       .filter((f: any) => ["UNPAID", "PARTIAL", "OVERDUE"].includes(f.status))
       .reduce((feeSum: number, fee: any) => {
-        const paid = (fee.payments ?? []).reduce((pSum: number, p: any) => pSum + Number(p.amount), 0);
+        const paid = (fee.payments ?? []).reduce(
+          (pSum: number, p: any) => pSum + Number(p.amount),
+          0,
+        );
         return feeSum + Math.max(0, Number(fee.amount) - paid);
       }, 0);
     return sum + unpaidTotal;
@@ -172,10 +193,14 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Outstanding Fees</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Outstanding Fees
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalUnpaid)}</div>
+            <div className="text-2xl font-bold">
+              {formatCurrency(totalUnpaid)}
+            </div>
           </CardContent>
         </Card>
 
@@ -200,15 +225,20 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
 
         {students.map((row: any) => {
           const student = row.student;
-          const presentCount = student.attendance.filter((a: any) => a.status === "PRESENT").length;
+          const presentCount = student.attendance.filter(
+            (a: any) => a.status === "PRESENT",
+          ).length;
           const total = student.attendance.length;
-          const attendanceRate = total > 0 ? Math.round((presentCount / total) * 100) : 0;
+          const attendanceRate =
+            total > 0 ? Math.round((presentCount / total) * 100) : 0;
 
           const avgGrade =
             student.grades.length > 0
               ? Math.round(
-                  student.grades.reduce((sum: number, g: any) => sum + g.percentage, 0) /
-                    student.grades.length,
+                  student.grades.reduce(
+                    (sum: number, g: any) => sum + g.percentage,
+                    0,
+                  ) / student.grades.length,
                 )
               : null;
 
@@ -217,18 +247,25 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
           );
 
           return (
-            <TabsContent key={student.id} value={student.id} className="space-y-4">
+            <TabsContent
+              key={student.id}
+              value={student.id}
+              className="space-y-4"
+            >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <div className="flex-1">
                   <p className="font-medium">
                     {student.firstName} {student.lastName}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {student.class?.name} • ID: {student.studentId} • {row.relation}
+                    {student.class?.name} • ID: {student.studentId} •{" "}
+                    {row.relation}
                   </p>
                 </div>
                 <div className="text-left sm:text-right">
-                  <Badge variant={attendanceRate >= 75 ? "default" : "destructive"}>
+                  <Badge
+                    variant={attendanceRate >= 75 ? "default" : "destructive"}
+                  >
                     {attendanceRate}% Attendance
                   </Badge>
                 </div>
@@ -241,11 +278,16 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
                   </CardHeader>
                   <CardContent>
                     {student.grades.length === 0 ? (
-                      <p className="text-muted-foreground text-sm">No grades yet.</p>
+                      <p className="text-muted-foreground text-sm">
+                        No grades yet.
+                      </p>
                     ) : (
                       <div className="space-y-2">
                         {student.grades.slice(0, 5).map((grade: any) => (
-                          <div key={grade.id} className="flex justify-between gap-3 text-sm">
+                          <div
+                            key={grade.id}
+                            className="flex justify-between gap-3 text-sm"
+                          >
                             <span>{grade.subject.name}</span>
                             <span className="font-medium">
                               {grade.percentage}% ({grade.letterGrade})
@@ -269,17 +311,30 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
                   </CardHeader>
                   <CardContent>
                     {unpaidStudentFees.length === 0 ? (
-                      <p className="text-muted-foreground text-sm">All fees paid!</p>
+                      <p className="text-muted-foreground text-sm">
+                        All fees paid!
+                      </p>
                     ) : (
                       <div className="space-y-3">
                         {unpaidStudentFees.map((fee: any) => {
-                          const paid = (fee.payments ?? []).reduce((pSum: number, p: any) => pSum + Number(p.amount), 0);
-                          const remaining = Math.max(0, Number(fee.amount) - paid);
+                          const paid = (fee.payments ?? []).reduce(
+                            (pSum: number, p: any) => pSum + Number(p.amount),
+                            0,
+                          );
+                          const remaining = Math.max(
+                            0,
+                            Number(fee.amount) - paid,
+                          );
                           return (
-                            <div key={fee.id} className="rounded-lg border border-border/70 p-3">
+                            <div
+                              key={fee.id}
+                              className="rounded-lg border border-border/70 p-3"
+                            >
                               <div className="mb-2 flex items-center justify-between gap-3 text-sm">
                                 <span>{fee.title}</span>
-                                <span className="font-medium">{formatCurrency(remaining)}</span>
+                                <span className="font-medium">
+                                  {formatCurrency(remaining)}
+                                </span>
                               </div>
                               <FeePaymentActions feeId={fee.id} />
                             </div>
@@ -305,7 +360,10 @@ export default async function ParentPortalPage({ searchParams }: PageProps) {
           ) : (
             <div className="space-y-3">
               {announcements.map((announcement: any) => (
-                <div key={announcement.id} className="border-b pb-3 last:border-0">
+                <div
+                  key={announcement.id}
+                  className="border-b pb-3 last:border-0"
+                >
                   <div className="mb-1 flex flex-wrap items-center gap-2">
                     <p className="font-medium">{announcement.title}</p>
                     <Badge variant="outline">{announcement.priority}</Badge>

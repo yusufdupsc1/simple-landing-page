@@ -1,36 +1,27 @@
-// src/app/dashboard/page.tsx
-// Dashboard Overview — React 19 Server Component
-
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-import { getDashboardStats } from "@/server/actions/students";
-import { db } from "@/lib/db";
-import { StatsGrid } from "@/components/dashboard/stats-grid";
-import { AttendanceChart } from "@/components/dashboard/attendance-chart";
-import { RevenueChart } from "@/components/dashboard/revenue-chart";
-import { RecentStudents } from "@/components/dashboard/recent-students";
-import { QuickActions } from "@/components/dashboard/quick-actions";
-import { UpcomingEvents } from "@/components/dashboard/upcoming-events";
-import { ExecutiveCommandCenter } from "@/components/dashboard/executive-command-center";
-import { ClassOverviewWidget } from "@/components/dashboard/class-overview-widget";
-import { AttendanceSummaryWidget } from "@/components/dashboard/attendance-summary-widget";
-import { FeeCollectionWidget } from "@/components/dashboard/fee-collection-widget";
-import { StudentStatusWidget } from "@/components/dashboard/student-status-widget";
-import { NoticeBoardWidget } from "@/components/dashboard/notice-board-widget";
-import { TeacherStatusWidget } from "@/components/dashboard/teacher-status-widget";
-import { StudentSearchWidget } from "@/components/dashboard/student-search-widget";
-import { DEFAULT_LOCALE, DEFAULT_TIMEZONE } from "@/lib/utils";
-import { safeLoader } from "@/lib/server/safe-loader";
-import { isGovtPrimaryModeEnabled } from "@/lib/config";
-import { getDefaultDashboardPath } from "@/lib/role-routing";
-import { Role } from "@prisma/client";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { isGovtPrimaryModeEnabled } from "@/lib/config";
+import { db } from "@/lib/db";
+import { normalizeLocale } from "@/lib/i18n/getDict";
+import { getDefaultDashboardPath } from "@/lib/role-routing";
+import { DEFAULT_TIMEZONE } from "@/lib/utils";
+import { safeLoader } from "@/lib/server/safe-loader";
+import { getDashboardStats } from "@/server/actions/students";
+import { AttendanceChart } from "@/components/dashboard/attendance-chart";
+import { DashboardSearchCard } from "@/components/dashboard/dashboard-search-card";
+import { QuickActions } from "@/components/dashboard/quick-actions";
+import { RecentStudents } from "@/components/dashboard/recent-students";
+import { RevenueChart } from "@/components/dashboard/revenue-chart";
+import { StatsGrid } from "@/components/dashboard/stats-grid";
+import { StatusOverview } from "@/components/dashboard/status-overview";
+import { UpcomingEvents } from "@/components/dashboard/upcoming-events";
 
 export const metadata: Metadata = {
   title: "Dashboard",
 };
 
-// Next.js 15/16 — no caching by default for dynamic data
 export const dynamic = "force-dynamic";
 
 async function getAttendanceData(institutionId: string) {
@@ -48,8 +39,6 @@ async function getAttendanceData(institutionId: string) {
       orderBy: { date: "asc" },
     });
 
-    // Prisma groupBy returns `_count` as an object (`{ _all: number }`).
-    // Normalize to a plain number to avoid rendering object values in React.
     return data.map(
       (row: {
         date: Date;
@@ -73,7 +62,7 @@ async function getAttendanceData(institutionId: string) {
 async function getRevenueData(institutionId: string) {
   try {
     const year = new Date().getFullYear();
-    const data = await db.payment.groupBy({
+    return await db.payment.groupBy({
       by: ["paidAt"],
       where: {
         institutionId,
@@ -84,7 +73,6 @@ async function getRevenueData(institutionId: string) {
       },
       _sum: { amount: true },
     });
-    return data;
   } catch (error) {
     console.error("[DASHBOARD_REVENUE]", error);
     return [];
@@ -107,327 +95,137 @@ async function getUpcomingEvents(institutionId: string) {
   }
 }
 
-async function getClassOverviewData(institutionId: string) {
+async function getDashboardOverview(institutionId: string) {
   try {
-    const classes = await db.class.findMany({
-      where: { institutionId, isActive: true },
-      include: {
-        students: { where: { status: "ACTIVE" } },
-        attendance: {
-          where: {
-            date: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
-          },
-        },
-      },
-      orderBy: { grade: "asc" },
-      take: 6,
-    });
-
-    return classes.map((cls) => {
-      const studentCount = cls.students.length;
-      const attendanceRecords = cls.attendance;
-      const presentCount = attendanceRecords.filter(
-        (a) => a.status === "PRESENT",
-      ).length;
-      const attendanceRate =
-        attendanceRecords.length > 0
-          ? Math.round((presentCount / attendanceRecords.length) * 100)
-          : 0;
-
-      return {
-        name: cls.name,
-        studentCount,
-        attendanceRate,
-        avgGrade: 0,
-      };
-    });
-  } catch (error) {
-    console.error("[DASHBOARD_CLASS_OVERVIEW]", error);
-    return [];
-  }
-}
-
-async function getTodayAttendanceSummary(institutionId: string) {
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const attendance = await db.attendance.groupBy({
-      by: ["status"],
-      where: {
-        institutionId,
-        date: today,
-      },
-      _count: true,
-    });
-
-    const total = attendance.reduce((sum, a) => sum + Number(a._count), 0);
-    const present = attendance.find((a) => a.status === "PRESENT")?._count || 0;
-    const absent = attendance.find((a) => a.status === "ABSENT")?._count || 0;
-    const late = attendance.find((a) => a.status === "LATE")?._count || 0;
-
-    return {
-      present: Number(present),
-      absent: Number(absent),
-      late: Number(late),
-      total,
-    };
-  } catch (error) {
-    console.error("[DASHBOARD_TODAY_ATTENDANCE]", error);
-    return { present: 0, absent: 0, late: 0, total: 0 };
-  }
-}
-
-async function getFeeSummary(institutionId: string) {
-  try {
-    const currentMonth = new Date();
-    currentMonth.setDate(1);
-
-    const fees = await db.fee.findMany({
-      where: {
-        institutionId,
-        createdAt: { gte: currentMonth },
-      },
-      select: { status: true, amount: true },
-    });
-
-    const totalStudents = await db.student.count({
-      where: { institutionId, status: "ACTIVE" },
-    });
-
-    const collected = fees
-      .filter((f) => f.status === "PAID")
-      .reduce((sum, f) => sum + Number(f.amount), 0);
-    const pending = fees
-      .filter((f) => f.status === "UNPAID" || f.status === "PARTIAL")
-      .reduce((sum, f) => sum + Number(f.amount), 0);
-
-    return {
-      collected,
-      pending,
-      overdue: Math.floor(pending * 0.1),
-      totalStudents,
-    };
-  } catch (error) {
-    console.error("[DASHBOARD_FEE_SUMMARY]", error);
-    return { collected: 0, pending: 0, overdue: 0, totalStudents: 0 };
-  }
-}
-
-async function getStudentStatusData(institutionId: string) {
-  try {
-    const [active, inactive, transferred, graduated] = await Promise.all([
-      db.student.count({ where: { institutionId, status: "ACTIVE" } }),
-      db.student.count({ where: { institutionId, status: "INACTIVE" } }),
-      db.student.count({ where: { institutionId, status: "TRANSFERRED" } }),
-      db.student.count({ where: { institutionId, status: "GRADUATED" } }),
-    ]);
-
-    return {
-      active,
-      inactive,
-      transferred,
-      graduated,
-      total: active + inactive + transferred + graduated,
-    };
-  } catch (error) {
-    console.error("[DASHBOARD_STUDENT_STATUS]", error);
-    return { active: 0, inactive: 0, transferred: 0, graduated: 0, total: 0 };
-  }
-}
-
-async function getTeacherStatusData(institutionId: string) {
-  try {
-    const [active, total] = await Promise.all([
-      db.teacher.count({ where: { institutionId, status: "ACTIVE" } }),
-      db.teacher.count({ where: { institutionId } }),
-    ]);
-
-    return {
-      active,
-      onLeave: total - active,
-      total,
-    };
-  } catch (error) {
-    console.error("[DASHBOARD_TEACHER_STATUS]", error);
-    return { active: 0, onLeave: 0, total: 0 };
-  }
-}
-
-async function getNotices(institutionId: string) {
-  try {
-    return await db.announcement.findMany({
-      where: { institutionId },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        priority: true,
-        createdAt: true,
-      },
-    });
-  } catch (error) {
-    console.error("[DASHBOARD_NOTICES]", error);
-    return [];
-  }
-}
-
-async function getExecutiveData(institutionId: string) {
-  try {
-    const [
-      institution,
-      settings,
-      pendingAccessRequests,
-      parentAccounts,
-      userRoleCounts,
-      inactiveStudents,
-      inactiveTeachers,
-      inactiveClasses,
-      inactiveSubjects,
-    ] = await Promise.all([
-      db.institution.findUnique({
-        where: { id: institutionId },
-        select: {
-          slug: true,
-          name: true,
-          logo: true,
-          email: true,
-          phone: true,
-          website: true,
-          address: true,
-          city: true,
-          country: true,
-        },
-      }),
-      db.institutionSettings.findUnique({
+    const [studentStatusRows, teacherStatusRows, classRows] = await Promise.all([
+      db.student.groupBy({
+        by: ["status"],
         where: { institutionId },
-        select: {
-          signatoryName: true,
-          signatoryTitle: true,
-          certificateLogoUrl: true,
-          publicReportsEnabled: true,
-        },
-      }),
-      db.accessRequest.count({
-        where: { institutionId, status: "PENDING" },
-      }),
-      db.parent.count({
-        where: {
-          student: { institutionId },
-        },
-      }),
-      db.user.groupBy({
-        by: ["role"],
-        where: {
-          institutionId,
-          isActive: true,
-          approvalStatus: "APPROVED",
-        },
         _count: { _all: true },
       }),
-      db.student.count({ where: { institutionId, status: "INACTIVE" } }),
-      db.teacher.count({ where: { institutionId, status: "INACTIVE" } }),
-      db.class.count({ where: { institutionId, isActive: false } }),
-      db.subject.count({ where: { institutionId, isActive: false } }),
+      db.teacher.groupBy({
+        by: ["status"],
+        where: { institutionId },
+        _count: { _all: true },
+      }),
+      db.class.findMany({
+        where: { institutionId, isActive: true },
+        select: {
+          id: true,
+          name: true,
+          grade: true,
+          section: true,
+          capacity: true,
+          _count: { select: { students: true } },
+        },
+        orderBy: [{ grade: "asc" }, { section: "asc" }],
+        take: 20,
+      }),
     ]);
 
-    const roleMix = {
-      admins: 0,
-      principals: 0,
-      teachers: 0,
-      students: 0,
-      parents: 0,
+    const studentCounts = {
+      ACTIVE: 0,
+      INACTIVE: 0,
+      GRADUATED: 0,
+      TRANSFERRED: 0,
     };
 
-    for (const row of userRoleCounts) {
+    for (const row of studentStatusRows) {
       const count = Number(row._count?._all ?? 0);
-      if (row.role === Role.SUPER_ADMIN || row.role === Role.ADMIN) {
-        roleMix.admins += count;
-      } else if (row.role === Role.PRINCIPAL) {
-        roleMix.principals += count;
-      } else if (row.role === Role.TEACHER) {
-        roleMix.teachers += count;
-      } else if (row.role === Role.STUDENT) {
-        roleMix.students += count;
-      } else if (row.role === Role.PARENT) {
-        roleMix.parents += count;
-      }
+      if (row.status === "ACTIVE") studentCounts.ACTIVE = count;
+      if (row.status === "INACTIVE") studentCounts.INACTIVE = count;
+      if (row.status === "GRADUATED") studentCounts.GRADUATED = count;
+      if (row.status === "TRANSFERRED") studentCounts.TRANSFERRED = count;
     }
 
-    const profileFields = [
-      institution?.name,
-      institution?.email,
-      institution?.phone,
-      institution?.website,
-      institution?.address,
-      institution?.city,
-      institution?.country,
-      institution?.logo,
-    ];
-    const completedProfileFields = profileFields.filter(
-      (value) => typeof value === "string" && value.trim().length > 0,
-    ).length;
-    const profileCompletion = Math.round(
-      (completedProfileFields / profileFields.length) * 100,
-    );
+    const teacherCounts = {
+      ACTIVE: 0,
+      ON_LEAVE: 0,
+      INACTIVE: 0,
+      RESIGNED: 0,
+    };
+
+    for (const row of teacherStatusRows) {
+      const count = Number(row._count?._all ?? 0);
+      if (row.status === "ACTIVE") teacherCounts.ACTIVE = count;
+      if (row.status === "ON_LEAVE") teacherCounts.ON_LEAVE = count;
+      if (row.status === "INACTIVE") teacherCounts.INACTIVE = count;
+      if (row.status === "RESIGNED") teacherCounts.RESIGNED = count;
+    }
+
+    const classItems = classRows.map((cls) => {
+      const count = Number(cls._count.students ?? 0);
+      const safeCapacity = cls.capacity > 0 ? cls.capacity : 1;
+      const percentage = Math.round((count / safeCapacity) * 100);
+      const className = cls.name?.trim() || `Class ${cls.grade}${cls.section}`;
+
+      return {
+        id: cls.id,
+        name: className,
+        count,
+        percentage,
+      };
+    });
+
+    const spotlight = [...classItems].sort((a, b) => b.count - a.count).slice(0, 2);
+    const strongest =
+      [...classItems].sort((a, b) => b.percentage - a.percentage)[0] ?? null;
+    const needsSupport =
+      [...classItems].sort((a, b) => a.percentage - b.percentage)[0] ?? null;
 
     return {
-      institutionSlug: institution?.slug ?? "school",
-      profileCompletion,
-      signatureReady: Boolean(
-        settings?.signatoryName?.trim() && settings?.signatoryTitle?.trim(),
-      ),
-      logoReady: Boolean(
-        institution?.logo?.trim() || settings?.certificateLogoUrl?.trim(),
-      ),
-      publicReportsEnabled: Boolean(settings?.publicReportsEnabled),
-      pendingAccessRequests,
-      parentAccounts,
-      roleMix,
-      inactive: {
-        students: inactiveStudents,
-        teachers: inactiveTeachers,
-        classes: inactiveClasses,
-        subjects: inactiveSubjects,
+      students: {
+        total:
+          studentCounts.ACTIVE +
+          studentCounts.INACTIVE +
+          studentCounts.GRADUATED +
+          studentCounts.TRANSFERRED,
+        active: studentCounts.ACTIVE,
+        inactive: studentCounts.INACTIVE,
+        graduated: studentCounts.GRADUATED,
+        transferred: studentCounts.TRANSFERRED,
       },
-      sslCommerzConfigured: Boolean(
-        process.env.SSLCOMMERZ_STORE_ID &&
-        process.env.SSLCOMMERZ_STORE_PASSWORD,
-      ),
-      stripeConfigured:
-        Boolean(
-          !isGovtPrimaryModeEnabled() &&
-          process.env.STRIPE_SECRET_KEY &&
-          process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-        ) || undefined,
+      teachers: {
+        total:
+          teacherCounts.ACTIVE +
+          teacherCounts.ON_LEAVE +
+          teacherCounts.INACTIVE +
+          teacherCounts.RESIGNED,
+        active: teacherCounts.ACTIVE,
+        onLeave: teacherCounts.ON_LEAVE,
+        inactive: teacherCounts.INACTIVE,
+        resigned: teacherCounts.RESIGNED,
+      },
+      classes: {
+        total: classItems.length,
+        spotlight,
+        strongest,
+        needsSupport,
+      },
     };
   } catch (error) {
-    console.error("[DASHBOARD_EXECUTIVE]", error);
+    console.error("[DASHBOARD_OVERVIEW]", error);
     return {
-      institutionSlug: "school",
-      profileCompletion: 0,
-      signatureReady: false,
-      logoReady: false,
-      publicReportsEnabled: false,
-      pendingAccessRequests: 0,
-      parentAccounts: 0,
-      roleMix: {
-        admins: 0,
-        principals: 0,
-        teachers: 0,
-        students: 0,
-        parents: 0,
+      students: {
+        total: 0,
+        active: 0,
+        inactive: 0,
+        graduated: 0,
+        transferred: 0,
       },
-      inactive: {
-        students: 0,
-        teachers: 0,
-        classes: 0,
-        subjects: 0,
+      teachers: {
+        total: 0,
+        active: 0,
+        onLeave: 0,
+        inactive: 0,
+        resigned: 0,
       },
-      sslCommerzConfigured: false,
-      stripeConfigured: undefined,
+      classes: {
+        total: 0,
+        spotlight: [],
+        strongest: null,
+        needsSupport: null,
+      },
     };
   }
 }
@@ -443,6 +241,7 @@ export default async function DashboardPage() {
         role?: string;
       }
     | undefined;
+
   if (!user?.institutionId) {
     return null;
   }
@@ -452,8 +251,14 @@ export default async function DashboardPage() {
   }
 
   const institutionId = user.institutionId;
-  const institutionName = user.institutionName ?? "your institution";
-  const userName = user.name?.split(" ")[0] ?? "there";
+  const institutionName = user.institutionName ?? "Dhadash";
+  const userName = user.name?.split(" ")[0] ?? "Admin";
+  const cookieStore = await cookies();
+  const locale = normalizeLocale(
+    cookieStore.get("NEXT_LOCALE")?.value ?? cookieStore.get("locale")?.value,
+  );
+  const isBangla = locale === "bn";
+
   const now = new Date();
   const hour = Number(
     new Intl.DateTimeFormat("en-GB", {
@@ -462,8 +267,26 @@ export default async function DashboardPage() {
       timeZone: DEFAULT_TIMEZONE,
     }).format(now),
   );
-  const greeting =
-    hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  const greeting = isBangla
+    ? hour < 12
+      ? "শুভ সকাল"
+      : hour < 17
+        ? "শুভ অপরাহ্ন"
+        : "শুভ সন্ধ্যা"
+    : hour < 12
+      ? "Good morning"
+      : hour < 17
+        ? "Good afternoon"
+        : "Good evening";
+
+  const formattedDate = now.toLocaleDateString(isBangla ? "bn-BD" : "en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: DEFAULT_TIMEZONE,
+  });
 
   const statsResult = await safeLoader(
     "DASHBOARD_STATS",
@@ -471,18 +294,21 @@ export default async function DashboardPage() {
     null,
     { institutionId },
   );
+
   const attendanceData = await safeLoader(
     "DASHBOARD_ATTENDANCE",
     () => getAttendanceData(institutionId),
     [],
     { institutionId },
   );
+
   const revenueData = await safeLoader(
     "DASHBOARD_REVENUE",
     () => getRevenueData(institutionId),
     [],
     { institutionId },
   );
+
   const events = await safeLoader(
     "DASHBOARD_EVENTS",
     () => getUpcomingEvents(institutionId),
@@ -490,74 +316,30 @@ export default async function DashboardPage() {
     { institutionId },
   );
 
-  const classOverview = await safeLoader(
-    "DASHBOARD_CLASS_OVERVIEW",
-    () => getClassOverviewData(institutionId),
-    [],
-    { institutionId },
-  );
-
-  const todayAttendance = await safeLoader(
-    "DASHBOARD_TODAY_ATTENDANCE",
-    () => getTodayAttendanceSummary(institutionId),
-    { present: 0, absent: 0, late: 0, total: 0 },
-    { institutionId },
-  );
-
-  const feeSummary = await safeLoader(
-    "DASHBOARD_FEE_SUMMARY",
-    () => getFeeSummary(institutionId),
-    { collected: 0, pending: 0, overdue: 0, totalStudents: 0 },
-    { institutionId },
-  );
-
-  const studentStatus = await safeLoader(
-    "DASHBOARD_STUDENT_STATUS",
-    () => getStudentStatusData(institutionId),
-    { active: 0, inactive: 0, transferred: 0, graduated: 0, total: 0 },
-    { institutionId },
-  );
-
-  const teacherStatus = await safeLoader(
-    "DASHBOARD_TEACHER_STATUS",
-    () => getTeacherStatusData(institutionId),
-    { active: 0, onLeave: 0, total: 0 },
-    { institutionId },
-  );
-
-  const notices = await safeLoader(
-    "DASHBOARD_NOTICES",
-    () => getNotices(institutionId),
-    [],
-    { institutionId },
-  );
-
-  const executive = await safeLoader(
-    "DASHBOARD_EXECUTIVE",
-    () => getExecutiveData(institutionId),
+  const overview = await safeLoader(
+    "DASHBOARD_OVERVIEW",
+    () => getDashboardOverview(institutionId),
     {
-      institutionSlug: "school",
-      profileCompletion: 0,
-      signatureReady: false,
-      logoReady: false,
-      publicReportsEnabled: false,
-      pendingAccessRequests: 0,
-      parentAccounts: 0,
-      roleMix: {
-        admins: 0,
-        principals: 0,
-        teachers: 0,
-        students: 0,
-        parents: 0,
+      students: {
+        total: 0,
+        active: 0,
+        inactive: 0,
+        graduated: 0,
+        transferred: 0,
       },
-      inactive: {
-        students: 0,
-        teachers: 0,
-        classes: 0,
-        subjects: 0,
+      teachers: {
+        total: 0,
+        active: 0,
+        onLeave: 0,
+        inactive: 0,
+        resigned: 0,
       },
-      sslCommerzConfigured: false,
-      stripeConfigured: undefined,
+      classes: {
+        total: 0,
+        spotlight: [],
+        strongest: null,
+        needsSupport: null,
+      },
     },
     { institutionId },
   );
@@ -571,81 +353,43 @@ export default async function DashboardPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in sm:space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase">
-          {now.toLocaleDateString(DEFAULT_LOCALE, {
-            timeZone: DEFAULT_TIMEZONE,
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+    <div className="space-y-4 pb-10">
+      <section className="rounded-2xl border border-border bg-card px-4 py-5 shadow-sm sm:px-6">
+        <p className="text-sm text-muted-foreground">{formattedDate}</p>
+        <h1 className="mt-1 text-4xl font-bold tracking-tight sm:text-5xl">
           {greeting}, <span className="text-primary">{userName}</span>
         </h1>
-        <p className="text-muted-foreground">
-          Here&apos;s what&apos;s happening at{" "}
-          <strong>{institutionName}</strong> today.
-          {govtPrimaryMode ? " Govt Primary mode is active." : ""}
+        <p className="mt-2 max-w-3xl text-sm text-muted-foreground sm:text-base">
+          {isBangla
+            ? `আজ ${institutionName} এ কী হচ্ছে তা দেখুন। ${govtPrimaryMode ? "Govt Primary mode সক্রিয়।" : ""}`
+            : `Here's what's happening at ${institutionName} today. ${govtPrimaryMode ? "Govt Primary mode is active." : ""}`}
         </p>
-      </div>
+      </section>
 
-      {/* KPI Stats */}
-      <StatsGrid stats={stats} />
+      <StatsGrid
+        stats={stats}
+        isBangla={isBangla}
+        govtPrimaryMode={govtPrimaryMode}
+      />
 
-      {/* Student Search Widget */}
-      <StudentSearchWidget institutionId={institutionId} />
+      <DashboardSearchCard isBangla={isBangla} />
 
-      {/* New Widgets Row - Mobile Optimized */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <AttendanceSummaryWidget data={todayAttendance} />
-        <FeeCollectionWidget data={feeSummary} />
-        <StudentStatusWidget data={studentStatus} />
-        <TeacherStatusWidget data={teacherStatus} />
-      </div>
+      <StatusOverview data={overview} isBangla={isBangla} />
 
-      {/* Class Overview */}
-      <ClassOverviewWidget classes={classOverview} />
-
-      {!govtPrimaryMode ? (
-        <ExecutiveCommandCenter
-          institutionSlug={executive.institutionSlug}
-          profileCompletion={executive.profileCompletion}
-          signatureReady={executive.signatureReady}
-          logoReady={executive.logoReady}
-          publicReportsEnabled={executive.publicReportsEnabled}
-          pendingAccessRequests={executive.pendingAccessRequests}
-          parentAccounts={executive.parentAccounts}
-          roleMix={executive.roleMix}
-          inactive={executive.inactive}
-          sslCommerzConfigured={executive.sslCommerzConfigured}
-          stripeConfigured={executive.stripeConfigured}
-        />
-      ) : null}
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <AttendanceChart data={attendanceData} />
+          <AttendanceChart data={attendanceData} isBangla={isBangla} />
         </div>
         <div>
-          <RevenueChart data={revenueData} />
+          <RevenueChart data={revenueData} isBangla={isBangla} />
         </div>
       </div>
 
-      {/* Bottom Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <RecentStudents students={stats.recentStudents} />
-        </div>
-        <div className="space-y-6">
-          <QuickActions />
-          <UpcomingEvents events={events} />
-        </div>
-      </div>
+      <RecentStudents students={stats.recentStudents} isBangla={isBangla} />
+
+      <QuickActions isBangla={isBangla} />
+
+      <UpcomingEvents events={events} isBangla={isBangla} />
     </div>
   );
 }

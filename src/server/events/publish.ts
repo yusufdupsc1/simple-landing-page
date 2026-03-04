@@ -25,7 +25,7 @@ if (!globalStore.__dhadashEventHistory) {
 export function createDomainEvent<T extends DomainEventType>(
   type: T,
   institutionId: string,
-  payload: Extract<DomainEvent, { type: T }>['payload'],
+  payload: Extract<DomainEvent, { type: T }>["payload"],
 ): Extract<DomainEvent, { type: T }> {
   return {
     id: randomUUID(),

@@ -56,7 +56,12 @@ type ActionResult<T = void> =
 async function getAuthContext() {
   const session = await auth();
   const user = session?.user as
-    | { id?: string; institutionId?: string; role?: string; email?: string | null }
+    | {
+        id?: string;
+        institutionId?: string;
+        role?: string;
+        email?: string | null;
+      }
     | undefined;
 
   if (!user?.id || !user.institutionId || !user.role) {
@@ -78,7 +83,13 @@ async function generateTeacherId(institutionId: string): Promise<string> {
 
 export async function createTeacher(
   formData: TeacherFormData,
-): Promise<ActionResult<{ id: string; teacherId: string; credential?: ProvisionedCredential | null }>> {
+): Promise<
+  ActionResult<{
+    id: string;
+    teacherId: string;
+    credential?: ProvisionedCredential | null;
+  }>
+> {
   try {
     const { institutionId, userId, role } = await getAuthContext();
     if (!isPrivilegedOrStaff(role)) {
@@ -386,7 +397,14 @@ export async function getTeachers({
           OR: [
             { userId },
             ...(email
-              ? [{ email: { equals: email.trim().toLowerCase(), mode: "insensitive" } }]
+              ? [
+                  {
+                    email: {
+                      equals: email.trim().toLowerCase(),
+                      mode: "insensitive",
+                    },
+                  },
+                ]
               : []),
           ],
         }

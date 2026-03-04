@@ -32,7 +32,11 @@ export async function GET(req: NextRequest, context: RouteContext) {
       id,
     );
     if (!allowed) {
-      return apiError(403, "FORBIDDEN", "You are not allowed to view this student's records");
+      return apiError(
+        403,
+        "FORBIDDEN",
+        "You are not allowed to view this student's records",
+      );
     }
 
     const query = StudentRecordListQuerySchema.parse({
@@ -79,7 +83,12 @@ export async function GET(req: NextRequest, context: RouteContext) {
     );
   } catch (error) {
     if (error instanceof ZodError) {
-      return apiError(400, "VALIDATION_ERROR", "Invalid request query", error.flatten());
+      return apiError(
+        400,
+        "VALIDATION_ERROR",
+        "Invalid request query",
+        error.flatten(),
+      );
     }
     logApiError("API_V1_STUDENT_RECORDS_GET", error);
     return apiError(500, "INTERNAL_ERROR", "Failed to fetch student records");

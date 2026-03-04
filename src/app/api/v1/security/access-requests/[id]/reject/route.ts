@@ -1,7 +1,12 @@
 import { NextRequest } from "next/server";
 import { ZodError } from "zod";
 import { getApiAuthContext } from "@/lib/api/auth";
-import { apiError, apiForbidden, apiOk, apiUnauthorized } from "@/lib/api/response";
+import {
+  apiError,
+  apiForbidden,
+  apiOk,
+  apiUnauthorized,
+} from "@/lib/api/response";
 import { logApiError } from "@/lib/logger";
 import { ReviewAccessRequestSchema } from "@/lib/contracts/v1/access-requests";
 import { rejectAccessRequest } from "@/server/services/access-requests";
@@ -21,7 +26,9 @@ export async function POST(req: NextRequest, context: RouteContext) {
 
   try {
     const { id } = await context.params;
-    const payload = ReviewAccessRequestSchema.parse(await req.json().catch(() => ({})));
+    const payload = ReviewAccessRequestSchema.parse(
+      await req.json().catch(() => ({})),
+    );
 
     const result = await rejectAccessRequest({
       requestId: id,
@@ -37,7 +44,12 @@ export async function POST(req: NextRequest, context: RouteContext) {
     });
   } catch (error) {
     if (error instanceof ZodError) {
-      return apiError(400, "VALIDATION_ERROR", "Invalid request payload", error.flatten());
+      return apiError(
+        400,
+        "VALIDATION_ERROR",
+        "Invalid request payload",
+        error.flatten(),
+      );
     }
     if (error instanceof Error) {
       const known = [

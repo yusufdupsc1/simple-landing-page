@@ -13,16 +13,13 @@ export const dynamic = "force-dynamic";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ tokenId: string }> }
+  { params }: { params: Promise<{ tokenId: string }> },
 ) {
   try {
     const { tokenId } = await params;
 
     if (!tokenId) {
-      return NextResponse.json(
-        { error: "Token ID required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Token ID required" }, { status: 400 });
     }
 
     // Verify token and get payload
@@ -30,7 +27,7 @@ export async function GET(
     if (!payload) {
       return NextResponse.json(
         { error: "Invalid or expired download token" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -60,11 +57,10 @@ export async function GET(
       },
     });
   } catch (error) {
-    logApiError("DOWNLOAD_STREAMING_ENDPOINT", error, { tokenId: (await params).tokenId });
-    return NextResponse.json(
-      { error: "Download failed" },
-      { status: 500 }
-    );
+    logApiError("DOWNLOAD_STREAMING_ENDPOINT", error, {
+      tokenId: (await params).tokenId,
+    });
+    return NextResponse.json({ error: "Download failed" }, { status: 500 });
   }
 }
 
@@ -72,7 +68,7 @@ export async function GET(
  * Generate student list CSV
  */
 async function generateStudentListCSV(
-  institutionId: string
+  institutionId: string,
 ): Promise<{ csv: string; filename: string }> {
   const students = await db.student.findMany({
     where: { institutionId },
@@ -141,7 +137,7 @@ async function generateStudentListCSV(
  * Generate attendance CSV
  */
 async function generateAttendanceCSV(
-  institutionId: string
+  institutionId: string,
 ): Promise<{ csv: string; filename: string }> {
   const today = new Date().toISOString().slice(0, 10);
   const attendanceDate = new Date(today);
@@ -172,8 +168,20 @@ async function generateAttendanceCSV(
     status: student.attendance?.[0]?.status || "ABSENT",
   }));
 
-  const headers = ["rolNo", "studentId", "firstName", "lastName", "status"] as const;
-  const headerLabels = ["Roll No", "Student ID", "First Name", "Last Name", "Status"];
+  const headers = [
+    "rolNo",
+    "studentId",
+    "firstName",
+    "lastName",
+    "status",
+  ] as const;
+  const headerLabels = [
+    "Roll No",
+    "Student ID",
+    "First Name",
+    "Last Name",
+    "Status",
+  ];
 
   const csv = generateCSV(exportData, headers, headerLabels);
   const filename = `attendance_${today}.csv`;
@@ -187,11 +195,11 @@ async function generateAttendanceCSV(
 function generateCSV<T extends Record<string, unknown>>(
   data: T[],
   headers: readonly (keyof T)[],
-  headerLabels: string[]
+  headerLabels: string[],
 ): string {
   const headerRow = headerLabels.map(escapeCSV).join(",");
   const rows = data.map((row) =>
-    headers.map((header) => escapeCSV(row[header])).join(",")
+    headers.map((header) => escapeCSV(row[header])).join(","),
   );
 
   return [headerRow, ...rows].join("\n");

@@ -78,7 +78,8 @@ export async function createGrade(
   formData: GradeFormData,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    const { institutionId, userId, role, email, phone } = await getAuthContext();
+    const { institutionId, userId, role, email, phone } =
+      await getAuthContext();
     const parsed = GradeSchema.safeParse(formData);
 
     if (!parsed.success) {
@@ -117,7 +118,10 @@ export async function createGrade(
         phone,
       });
       if (!student.classId || !classIds.includes(student.classId)) {
-        return { success: false, error: "You can only grade students in assigned classes." };
+        return {
+          success: false,
+          error: "You can only grade students in assigned classes.",
+        };
       }
     }
 
@@ -171,7 +175,8 @@ export async function updateGrade(
   formData: GradeFormData,
 ): Promise<ActionResult> {
   try {
-    const { institutionId, userId, role, email, phone } = await getAuthContext();
+    const { institutionId, userId, role, email, phone } =
+      await getAuthContext();
     const parsed = GradeSchema.safeParse(formData);
 
     if (!parsed.success) {
@@ -207,7 +212,10 @@ export async function updateGrade(
         }),
       ]);
       if (!student?.classId || !classIds.includes(student.classId)) {
-        return { success: false, error: "You can only update grades for assigned classes." };
+        return {
+          success: false,
+          error: "You can only update grades for assigned classes.",
+        };
       }
     }
 
@@ -254,7 +262,8 @@ export async function updateGrade(
 
 export async function deleteGrade(id: string): Promise<ActionResult> {
   try {
-    const { institutionId, role, userId, email, phone } = await getAuthContext();
+    const { institutionId, role, userId, email, phone } =
+      await getAuthContext();
 
     if (!["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "TEACHER"].includes(role)) {
       return { success: false, error: "Insufficient permissions" };
@@ -273,8 +282,14 @@ export async function deleteGrade(id: string): Promise<ActionResult> {
         email,
         phone,
       });
-      if (!grade.student?.classId || !classIds.includes(grade.student.classId)) {
-        return { success: false, error: "You can only delete grades for assigned classes." };
+      if (
+        !grade.student?.classId ||
+        !classIds.includes(grade.student.classId)
+      ) {
+        return {
+          success: false,
+          error: "You can only delete grades for assigned classes.",
+        };
       }
     }
 

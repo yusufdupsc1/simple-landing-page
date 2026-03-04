@@ -43,9 +43,18 @@ async function getStudentData(
       institutionId,
       OR: [
         ...(normalizedEmail
-          ? [{ email: { equals: normalizedEmail, mode: "insensitive" as const } }]
+          ? [
+              {
+                email: {
+                  equals: normalizedEmail,
+                  mode: "insensitive" as const,
+                },
+              },
+            ]
           : []),
-        ...(normalizedPhoneTail ? [{ phone: { contains: normalizedPhoneTail } }] : []),
+        ...(normalizedPhoneTail
+          ? [{ phone: { contains: normalizedPhoneTail } }]
+          : []),
       ],
     },
     include: {
@@ -115,7 +124,12 @@ export default async function StudentPortalPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const session = await auth();
   const user = session?.user as
-    | { institutionId?: string; role?: string; email?: string | null; phone?: string | null }
+    | {
+        institutionId?: string;
+        role?: string;
+        email?: string | null;
+        phone?: string | null;
+      }
     | undefined;
 
   if (!user?.institutionId) {
@@ -130,7 +144,11 @@ export default async function StudentPortalPage({ searchParams }: PageProps) {
     "DASHBOARD_STUDENT_PORTAL",
     () => getStudentData(user.institutionId, user.email, user.phone),
     null,
-    { institutionId: user.institutionId, userEmail: user.email, userPhone: user.phone },
+    {
+      institutionId: user.institutionId,
+      userEmail: user.email,
+      userPhone: user.phone,
+    },
   );
 
   if (!data) {
@@ -157,9 +175,14 @@ export default async function StudentPortalPage({ searchParams }: PageProps) {
         )
       : 0;
 
-  const unpaidFees = fees.filter((f) => ["UNPAID", "PARTIAL", "OVERDUE"].includes(f.status));
+  const unpaidFees = fees.filter((f) =>
+    ["UNPAID", "PARTIAL", "OVERDUE"].includes(f.status),
+  );
   const totalUnpaid = unpaidFees.reduce((sum, fee) => {
-    const paid = (fee.payments ?? []).reduce((paidSum: number, payment: any) => paidSum + Number(payment.amount), 0);
+    const paid = (fee.payments ?? []).reduce(
+      (paidSum: number, payment: any) => paidSum + Number(payment.amount),
+      0,
+    );
     return sum + Math.max(0, Number(fee.amount) - paid);
   }, 0);
 
@@ -255,7 +278,10 @@ export default async function StudentPortalPage({ searchParams }: PageProps) {
             ) : (
               <div className="space-y-3">
                 {grades.slice(0, 5).map((grade) => (
-                  <div key={grade.id} className="flex items-center justify-between gap-3">
+                  <div
+                    key={grade.id}
+                    className="flex items-center justify-between gap-3"
+                  >
                     <div>
                       <p className="font-medium text-sm">
                         {grade.subject.name}
@@ -293,7 +319,10 @@ export default async function StudentPortalPage({ searchParams }: PageProps) {
             ) : (
               <div className="space-y-3">
                 {fees.slice(0, 5).map((fee) => (
-                  <div key={fee.id} className="rounded-lg border border-border/70 p-3">
+                  <div
+                    key={fee.id}
+                    className="rounded-lg border border-border/70 p-3"
+                  >
                     <div className="mb-2 flex items-center justify-between gap-3">
                       <div>
                         <p className="font-medium text-sm">{fee.title}</p>

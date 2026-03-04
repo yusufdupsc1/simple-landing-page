@@ -11,9 +11,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { StudentSearchSelect, type StudentSearchItem } from "@/components/students/student-search-select";
+import {
+  StudentSearchSelect,
+  type StudentSearchItem,
+} from "@/components/students/student-search-select";
 import { TemplateSelector } from "@/components/students/template-selector";
-import { BANGLADESHI_CLASS_OPTIONS, MANUAL_TEMPLATE_OPTIONS } from "@/lib/contracts/v1/students-records";
+import {
+  BANGLADESHI_CLASS_OPTIONS,
+  MANUAL_TEMPLATE_OPTIONS,
+} from "@/lib/contracts/v1/students-records";
 
 interface ClassOption {
   id: string;
@@ -27,9 +33,13 @@ interface ReportToolbarProps {
   selectedStudent: StudentSearchItem | null;
   onStudentSelect: (student: StudentSearchItem | null) => void;
   template: (typeof MANUAL_TEMPLATE_OPTIONS)[number];
-  onTemplateChange: (template: (typeof MANUAL_TEMPLATE_OPTIONS)[number]) => void;
+  onTemplateChange: (
+    template: (typeof MANUAL_TEMPLATE_OPTIONS)[number],
+  ) => void;
   periodType: "WEEKLY" | "MONTHLY" | "QUARTERLY" | "ANNUAL" | "CUSTOM";
-  onPeriodTypeChange: (value: "WEEKLY" | "MONTHLY" | "QUARTERLY" | "ANNUAL" | "CUSTOM") => void;
+  onPeriodTypeChange: (
+    value: "WEEKLY" | "MONTHLY" | "QUARTERLY" | "ANNUAL" | "CUSTOM",
+  ) => void;
   periodLabel: string;
   onPeriodLabelChange: (value: string) => void;
   onGenerate: () => void;
@@ -58,9 +68,12 @@ export function ReportToolbar({
       <div className="mb-4 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-3">
         <Sparkles className="mt-0.5 h-4 w-4 text-primary" />
         <div>
-          <p className="text-sm font-semibold text-foreground">Certificate Studio</p>
+          <p className="text-sm font-semibold text-foreground">
+            Certificate Studio
+          </p>
           <p className="text-xs text-muted-foreground">
-            Choose class, template, and period to generate production-ready student documents.
+            Choose class, template, and period to generate production-ready
+            student documents.
           </p>
         </div>
       </div>
@@ -81,7 +94,11 @@ export function ReportToolbar({
               ))}
               {classes.length === 0
                 ? classLabelFallback.map((label) => (
-                    <SelectItem key={label} value={`fallback-${label}`} disabled>
+                    <SelectItem
+                      key={label}
+                      value={`fallback-${label}`}
+                      disabled
+                    >
                       {label}
                     </SelectItem>
                   ))
@@ -104,7 +121,12 @@ export function ReportToolbar({
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div className="space-y-1.5">
           <Label>Period</Label>
-          <Select value={periodType} onValueChange={(value) => onPeriodTypeChange(value as typeof periodType)}>
+          <Select
+            value={periodType}
+            onValueChange={(value) =>
+              onPeriodTypeChange(value as typeof periodType)
+            }
+          >
             <SelectTrigger>
               <SelectValue placeholder="Custom" />
             </SelectTrigger>
@@ -136,7 +158,9 @@ export function ReportToolbar({
           disabled={generating || !selectedStudent}
           className="w-full sm:w-auto"
         >
-          {generating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {generating ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : null}
           {generating ? "Generating..." : "Generate PDF"}
         </Button>
       </div>

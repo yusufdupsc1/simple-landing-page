@@ -1,11 +1,17 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+} from "node:crypto";
 import { db } from "@/lib/db";
 
 const TWO_FACTOR_IDENTIFIER_PREFIX = "2fa:";
 const VERSION_PREFIX = "v1";
 
 function getCryptoKey() {
-  const secret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? "fallback-secret";
+  const secret =
+    process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? "fallback-secret";
   return createHash("sha256").update(secret).digest();
 }
 
@@ -13,7 +19,10 @@ function encryptSecret(secret: string): string {
   const iv = randomBytes(12);
   const key = getCryptoKey();
   const cipher = createCipheriv("aes-256-gcm", key, iv);
-  const encrypted = Buffer.concat([cipher.update(secret, "utf8"), cipher.final()]);
+  const encrypted = Buffer.concat([
+    cipher.update(secret, "utf8"),
+    cipher.final(),
+  ]);
   const tag = cipher.getAuthTag();
 
   return `${iv.toString("base64url")}.${tag.toString("base64url")}.${encrypted.toString("base64url")}`;
@@ -33,7 +42,10 @@ function decryptSecret(payload: string): string {
   const decipher = createDecipheriv("aes-256-gcm", key, iv);
   decipher.setAuthTag(tag);
 
-  const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
+  const decrypted = Buffer.concat([
+    decipher.update(encrypted),
+    decipher.final(),
+  ]);
   return decrypted.toString("utf8");
 }
 

@@ -11,7 +11,10 @@ import {
 } from "@/lib/contracts/v1/students-records";
 import { buildStudentRecordPdf } from "@/server/services/student-records/pdf-templates";
 
-const PROGRESS_RECORD_TYPE_BY_PERIOD: Record<RecordPeriodType, StudentRecordType> = {
+const PROGRESS_RECORD_TYPE_BY_PERIOD: Record<
+  RecordPeriodType,
+  StudentRecordType
+> = {
   WEEKLY: "WEEKLY_PROGRESS",
   MONTHLY: "MONTHLY_PROGRESS",
   QUARTERLY: "QUARTERLY_PROGRESS",
@@ -25,14 +28,18 @@ export function mapTemplateToRecordType(
   return template;
 }
 
-export function defaultPeriodLabel(periodType: RecordPeriodType, now = new Date()) {
+export function defaultPeriodLabel(
+  periodType: RecordPeriodType,
+  now = new Date(),
+) {
   const year = now.getUTCFullYear();
   const month = String(now.getUTCMonth() + 1).padStart(2, "0");
   const day = String(now.getUTCDate()).padStart(2, "0");
 
   if (periodType === "WEEKLY") return `${year}-W${month}-${day}`;
   if (periodType === "MONTHLY") return `${year}-${month}`;
-  if (periodType === "QUARTERLY") return `${year}-Q${Math.ceil((now.getUTCMonth() + 1) / 3)}`;
+  if (periodType === "QUARTERLY")
+    return `${year}-Q${Math.ceil((now.getUTCMonth() + 1) / 3)}`;
   if (periodType === "ANNUAL") return `${year}`;
   return `${year}-${month}-${day}`;
 }
@@ -101,7 +108,10 @@ async function buildStudentContext(institutionId: string, studentId: string) {
     throw new Error("Student not found for institution");
   }
 
-  const subjectMap = new Map<string, { name: string; score: number; maxScore: number }>();
+  const subjectMap = new Map<
+    string,
+    { name: string; score: number; maxScore: number }
+  >();
   for (const grade of grades) {
     const key = grade.subjectId;
     if (!subjectMap.has(key)) {
@@ -146,7 +156,8 @@ async function buildStudentContext(institutionId: string, studentId: string) {
 export async function generateStudentRecord(
   input: GenerateRecordInput,
 ): Promise<GenerateRecordResult> {
-  const periodLabel = (input.periodLabel ?? "").trim() || defaultPeriodLabel(input.periodType);
+  const periodLabel =
+    (input.periodLabel ?? "").trim() || defaultPeriodLabel(input.periodType);
 
   const uniqueWhere = {
     studentId_periodType_periodLabel_recordType: {
@@ -162,7 +173,10 @@ export async function generateStudentRecord(
     return { created: false, record: existing };
   }
 
-  const context = await buildStudentContext(input.institutionId, input.studentId);
+  const context = await buildStudentContext(
+    input.institutionId,
+    input.studentId,
+  );
   const rendered = await buildStudentRecordPdf({
     template: input.recordType,
     periodType: input.periodType,
@@ -209,7 +223,10 @@ export async function generateStudentRecord(
   };
 
   const record = existing
-    ? await db.studentRecord.update({ where: { id: existing.id }, data: payload })
+    ? await db.studentRecord.update({
+        where: { id: existing.id },
+        data: payload,
+      })
     : await db.studentRecord.create({ data: payload });
 
   return { created: !existing, record };
@@ -244,11 +261,14 @@ export async function listStudentRecords(input: ListStudentRecordsInput) {
   });
   const typedRecords = records as StudentRecord[];
 
-  const grouped = typedRecords.reduce((acc, record) => {
-    const key = `${record.periodType}:${record.periodLabel}`;
-    acc[key] = acc[key] ? [...acc[key], record] : [record];
-    return acc;
-  }, {} as Record<string, StudentRecord[]>);
+  const grouped = typedRecords.reduce(
+    (acc, record) => {
+      const key = `${record.periodType}:${record.periodLabel}`;
+      acc[key] = acc[key] ? [...acc[key], record] : [record];
+      return acc;
+    },
+    {} as Record<string, StudentRecord[]>,
+  );
 
   return {
     records: typedRecords,
@@ -262,7 +282,9 @@ interface GeneratePeriodicRecordsInput {
   recordTypes?: StudentRecordType[];
 }
 
-export async function generatePeriodicRecords(input: GeneratePeriodicRecordsInput) {
+export async function generatePeriodicRecords(
+  input: GeneratePeriodicRecordsInput,
+) {
   if ((process.env.AUTO_DOCS_ENABLED ?? "true") === "false") {
     return {
       generated: 0,
@@ -327,10 +349,17 @@ export async function generatePeriodicRecords(input: GeneratePeriodicRecordsInpu
   };
 }
 
-export const PERIOD_RECORD_BUNDLES: Record<RecordPeriodType, StudentRecordType[]> = {
+export const PERIOD_RECORD_BUNDLES: Record<
+  RecordPeriodType,
+  StudentRecordType[]
+> = {
   WEEKLY: ["WEEKLY_PROGRESS", "ATTENDANCE_RECORD"],
   MONTHLY: ["MONTHLY_PROGRESS", "RESULT_SHEET"],
   QUARTERLY: ["QUARTERLY_PROGRESS", "RESULT_SHEET", "BEHAVIOR_TRACKING"],
-  ANNUAL: ["ANNUAL_FINAL_REPORT", "FINAL_EXAM_CERTIFICATE", "CHARACTER_CERTIFICATE"],
+  ANNUAL: [
+    "ANNUAL_FINAL_REPORT",
+    "FINAL_EXAM_CERTIFICATE",
+    "CHARACTER_CERTIFICATE",
+  ],
   CUSTOM: ["WEEKLY_PROGRESS"],
 };

@@ -8,14 +8,21 @@
 import { auth } from "@/lib/auth";
 import { convertToCSV } from "@/lib/csv-export";
 import { db } from "@/lib/db";
-import { buildStudentExportWhere, canExport, getExportScope } from "@/lib/exports/access-control";
+import {
+  buildStudentExportWhere,
+  canExport,
+  getExportScope,
+} from "@/lib/exports/access-control";
 import { logExportActivity } from "@/lib/exports/audit-logger";
 import { createDownloadToken } from "@/lib/exports/encryption";
-import { checkExportRateLimit, getRateLimitMessage } from "@/lib/exports/rate-limiter";
 import {
-    validateExportRequest,
-    type AttendanceExportRequest,
-    type StudentListExportRequest
+  checkExportRateLimit,
+  getRateLimitMessage,
+} from "@/lib/exports/rate-limiter";
+import {
+  validateExportRequest,
+  type AttendanceExportRequest,
+  type StudentListExportRequest,
 } from "@/lib/exports/validation";
 import { logApiError } from "@/lib/logger";
 import { getTeacherClassScope } from "@/lib/server/role-scope";
@@ -37,7 +44,9 @@ interface ExportActionResult {
  * Main export server action
  * Called from client to initiate export process
  */
-export async function requestExport(data: unknown): Promise<ExportActionResult> {
+export async function requestExport(
+  data: unknown,
+): Promise<ExportActionResult> {
   try {
     // 1. Authenticate user
     const session = await auth();
@@ -61,7 +70,7 @@ export async function requestExport(data: unknown): Promise<ExportActionResult> 
       return {
         success: false,
         error: "Invalid export request",
-        validationErrors: validated.errors,
+        validationErrors: (validated as any).errors,
       };
     }
 
@@ -86,7 +95,8 @@ export async function requestExport(data: unknown): Promise<ExportActionResult> 
     }
 
     // 5. Get client IP for audit logging
-    const ipAddress = process.env.NODE_ENV === "development" ? "127.0.0.1" : "0.0.0.0"; // In production, extract from headers
+    const ipAddress =
+      process.env.NODE_ENV === "development" ? "127.0.0.1" : "0.0.0.0"; // In production, extract from headers
 
     // 6. Route to specific export handler
     let result: ExportActionResult;
@@ -156,18 +166,42 @@ async function exportStudentList(
     const whereClause = {
       institutionId,
       ...buildStudentExportWhere(scope),
-      ...(request.classId && role !== "TEACHER" ? { classId: request.classId } : {}),
-      ...(request.classId && role === "TEACHER" && teacherClassIds.includes(request.classId)
+      ...(request.classId && role !== "TEACHER"
+        ? { classId: request.classId }
+        : {}),
+      ...(request.classId &&
+      role === "TEACHER" &&
+      teacherClassIds.includes(request.classId)
         ? { classId: request.classId }
         : {}),
       ...(request.status ? { status: request.status } : {}),
       ...(request.search
         ? {
             OR: [
-              { firstName: { contains: request.search, mode: "insensitive" as const } },
-              { lastName: { contains: request.search, mode: "insensitive" as const } },
-              { studentId: { contains: request.search, mode: "insensitive" as const } },
-              { email: { contains: request.search, mode: "insensitive" as const } },
+              {
+                firstName: {
+                  contains: request.search,
+                  mode: "insensitive" as const,
+                },
+              },
+              {
+                lastName: {
+                  contains: request.search,
+                  mode: "insensitive" as const,
+                },
+              },
+              {
+                studentId: {
+                  contains: request.search,
+                  mode: "insensitive" as const,
+                },
+              },
+              {
+                email: {
+                  contains: request.search,
+                  mode: "insensitive" as const,
+                },
+              },
             ],
           }
         : {}),
@@ -202,7 +236,11 @@ async function exportStudentList(
       lastName: student.lastName,
       email: request.gdprMinimalMode ? "[REDACTED]" : student.email || "",
       phone: request.gdprMinimalMode ? "[REDACTED]" : student.phone || "",
-      dateOfBirth: request.gdprMinimalMode ? "[REDACTED]" : student.dateOfBirth ? toIsoDate(student.dateOfBirth) : "",
+      dateOfBirth: request.gdprMinimalMode
+        ? "[REDACTED]"
+        : student.dateOfBirth
+          ? toIsoDate(student.dateOfBirth)
+          : "",
       gender: student.gender || "",
       class: student.class
         ? `${student.class.grade} - ${student.class.name}`
@@ -212,7 +250,7 @@ async function exportStudentList(
     }));
 
     // Generate CSV
-    const headers = [
+    const headers: string[] = [
       "studentId",
       "firstName",
       "lastName",
@@ -223,7 +261,7 @@ async function exportStudentList(
       "class",
       "status",
       "joinedDate",
-    ] as const;
+    ];
     const headerLabels = [
       "Student ID",
       "First Name",
@@ -344,7 +382,10 @@ async function exportAttendanceRegister(
           take: 1,
         },
       },
-      orderBy: [{ rollNo: { sort: "asc", nulls: "last" } }, { firstName: "asc" }],
+      orderBy: [
+        { rollNo: { sort: "asc", nulls: "last" } },
+        { firstName: "asc" },
+      ],
     });
 
     const recordCount = students.length;
@@ -355,12 +396,20 @@ async function exportAttendanceRegister(
       studentId: student.studentId,
       firstName: student.firstName,
       lastName: student.lastName,
-      status: request.gdprMinimalMode ? "[REDACTED]" : student.attendance?.[0]?.status || "ABSENT",
+      status: request.gdprMinimalMode
+        ? "[REDACTED]"
+        : student.attendance?.[0]?.status || "ABSENT",
     }));
 
     // Generate CSV
-    const headers = ["rolNo", "studentId", "firstName", "lastName", "status"] as const;
-    const headerLabels = ["Roll No", "Student ID", "First Name", "Last Name", "Status"];
+    const headers = ["rolNo", "studentId", "firstName", "lastName", "status"];
+    const headerLabels = [
+      "Roll No",
+      "Student ID",
+      "First Name",
+      "Last Name",
+      "Status",
+    ];
 
     const csv = convertToCSV(exportData, headers, headerLabels);
     const fileSize = csv.length;

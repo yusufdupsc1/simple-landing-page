@@ -46,7 +46,14 @@ describe("Export Validation", () => {
     });
 
     it("should accept valid statuses", () => {
-      const statuses = ["ACTIVE", "INACTIVE", "GRADUATED", "SUSPENDED", "EXPELLED", "TRANSFERRED"];
+      const statuses = [
+        "ACTIVE",
+        "INACTIVE",
+        "GRADUATED",
+        "SUSPENDED",
+        "EXPELLED",
+        "TRANSFERRED",
+      ];
       for (const status of statuses) {
         const request = {
           exportType: "STUDENT_LIST",

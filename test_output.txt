@@ -1,0 +1,59 @@
+
+ RUN  v3.2.4 /home/neo/Videos/dhadash
+
+ ❯ tests/unit/actions/students.test.ts (6 tests | 2 failed) 167ms
+   × Students Server Actions > creates a student and provisions student user when email exists 97ms
+     → expected false to be true // Object.is equality
+   ✓ Students Server Actions > validates create payload 10ms
+   × Students Server Actions > updates existing student 12ms
+     → expected false to be true // Object.is equality
+   ✓ Students Server Actions > deactivates an existing student 11ms
+   ✓ Students Server Actions > returns paginated students 23ms
+   ✓ Students Server Actions > returns dashboard stats 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/actions/students.test.ts > Students Server Actions > creates a student and provisions student user when email exists
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/unit/actions/students.test.ts:93:28
+     91|     });
+     92| 
+     93|     expect(result.success).toBe(true);
+       |                            ^
+     94|     expect(db.student.create).toHaveBeenCalled();
+     95|     expect(provisionRoleUser).toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/actions/students.test.ts > Students Server Actions > updates existing student
+AssertionError: expected false to be true // Object.is equality
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- true[39m
+[31m+ false[39m
+
+ ❯ tests/unit/actions/students.test.ts:129:28
+    127|     });
+    128| 
+    129|     expect(result.success).toBe(true);
+       |                            ^
+    130|     expect(db.student.update).toHaveBeenCalled();
+    131|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  03:57:01
+   Duration  4.99s (transform 783ms, setup 660ms, collect 516ms, tests 167ms, environment 1ms, prepare 2.39s)
+

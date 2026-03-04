@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/ui/page-header";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useGovtPrimaryT, useT } from "@/lib/i18n/client";
@@ -102,9 +102,10 @@ export function NoticeBoardClient({
 
       if (!result.success) {
         toast.error(result.error || "Failed to publish notice");
-        if (result.fieldErrors) {
-          Object.entries(result.fieldErrors).forEach(([field, messages]) => {
-            toast.error(`${field}: ${messages.join(", ")}`);
+        const fieldErrors = (result as any).fieldErrors;
+        if (fieldErrors) {
+          Object.entries(fieldErrors).forEach(([field, messages]) => {
+            toast.error(`${field}: ${(messages as string[]).join(", ")}`);
           });
         }
         return;
@@ -158,9 +159,10 @@ export function NoticeBoardClient({
 
       if (!result.success) {
         toast.error(result.error || "Failed to update notice");
-        if (result.fieldErrors) {
-          Object.entries(result.fieldErrors).forEach(([field, messages]) => {
-            toast.error(`${field}: ${messages.join(", ")}`);
+        const fieldErrors = (result as any).fieldErrors;
+        if (fieldErrors) {
+          Object.entries(fieldErrors).forEach(([field, messages]) => {
+            toast.error(`${field}: ${(messages as string[]).join(", ")}`);
           });
         }
         return;
@@ -226,7 +228,12 @@ export function NoticeBoardClient({
           </div>
 
           <div className="sm:col-span-4 sm:w-52">
-            <Button type="button" onClick={handleCreate} disabled={pending} className="w-full">
+            <Button
+              type="button"
+              onClick={handleCreate}
+              disabled={pending}
+              className="w-full"
+            >
               <CalendarPlus className="mr-1.5 h-4 w-4" />
               {pending ? t("saving") : t("publish_notice")}
             </Button>
@@ -262,16 +269,24 @@ export function NoticeBoardClient({
           {notices.length === 0 ? (
             <div className="rounded-md border border-dashed border-border p-8 text-center">
               <CalendarPlus className="mx-auto h-8 w-8 text-muted-foreground/50 mb-2" />
-              <p className="font-medium text-foreground mb-1">{t("no_notices_found")}</p>
-              <p className="text-sm text-muted-foreground">Create and publish notices to inform students and parents</p>
+              <p className="font-medium text-foreground mb-1">
+                {t("no_notices_found")}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Create and publish notices to inform students and parents
+              </p>
             </div>
           ) : (
             notices.map((notice) => (
-              <article key={notice.id} className="rounded-md border border-border bg-background p-3">
+              <article
+                key={notice.id}
+                className="rounded-md border border-border bg-background p-3"
+              >
                 <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-sm font-semibold">{notice.title}</h3>
                   <div className="text-xs text-muted-foreground">
-                    {t("published_on")}: {notice.publishedAt?.slice(0, 10) ?? "-"}
+                    {t("published_on")}:{" "}
+                    {notice.publishedAt?.slice(0, 10) ?? "-"}
                   </div>
                 </div>
                 {editingNoticeId === notice.id ? (
@@ -289,20 +304,31 @@ export function NoticeBoardClient({
                         <Input
                           type="date"
                           value={editPublishDate}
-                          onChange={(event) => setEditPublishDate(event.target.value)}
+                          onChange={(event) =>
+                            setEditPublishDate(event.target.value)
+                          }
                         />
                       </div>
                       <div className="space-y-1.5 sm:col-span-3">
                         <Label>{t("notice_for_class")}</Label>
-                        <Select value={editTargetClassId} onValueChange={setEditTargetClassId}>
+                        <Select
+                          value={editTargetClassId}
+                          onValueChange={setEditTargetClassId}
+                        >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all">{t("all_classes")}</SelectItem>
+                            <SelectItem value="all">
+                              {t("all_classes")}
+                            </SelectItem>
                             {classes.map((classItem) => (
-                              <SelectItem key={classItem.id} value={classItem.id}>
-                                {t("class")} {classItem.grade}-{classItem.section}
+                              <SelectItem
+                                key={classItem.id}
+                                value={classItem.id}
+                              >
+                                {t("class")} {classItem.grade}-
+                                {classItem.section}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -318,24 +344,42 @@ export function NoticeBoardClient({
                       />
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <Button type="button" size="sm" onClick={handleSaveEdit} disabled={pending}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleSaveEdit}
+                        disabled={pending}
+                      >
                         {pending ? t("saving") : t("update_notice")}
                       </Button>
-                      <Button type="button" size="sm" variant="outline" onClick={handleCancelEdit} disabled={pending}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={handleCancelEdit}
+                        disabled={pending}
+                      >
                         {t("cancel")}
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <>
-                    <p className="whitespace-pre-wrap text-sm text-foreground/90">{notice.body}</p>
+                    <p className="whitespace-pre-wrap text-sm text-foreground/90">
+                      {notice.body}
+                    </p>
                     <p className="mt-2 text-xs text-muted-foreground">
                       {notice.class
                         ? `${t("class")} ${notice.class.grade}-${notice.class.section}`
                         : t("all_classes")}
                     </p>
                     <div className="mt-2">
-                      <Button type="button" size="sm" variant="outline" onClick={() => handleStartEdit(notice)}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleStartEdit(notice)}
+                      >
                         {t("edit_notice")}
                       </Button>
                     </div>

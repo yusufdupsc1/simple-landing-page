@@ -5,8 +5,12 @@ test.describe("Authentication Flows", () => {
   test("login page renders core fields", async ({ page }) => {
     await page.goto("/auth/login", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
-    await expect(page.getByLabel("Institution Slug (optional for Admin)")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Welcome back" }),
+    ).toBeVisible();
+    await expect(
+      page.getByLabel("Institution Slug (optional for Admin)"),
+    ).toBeVisible();
     await expect(page.getByLabel("Email address")).toBeVisible();
     await expect(page.getByLabel("Password")).toBeVisible();
     await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
@@ -19,7 +23,9 @@ test.describe("Authentication Flows", () => {
     await page.getByLabel("Password").fill("wrongpassword");
     await page.getByRole("button", { name: "Sign in" }).click();
 
-    await expect(page.getByText("Invalid credentials or account is not approved.")).toBeVisible();
+    await expect(
+      page.getByText("Invalid credentials or account is not approved."),
+    ).toBeVisible();
   });
 
   test("demo admin can sign in", async ({ page }) => {
@@ -31,7 +37,9 @@ test.describe("Authentication Flows", () => {
   test("register page renders current fields", async ({ page }) => {
     await page.goto("/auth/register", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByRole("heading", { name: "Create your institution" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Create your institution" }),
+    ).toBeVisible();
     await expect(page.getByLabel("Institution / School Name *")).toBeVisible();
     await expect(page.getByLabel("Your Full Name *")).toBeVisible();
     await expect(page.getByLabel("Email Address *")).toBeVisible();

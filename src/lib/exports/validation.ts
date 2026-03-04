@@ -20,7 +20,14 @@ export const StudentListExportSchema = z.object({
   exportType: z.literal("STUDENT_LIST"),
   classId: z.string().optional().or(z.literal("")),
   status: z
-    .enum(["ACTIVE", "INACTIVE", "GRADUATED", "SUSPENDED", "EXPELLED", "TRANSFERRED"])
+    .enum([
+      "ACTIVE",
+      "INACTIVE",
+      "GRADUATED",
+      "SUSPENDED",
+      "EXPELLED",
+      "TRANSFERRED",
+    ])
     .optional(),
   search: z.string().max(100).optional().or(z.literal("")),
   pageSize: z.number().int().min(100).max(10000).default(5000),
@@ -37,7 +44,9 @@ export type StudentListExportRequest = z.infer<typeof StudentListExportSchema>;
 export const AttendanceExportSchema = z.object({
   exportType: z.literal("ATTENDANCE_REGISTER"),
   classId: z.string().min(1, "Class ID is required"),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD format"),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD format"),
   gdprMinimalMode: z.boolean().default(false),
 });
 
@@ -58,7 +67,9 @@ export type ExportRequest = z.infer<typeof ExportRequestSchema>;
  */
 export function validateExportRequest(
   data: unknown,
-): { valid: true; data: ExportRequest } | { valid: false; errors: Record<string, string[]> } {
+):
+  | { valid: true; data: ExportRequest }
+  | { valid: false; errors: Record<string, string[]> } {
   const parsed = ExportRequestSchema.safeParse(data);
 
   if (parsed.success) {
@@ -66,7 +77,11 @@ export function validateExportRequest(
     if (parsed.data.exportType === "ATTENDANCE_REGISTER") {
       const date = new Date(parsed.data.date);
       const today = new Date();
-      const threeYearsAgo = new Date(today.getFullYear() - 3, today.getMonth(), today.getDate());
+      const threeYearsAgo = new Date(
+        today.getFullYear() - 3,
+        today.getMonth(),
+        today.getDate(),
+      );
       const threeYearsFromNow = new Date(
         today.getFullYear() + 3,
         today.getMonth(),

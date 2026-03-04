@@ -54,7 +54,9 @@ async function checkUserMinuteLimit(userId: string): Promise<RateLimitResult> {
 
   // Check limit (10 per minute)
   if (entry.count >= 10) {
-    const retryAfter = Math.ceil((entry.resetAt.getTime() - now.getTime()) / 1000);
+    const retryAfter = Math.ceil(
+      (entry.resetAt.getTime() - now.getTime()) / 1000,
+    );
     return {
       allowed: false,
       remaining: 0,
@@ -93,7 +95,9 @@ async function checkInstitutionHourLimit(
 
   // Check limit (50 per hour)
   if (entry.count >= 50) {
-    const retryAfter = Math.ceil((entry.resetAt.getTime() - now.getTime()) / 1000);
+    const retryAfter = Math.ceil(
+      (entry.resetAt.getTime() - now.getTime()) / 1000,
+    );
     return {
       allowed: false,
       remaining: 0,
@@ -160,11 +164,17 @@ export async function checkExportRateLimit(
       userRemaining: userLimit.remaining,
       institutionRemaining: institutionLimit.remaining,
       resetAt: new Date(
-        Math.min(userLimit.resetAt.getTime(), institutionLimit.resetAt.getTime()),
+        Math.min(
+          userLimit.resetAt.getTime(),
+          institutionLimit.resetAt.getTime(),
+        ),
       ),
     };
   } catch (error) {
-    logApiError("CHECK_EXPORT_RATE_LIMIT_FAILED", error, { userId, institutionId });
+    logApiError("CHECK_EXPORT_RATE_LIMIT_FAILED", error, {
+      userId,
+      institutionId,
+    });
     // Fail open - allow export on error, but log it
     return {
       allowed: true,
@@ -178,7 +188,10 @@ export async function checkExportRateLimit(
 /**
  * Reset rate limit for administrative override
  */
-export async function resetExportRateLimit(userId: string, institutionId: string): Promise<void> {
+export async function resetExportRateLimit(
+  userId: string,
+  institutionId: string,
+): Promise<void> {
   rateLimitStore.delete(getUserMinuteKey(userId));
   rateLimitStore.delete(getInstitutionHourKey(institutionId));
 }

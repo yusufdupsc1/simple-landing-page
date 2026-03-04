@@ -44,11 +44,14 @@ async function getAuthContext() {
 }
 
 function canCreateNotice(role: string) {
-  return ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"].includes(role);
+  return ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"].includes(
+    role,
+  );
 }
 
 async function resolveNoticeClassId(institutionId: string, classId?: string) {
-  if (!classId) return { success: true as const, classId: null as string | null };
+  if (!classId)
+    return { success: true as const, classId: null as string | null };
 
   const classroom = await db.class.findFirst({
     where: {
@@ -67,7 +70,10 @@ async function resolveNoticeClassId(institutionId: string, classId?: string) {
   }
 
   if (!PRIMARY_NOTICE_GRADES.has(classroom.grade)) {
-    return { success: false as const, error: "Notice class filter supports Class 1 to 5 only." };
+    return {
+      success: false as const,
+      error: "Notice class filter supports Class 1 to 5 only.",
+    };
   }
 
   return { success: true as const, classId: classroom.id };
@@ -88,7 +94,10 @@ export async function createNotice(
       return {
         success: false,
         error: "Validation failed",
-        fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<
+          string,
+          string[]
+        >,
       };
     }
 
@@ -100,7 +109,10 @@ export async function createNotice(
       return { success: false, error: "Invalid publish date." };
     }
 
-    const classResolution = await resolveNoticeClassId(institutionId, data.classId);
+    const classResolution = await resolveNoticeClassId(
+      institutionId,
+      data.classId,
+    );
     if (!classResolution.success) {
       return { success: false, error: classResolution.error };
     }
@@ -163,7 +175,10 @@ export async function updateNotice(
       return {
         success: false,
         error: "Validation failed",
-        fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<
+          string,
+          string[]
+        >,
       };
     }
 
@@ -189,7 +204,10 @@ export async function updateNotice(
       return { success: false, error: "Invalid publish date." };
     }
 
-    const classResolution = await resolveNoticeClassId(institutionId, data.classId);
+    const classResolution = await resolveNoticeClassId(
+      institutionId,
+      data.classId,
+    );
     if (!classResolution.success) {
       return { success: false, error: classResolution.error };
     }

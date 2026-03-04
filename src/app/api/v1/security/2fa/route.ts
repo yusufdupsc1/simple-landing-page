@@ -7,7 +7,11 @@ import {
   TwoFactorDisableSchema,
   TwoFactorEnableSchema,
 } from "@/lib/contracts/v1/security";
-import { createOtpAuthUri, generateTotpSecret, verifyTotpCode } from "@/lib/totp";
+import {
+  createOtpAuthUri,
+  generateTotpSecret,
+  verifyTotpCode,
+} from "@/lib/totp";
 import {
   disableTwoFactor,
   enableTwoFactor,
@@ -40,7 +44,11 @@ export async function GET(req: NextRequest) {
 
     const secret = generateTotpSecret();
     const accountName = auth.ctx.email ?? auth.ctx.userId;
-    const otpauthUri = createOtpAuthUri({ issuer: ISSUER, accountName, secret });
+    const otpauthUri = createOtpAuthUri({
+      issuer: ISSUER,
+      accountName,
+      secret,
+    });
 
     return apiOk({
       enabled: false,
@@ -85,7 +93,10 @@ export async function POST(req: NextRequest) {
         return apiError(400, "BAD_REQUEST", "2FA is not enabled");
       }
 
-      const isValid = verifyTotpCode({ secret: state.secret, code: payload.code });
+      const isValid = verifyTotpCode({
+        secret: state.secret,
+        code: payload.code,
+      });
       if (!isValid) {
         return apiError(400, "INVALID_CODE", "Invalid authentication code");
       }

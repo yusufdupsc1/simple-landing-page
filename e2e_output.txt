@@ -1,0 +1,7 @@
+Error: Timed out waiting 420000ms from config.webServer.
+
+
+To open last HTML report run:
+[36m[39m
+[36m  pnpm exec playwright show-report[39m
+[36m[39m

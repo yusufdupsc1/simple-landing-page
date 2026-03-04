@@ -41,7 +41,9 @@ vi.mock("next/cache", () => ({
 describe("Announcements Server Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation((callback) => callback(db));
+    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
+      (callback) => callback(db),
+    );
   });
 
   describe("createAnnouncement", () => {

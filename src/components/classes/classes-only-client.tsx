@@ -71,7 +71,8 @@ function ClassForm({
 }) {
   const baseGradeOptions = getGradeOptions();
   const gradeOptions =
-    initial?.grade && !baseGradeOptions.some((option) => option.grade === initial.grade)
+    initial?.grade &&
+    !baseGradeOptions.some((option) => option.grade === initial.grade)
       ? [
           ...baseGradeOptions,
           {
@@ -254,7 +255,9 @@ export function ClassesOnlyClient({
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editClass ? "Edit Class" : "Add Class"}</DialogTitle>
+              <DialogTitle>
+                {editClass ? "Edit Class" : "Add Class"}
+              </DialogTitle>
             </DialogHeader>
             <ClassForm
               initial={editClass ?? undefined}
@@ -269,7 +272,10 @@ export function ClassesOnlyClient({
       </PageHeader>
 
       <div className="flex w-full flex-wrap items-center gap-3">
-        <SearchInput placeholder="Search classes..." className="w-full sm:w-64" />
+        <SearchInput
+          placeholder="Search classes..."
+          className="w-full sm:w-64"
+        />
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -277,31 +283,47 @@ export function ClassesOnlyClient({
           <table className="w-full min-w-[700px] text-sm">
             <thead className="border-b border-border bg-muted/30">
               <tr>
-                {["Class", "Academic Year", "Room", "Class Teacher", "Students", "Capacity", ""].map(
-                  (h) => (
-                    <th
-                      key={h}
-                      className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-                    >
-                      {h}
-                    </th>
-                  ),
-                )}
+                {[
+                  "Class",
+                  "Academic Year",
+                  "Room",
+                  "Class Teacher",
+                  "Students",
+                  "Capacity",
+                  "",
+                ].map((h) => (
+                  <th
+                    key={h}
+                    className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
               {classes.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-12 text-center text-muted-foreground"
+                  >
                     No classes found.
                   </td>
                 </tr>
               ) : (
                 classes.map((c) => (
-                  <tr key={c.id} className="transition-colors hover:bg-muted/30">
+                  <tr
+                    key={c.id}
+                    className="transition-colors hover:bg-muted/30"
+                  >
                     <td className="px-4 py-3 font-medium">{c.name}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{c.academicYear}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{c.roomNumber ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {c.academicYear}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {c.roomNumber ?? "—"}
+                    </td>
                     <td className="px-4 py-3 text-muted-foreground">
                       {c.classTeacher
                         ? `${c.classTeacher.firstName} ${c.classTeacher.lastName}`
@@ -313,7 +335,9 @@ export function ClassesOnlyClient({
                         <span>{c._count.students}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{c.capacity}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {c.capacity}
+                    </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-1">
                         <Button
@@ -331,7 +355,9 @@ export function ClassesOnlyClient({
                           variant="ghost"
                           size="icon"
                           className="h-7 w-7 text-destructive hover:text-destructive"
-                          onClick={() => setDeleteTarget({ id: c.id, name: c.name })}
+                          onClick={() =>
+                            setDeleteTarget({ id: c.id, name: c.name })
+                          }
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -345,7 +371,11 @@ export function ClassesOnlyClient({
         </div>
       </div>
 
-      <DataTablePagination currentPage={currentPage} totalPages={pages} total={total} />
+      <DataTablePagination
+        currentPage={currentPage}
+        totalPages={pages}
+        total={total}
+      />
 
       <Dialog
         open={Boolean(deleteTarget)}
@@ -362,10 +392,12 @@ export function ClassesOnlyClient({
           </DialogHeader>
           <div className="space-y-2">
             <p className="text-sm text-zinc-200">
-              Deactivate class <span className="font-semibold">{deleteTarget?.name}</span>?
+              Deactivate class{" "}
+              <span className="font-semibold">{deleteTarget?.name}</span>?
             </p>
             <p className="text-xs text-zinc-400">
-              This keeps the record for audit/history and hides it from active lists.
+              This keeps the record for audit/history and hides it from active
+              lists.
             </p>
           </div>
           <div className="mt-2 flex items-center justify-end gap-2">

@@ -3,6 +3,7 @@
 ## Quick Start - Local Testing
 
 ### Prerequisites
+
 - Node.js 22+
 - Docker & Docker Compose
 - pnpm 10.30.3+
@@ -77,6 +78,7 @@ pnpm test:coverage
 ## Production Deployment
 
 ### Prerequisites for Production
+
 - Vercel account or server running Node.js 22+
 - PostgreSQL database (managed or self-hosted)
 - Redis for rate limiting and caching
@@ -163,6 +165,7 @@ docker logs -f dhadash
 ## Post-Deployment Verification
 
 ### 1. Health Check
+
 ```bash
 curl https://yourdomain .com/api/health
 
@@ -175,6 +178,7 @@ curl https://yourdomain .com/api/health
 ```
 
 ### 2. Export Feature Test
+
 - Login as admin
 - Navigate to Students page
 - Click "Export CSV"
@@ -182,6 +186,7 @@ curl https://yourdomain .com/api/health
 - Check audit logs: `SELECT * FROM export_audit_logs ORDER BY createdAt DESC LIMIT 10;`
 
 ### 3. Security Verification
+
 ```bash
 # Check rate limiting works
 for i in {1..15}; do curl -X POST https://yourdomain.com/api/exports/request; done
@@ -197,6 +202,7 @@ for i in {1..15}; do curl -X POST https://yourdomain.com/api/exports/request; do
 ```
 
 ### 4. Database Audit Trail
+
 ```bash
 # Check export logs
 psql -U postgres -d dhadash -c "
@@ -230,6 +236,7 @@ psql -U postgres -d dhadash -c "
 ## Monitoring & Alerts
 
 ### Key Metrics to Monitor
+
 1. **Export Performance**
    - Average export time
    - Max records exported
@@ -264,20 +271,24 @@ GROUP BY export_type;
 ## Troubleshooting
 
 ### Export Fails with "Rate Limit Exceeded"
+
 - Check rate limit reset time in error message
 - For immediate reset (admin only): `DELETE FROM export_audit_logs WHERE user_id = '...' AND created_at > NOW() - INTERVAL '1 minute';`
 
 ### Token Expiration Errors
+
 - Download tokens expire after 5 minutes
 - User must re-export to get new token
 - Check token expiration: `SELECT * FROM export_download_tokens WHERE expires_at < NOW();`
 
 ### Memory Issues with Large Exports
+
 - Check system memory: `free -h`
 - Streaming should handle up to 50K records
 - If issues persist, reduce page size in export request
 
 ### Database Connection Errors
+
 - Verify DATABASE_URL is correct
 - Check database is running: `psql -c "SELECT 1"`
 - Check connection limit: `SELECT * FROM pg_stat_activity;`
@@ -302,6 +313,7 @@ Add to crontab:
 ## Performance Optimization
 
 ### Database Indexes
+
 Ensure these indexes exist:
 
 ```sql
@@ -319,6 +331,7 @@ CREATE INDEX CONCURRENTLY idx_students_institution_status
 ```
 
 ### Cache Invalidation
+
 - Call `revalidatePath('/dashboard/students')` after student update
 - Call `revalidatePath('/dashboard/attendance')` after attendance change
 

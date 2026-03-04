@@ -41,6 +41,7 @@ import { isGovtPrimaryModeEnabled } from "@/lib/config";
 
 interface SidebarProps {
   session: Session;
+  isMobile?: boolean;
 }
 
 interface NavItem {
@@ -67,9 +68,24 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
         icon: LayoutDashboard,
         roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"],
       },
-      { label: "Teacher Portal", href: "/dashboard/portal/teacher", icon: UserRound, roles: ["TEACHER"] },
-      { label: "Student Portal", href: "/dashboard/portal/student", icon: GraduationCap, roles: ["STUDENT"] },
-      { label: "Parent Portal", href: "/dashboard/portal/parent", icon: Users, roles: ["PARENT"] },
+      {
+        label: "Teacher Portal",
+        href: "/dashboard/portal/teacher",
+        icon: UserRound,
+        roles: ["TEACHER"],
+      },
+      {
+        label: "Student Portal",
+        href: "/dashboard/portal/student",
+        icon: GraduationCap,
+        roles: ["STUDENT"],
+      },
+      {
+        label: "Parent Portal",
+        href: "/dashboard/portal/parent",
+        icon: Users,
+        roles: ["PARENT"],
+      },
       {
         label: "Analytics",
         href: "/dashboard/analytics",
@@ -106,10 +122,30 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
         icon: Bookmark,
         roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"],
       },
-      { label: "Teachers", href: "/dashboard/teachers", icon: Users, roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"] },
-      { label: "Classes", href: "/dashboard/classes", icon: BookOpen, roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"] },
-      { label: "Attendance", href: "/dashboard/attendance", icon: ClipboardCheck, roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"] },
-      { label: "Grades", href: "/dashboard/grades", icon: School, roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"] },
+      {
+        label: "Teachers",
+        href: "/dashboard/teachers",
+        icon: Users,
+        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"],
+      },
+      {
+        label: "Classes",
+        href: "/dashboard/classes",
+        icon: BookOpen,
+        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF"],
+      },
+      {
+        label: "Attendance",
+        href: "/dashboard/attendance",
+        icon: ClipboardCheck,
+        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"],
+      },
+      {
+        label: "Grades",
+        href: "/dashboard/grades",
+        icon: School,
+        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"],
+      },
     ],
   },
   {
@@ -121,8 +157,18 @@ const NAV_SECTIONS: { label: string; items: NavItem[] }[] = [
         icon: CreditCard,
         roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL"],
       },
-      { label: "Events", href: "/dashboard/events", icon: Calendar, roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"] },
-      { label: "Announcements", href: "/dashboard/announcements", icon: Bell, roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"] },
+      {
+        label: "Events",
+        href: "/dashboard/events",
+        icon: Calendar,
+        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"],
+      },
+      {
+        label: "Announcements",
+        href: "/dashboard/announcements",
+        icon: Bell,
+        roles: ["SUPER_ADMIN", "ADMIN", "PRINCIPAL", "STAFF", "TEACHER"],
+      },
     ],
   },
   {
@@ -199,19 +245,20 @@ const GOVT_PRIMARY_HIDDEN_NAV_HREFS = new Set<string>([
   "/dashboard/settings?tab=academic&focus=public",
 ]);
 
-export function Sidebar({ session }: SidebarProps) {
+export function Sidebar({ session, isMobile }: SidebarProps) {
   const { t } = useT();
   const { t: tg } = useGovtPrimaryT();
   const govtPrimaryMode = isGovtPrimaryModeEnabled();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const userRole = (session.user as any)?.role ?? "";
-  const userInitials = (session.user.name ?? "User")
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) ?? "U";
+  const userInitials =
+    (session.user.name ?? "User")
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) ?? "U";
 
   const isActive = (href: string, exact = false) => {
     if (href.includes("?")) {
@@ -230,14 +277,18 @@ export function Sidebar({ session }: SidebarProps) {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
-  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {},
+  );
 
   const groupedExpanded = (() => {
     const next = { ...expandedGroups };
     for (const section of NAV_SECTIONS) {
       for (const item of section.items) {
         if (!item.children?.length) continue;
-        const hasActiveChild = item.children.some((child) => isActive(child.href, child.exact));
+        const hasActiveChild = item.children.some((child) =>
+          isActive(child.href, child.exact),
+        );
         const key = item.href;
         if (typeof next[key] === "undefined") {
           next[key] = hasActiveChild || isActive(item.href);
@@ -282,8 +333,10 @@ export function Sidebar({ session }: SidebarProps) {
   };
 
   const localizeItem = (label: string) => {
-    if (govtPrimaryMode && label === "Teacher Portal") return t("assistant_teacher_portal");
-    if (govtPrimaryMode && label === "Institution") return t("primary_school_setup");
+    if (govtPrimaryMode && label === "Teacher Portal")
+      return t("assistant_teacher_portal");
+    if (govtPrimaryMode && label === "Institution")
+      return t("primary_school_setup");
     if (govtPrimaryMode && label === "Students") return t("student");
     if (govtPrimaryMode && label === "Teachers") return tg("assistant_teacher");
     if (govtPrimaryMode && label === "Classes") return t("primary_classes");
@@ -296,59 +349,82 @@ export function Sidebar({ session }: SidebarProps) {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <aside className="hidden h-svh w-[230px] flex-shrink-0 flex-col border-r border-border/80 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 lg:flex xl:w-[250px]">
+      <aside
+        className={cn(
+          "h-svh w-[230px] flex-shrink-0 flex-col border-r border-border/40 bg-card/60 backdrop-blur-xl xl:w-[250px] transition-premium",
+          isMobile ? "flex w-full" : "hidden lg:flex",
+        )}
+      >
         {/* Brand */}
-        <div className="flex items-center gap-2.5 h-14 px-4 border-b border-border">
-          <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-sm">
-            <ShieldCheck className="h-4 w-4 text-primary-foreground" />
+        <div className="flex items-center gap-3 h-14 px-5 border-b border-border/40">
+          <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center flex-shrink-0 shadow-[0_2px_10px_-3px_rgba(var(--primary),0.5)]">
+            <ShieldCheck className="h-4.5 w-4.5 text-primary-foreground" />
           </div>
-          <span className="font-bold text-sm tracking-tight truncate">
-            Dhadash
-          </span>
-          <Badge variant="outline" className="ml-auto text-[10px] font-mono py-0">
+          <div className="flex flex-col min-w-0">
+            <span className="font-bold text-sm tracking-tight truncate bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">
+              Dhadash
+            </span>
+            <span className="text-[9px] font-bold text-primary tracking-widest uppercase opacity-70">
+              Ops Center
+            </span>
+          </div>
+          <Badge
+            variant="outline"
+            className="ml-auto text-[9px] font-mono py-0 px-1 bg-muted/30 border-border/50 text-muted-foreground"
+          >
             v1.0
           </Badge>
         </div>
 
         {/* Institution badge */}
-        <div className="px-3 py-2.5 border-b border-border">
-          <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-muted/50">
-            <div className="h-5 w-5 rounded bg-accent/20 flex items-center justify-center flex-shrink-0">
-              <School className="h-3 w-3 text-accent" />
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10 transition-premium hover:bg-primary/10 cursor-default group">
+            <div className="h-6 w-6 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110">
+              <School className="h-3.5 w-3.5 text-primary" />
             </div>
-            <span className="text-xs font-medium truncate text-foreground/80">
-              {(session.user as any)?.institutionName ??
-                (govtPrimaryMode ? t("school_name") : t("institution"))}
-            </span>
-            <ChevronRight className="h-3 w-3 text-muted-foreground ml-auto flex-shrink-0" />
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider leading-none mb-1">
+                Institution
+              </span>
+              <span className="text-xs font-bold truncate text-foreground/90 leading-none">
+                {(session.user as any)?.institutionName ??
+                  (govtPrimaryMode ? t("school_name") : t("institution"))}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Navigation */}
         <nav
           aria-label="Primary"
-          className="flex-1 overflow-y-auto py-3 px-2 space-y-4"
+          className="flex-1 overflow-y-auto py-1 px-3 space-y-6 custom-scrollbar"
         >
           {NAV_SECTIONS.map((section) => {
             const visibleItems = section.items.filter(
               (item) =>
                 (!item.roles || item.roles.includes(userRole)) &&
-                !(govtPrimaryMode && GOVT_PRIMARY_HIDDEN_NAV_HREFS.has(item.href))
+                !(
+                  govtPrimaryMode &&
+                  GOVT_PRIMARY_HIDDEN_NAV_HREFS.has(item.href)
+                ),
             );
             if (visibleItems.length === 0) return null;
 
             return (
-              <div key={section.label}>
-                <p className="px-2 mb-1 text-[10px] font-semibold tracking-widest uppercase text-muted-foreground/60">
+              <div key={section.label} className="space-y-1.5 staggered-item">
+                <p className="px-3 text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/50 mb-2">
                   {localizeSection(section.label)}
                 </p>
-                <div className="space-y-0.5">
+                <div className="space-y-1">
                   {visibleItems.map((item) => {
                     const hasChildren = Boolean(item.children?.length);
                     const visibleChildren = (item.children ?? []).filter(
                       (child) =>
                         (!child.roles || child.roles.includes(userRole)) &&
-                        !(govtPrimaryMode && GOVT_PRIMARY_HIDDEN_NAV_HREFS.has(child.href)),
+                        !(
+                          govtPrimaryMode &&
+                          GOVT_PRIMARY_HIDDEN_NAV_HREFS.has(child.href)
+                        ),
                     );
                     const hasActiveChild = visibleChildren.some((child) =>
                       isActive(child.href, child.exact),
@@ -362,28 +438,27 @@ export function Sidebar({ session }: SidebarProps) {
                           href={item.href}
                           prefetch={false}
                           className={cn(
-                            "flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium transition-all duration-150",
+                            "group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-premium",
                             active
                               ? "sidebar-active-item"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
                           )}
                         >
                           <item.icon
                             className={cn(
-                              "h-4 w-4 flex-shrink-0",
+                              "h-4.5 w-4.5 flex-shrink-0 transition-transform group-hover:scale-110",
                               active
                                 ? "sidebar-active-icon"
-                                : "text-muted-foreground"
+                                : "text-muted-foreground/70 group-hover:text-foreground",
                             )}
                           />
-                            <span className="truncate">{localizeItem(item.label)}</span>
+                          <span className="truncate">
+                            {localizeItem(item.label)}
+                          </span>
                           {item.badge && (
-                            <span className="ml-auto font-mono text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded">
+                            <span className="ml-auto font-mono text-[9px] font-bold bg-accent/10 text-accent px-1.5 py-0.5 rounded-full border border-accent/20">
                               {item.badge}
                             </span>
-                          )}
-                          {active && (
-                            <span className="sidebar-active-dot ml-auto h-1.5 w-1.5 rounded-full flex-shrink-0" />
                           )}
                         </Link>
                       );
@@ -402,42 +477,48 @@ export function Sidebar({ session }: SidebarProps) {
                             }))
                           }
                           className={cn(
-                            "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium transition-all duration-150",
+                            "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-premium",
                             active
                               ? "sidebar-active-item"
-                              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                           )}
                         >
                           <item.icon
                             className={cn(
-                              "h-4 w-4 flex-shrink-0",
-                              active ? "sidebar-active-icon" : "text-muted-foreground",
+                              "h-4.5 w-4.5 flex-shrink-0 transition-transform group-hover:scale-110",
+                              active
+                                ? "sidebar-active-icon"
+                                : "text-muted-foreground/70 group-hover:text-foreground",
                             )}
                           />
-                          <span className="truncate">{localizeItem(item.label)}</span>
+                          <span className="truncate">
+                            {localizeItem(item.label)}
+                          </span>
                           <ChevronDown
                             className={cn(
-                              "ml-auto h-3.5 w-3.5 transition-transform",
-                              expanded ? "rotate-0" : "-rotate-90",
+                              "ml-auto h-3.5 w-3.5 transition-transform duration-300",
+                              expanded ? "rotate-180" : "rotate-0 opacity-40",
                             )}
                           />
                         </button>
 
                         {expanded ? (
-                          <div className="space-y-0.5 pl-8">
+                          <div className="space-y-1 pl-10.5 animate-in fade-in slide-in-from-top-1 duration-200">
                             {visibleChildren.map((child) => (
                               <Link
                                 key={child.href}
                                 href={child.href}
                                 prefetch={false}
                                 className={cn(
-                                  "flex items-center rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
+                                  "flex items-center rounded-lg px-2 py-1.5 text-[13px] font-medium transition-premium relative",
                                   isActive(child.href, child.exact)
-                                    ? "sidebar-active-item"
-                                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                                    ? "text-primary bg-primary/5 font-bold"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/30",
                                 )}
                               >
-                                <FileText className="mr-1.5 h-3.5 w-3.5" />
+                                {isActive(child.href, child.exact) && (
+                                  <span className="absolute left-[-8px] w-1 h-1 rounded-full bg-primary" />
+                                )}
                                 {localizeItem(child.label)}
                               </Link>
                             ))}
@@ -453,35 +534,49 @@ export function Sidebar({ session }: SidebarProps) {
         </nav>
 
         {/* User footer */}
-        <div className="border-t border-border p-3">
-          <div className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-muted transition-colors group">
-            <Avatar className="h-7 w-7 flex-shrink-0">
-              <AvatarImage src={session.user.image ?? ""} />
-              <AvatarFallback className="text-[10px] bg-primary/10 text-primary font-semibold">
-                {userInitials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold truncate">
-                {session.user.name ?? "User"}
-              </p>
-              <p className="text-[10px] text-muted-foreground truncate">
-                {userRole.charAt(0) + userRole.slice(1).toLowerCase()}
+        <div className="mt-auto relative overflow-hidden">
+          {/* Subtle Monument Motif Background */}
+          <div className="absolute right-[-20px] bottom-[-20px] h-32 w-32 monument-motif bg-primary/5 rotate-12 pointer-events-none" />
+
+          <div className="p-4 border-t border-border/40 bg-muted/20 backdrop-blur-md">
+            <div className="mb-3 px-2">
+              <p className="text-[10px] font-bn text-primary/60 italic leading-tight text-center">
+                &quot;আমার সোনার বাংলা, আমি তোমায় ভালোবাসি&quot;
               </p>
             </div>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => signOut({ callbackUrl: "/auth/login" })}
-                  className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-muted-foreground hover:text-destructive"
-                >
-                  <LogOut className="h-3.5 w-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Sign out</p>
-              </TooltipContent>
-            </Tooltip>
+
+            <div className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-background/80 transition-premium border border-transparent hover:border-border/50 hover:shadow-sm group">
+              <div className="relative">
+                <Avatar className="h-9 w-9 ring-2 ring-background ring-offset-1 ring-offset-border/40 transition-transform group-hover:scale-105">
+                  <AvatarImage src={session.user.image ?? ""} />
+                  <AvatarFallback className="bg-primary text-primary-foreground font-bold text-xs">
+                    {userInitials}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-background" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold truncate leading-none mb-1 text-foreground/90">
+                  {session.user.name ?? "User"}
+                </p>
+                <p className="text-[11px] text-muted-foreground font-medium truncate leading-none uppercase tracking-wide opacity-70">
+                  {userRole.replace("_", " ")}
+                </p>
+              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/auth/login" })}
+                    className="p-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-premium"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Sign out</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
       </aside>

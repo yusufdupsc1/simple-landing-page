@@ -44,19 +44,26 @@ function createMockModel() {
     {
       get(_target, prop) {
         if (prop === "count") return async () => 0;
-        if (prop === "aggregate") return async () => ({ _sum: { amount: 0 }, _count: 0 });
+        if (prop === "aggregate")
+          return async () => ({ _sum: { amount: 0 }, _count: 0 });
         if (prop === "groupBy") return async () => [];
         if (prop === "findMany") return async () => [];
-        if (prop === "findFirst" || prop === "findUnique") return async () => null;
+        if (prop === "findFirst" || prop === "findUnique")
+          return async () => null;
         if (prop === "create" || prop === "update" || prop === "upsert") {
-          return async (args?: { data?: Record<string, unknown> }) => args?.data ?? {};
+          return async (args?: { data?: Record<string, unknown> }) =>
+            args?.data ?? {};
         }
-        if (prop === "delete" || prop === "deleteMany" || prop === "updateMany") {
+        if (
+          prop === "delete" ||
+          prop === "deleteMany" ||
+          prop === "updateMany"
+        ) {
           return async () => ({ count: 0 });
         }
         return async () => null;
       },
-    }
+    },
   );
 }
 
@@ -82,7 +89,7 @@ function createMockDb() {
         }
         return model;
       },
-    }
+    },
   );
 }
 
@@ -93,9 +100,14 @@ function createDbClient() {
     const datasourceUrl = normalizeDatasourceUrl(process.env.DATABASE_URL);
     const client = new PrismaClient({
       datasourceUrl,
-      log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+      log:
+        process.env.NODE_ENV === "development"
+          ? ["query", "error", "warn"]
+          : ["error"],
     });
-    console.log(`[db] Real database client initialized (host=${getDbHostFromUrl(datasourceUrl)}).`);
+    console.log(
+      `[db] Real database client initialized (host=${getDbHostFromUrl(datasourceUrl)}).`,
+    );
     return client;
   } catch (error) {
     console.warn("[db] Falling back to mock database client.", error);

@@ -79,8 +79,12 @@ export default async function VisitorControlPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 pt-0">
-            <p className="text-sm text-muted-foreground">/schools/{institution?.slug ?? "school"}</p>
-            <Badge variant={settings?.publicReportsEnabled ? "success" : "outline"}>
+            <p className="text-sm text-muted-foreground">
+              /schools/{institution?.slug ?? "school"}
+            </p>
+            <Badge
+              variant={settings?.publicReportsEnabled ? "success" : "outline"}
+            >
               {settings?.publicReportsEnabled ? "Enabled" : "Disabled"}
             </Badge>
           </CardContent>
@@ -94,9 +98,24 @@ export default async function VisitorControlPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1 pt-0 text-sm text-muted-foreground">
-            <p>Active students: <span className="font-semibold text-foreground">{studentCount}</span></p>
-            <p>Upcoming events: <span className="font-semibold text-foreground">{eventCount}</span></p>
-            <p>Announcements: <span className="font-semibold text-foreground">{announcementCount}</span></p>
+            <p>
+              Active students:{" "}
+              <span className="font-semibold text-foreground">
+                {studentCount}
+              </span>
+            </p>
+            <p>
+              Upcoming events:{" "}
+              <span className="font-semibold text-foreground">
+                {eventCount}
+              </span>
+            </p>
+            <p>
+              Announcements:{" "}
+              <span className="font-semibold text-foreground">
+                {announcementCount}
+              </span>
+            </p>
           </CardContent>
         </Card>
 
@@ -108,9 +127,24 @@ export default async function VisitorControlPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1 pt-0 text-sm text-muted-foreground">
-            <p>Email alerts: <span className="font-semibold text-foreground">{settings?.emailNotifs ? "On" : "Off"}</span></p>
-            <p>SMS alerts: <span className="font-semibold text-foreground">{settings?.smsNotifs ? "On" : "Off"}</span></p>
-            <p>Privacy scope: <span className="font-semibold text-foreground">Aggregated only</span></p>
+            <p>
+              Email alerts:{" "}
+              <span className="font-semibold text-foreground">
+                {settings?.emailNotifs ? "On" : "Off"}
+              </span>
+            </p>
+            <p>
+              SMS alerts:{" "}
+              <span className="font-semibold text-foreground">
+                {settings?.smsNotifs ? "On" : "Off"}
+              </span>
+            </p>
+            <p>
+              Privacy scope:{" "}
+              <span className="font-semibold text-foreground">
+                Aggregated only
+              </span>
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -118,24 +152,33 @@ export default async function VisitorControlPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <ShieldCheck className="h-4 w-4 text-primary" /> Visitor Policy Summary
+            <ShieldCheck className="h-4 w-4 text-primary" /> Visitor Policy
+            Summary
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
           <p>
-            Public pages expose only aggregate-level school stats. No personal data (student names, IDs,
-            emails, phone numbers, grades, or attendance records) is disclosed to guests.
+            Public pages expose only aggregate-level school stats. No personal
+            data (student names, IDs, emails, phone numbers, grades, or
+            attendance records) is disclosed to guests.
           </p>
           <p>
             Description shown publicly:
             <span className="ml-1 font-medium text-foreground">
-              {settings?.publicReportsDescription?.trim() || "No custom description set"}
+              {settings?.publicReportsDescription?.trim() ||
+                "No custom description set"}
             </span>
           </p>
           <div className="rounded-xl border border-border bg-muted/30 p-3">
-            <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">Recommended Next Step</p>
-            <Link href="/dashboard/settings?tab=academic" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-              <Users className="h-4 w-4" /> Review guest visibility and update school description
+            <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
+              Recommended Next Step
+            </p>
+            <Link
+              href="/dashboard/settings?tab=academic"
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+            >
+              <Users className="h-4 w-4" /> Review guest visibility and update
+              school description
             </Link>
           </div>
         </CardContent>

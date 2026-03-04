@@ -82,7 +82,10 @@ export async function createClass(
     const data = parsed.data;
     const grade = normalizeGradeValue(data.grade);
     if (isGovtPrimaryModeEnabled() && !isPrimaryGrade(grade)) {
-      return { success: false, error: "Only Pre-Primary to Class 5 is allowed in Govt Primary mode." };
+      return {
+        success: false,
+        error: "Only Pre-Primary to Class 5 is allowed in Govt Primary mode.",
+      };
     }
 
     const existing = await db.class.findFirst({
@@ -160,7 +163,10 @@ export async function updateClass(
     const data = parsed.data;
     const grade = normalizeGradeValue(data.grade);
     if (isGovtPrimaryModeEnabled() && !isPrimaryGrade(grade)) {
-      return { success: false, error: "Only Pre-Primary to Class 5 is allowed in Govt Primary mode." };
+      return {
+        success: false,
+        error: "Only Pre-Primary to Class 5 is allowed in Govt Primary mode.",
+      };
     }
 
     await db.$transaction(async (tx) => {
@@ -285,7 +291,9 @@ export async function getClasses({
   const where: Record<string, unknown> = {
     institutionId,
     isActive: true,
-    ...(isGovtPrimaryModeEnabled() ? { grade: { in: [...PRIMARY_GRADES] } } : {}),
+    ...(isGovtPrimaryModeEnabled()
+      ? { grade: { in: [...PRIMARY_GRADES] } }
+      : {}),
     ...(academicYear && { academicYear }),
     ...(search && {
       OR: [

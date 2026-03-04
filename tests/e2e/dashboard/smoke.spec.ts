@@ -18,14 +18,20 @@ const DASHBOARD_ROUTES = [
 test.describe("Dashboard route smoke", () => {
   test.setTimeout(240000);
 
-  test("all dashboard routes render without generic server error", async ({ page }) => {
+  test("all dashboard routes render without generic server error", async ({
+    page,
+  }) => {
     await loginAsAdmin(page);
 
     for (const route of DASHBOARD_ROUTES) {
       await page.goto(route, { waitUntil: "domcontentloaded", timeout: 60000 });
-      await expect(page).toHaveURL(new RegExp(`${route.replace(/\//g, "\\/")}$`));
+      await expect(page).toHaveURL(
+        new RegExp(`${route.replace(/\//g, "\\/")}$`),
+      );
       await expect(
-        page.locator("text=Application error: a server-side exception has occurred"),
+        page.locator(
+          "text=Application error: a server-side exception has occurred",
+        ),
       ).toHaveCount(0);
       await expect(page.locator("main")).toBeVisible({ timeout: 10000 });
     }

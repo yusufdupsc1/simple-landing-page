@@ -42,7 +42,7 @@ export async function GET() {
         },
         version: runtimeVersion,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch {
     return NextResponse.json(
@@ -60,7 +60,7 @@ export async function GET() {
         },
         error: "Database connection failed",
       },
-      { status: 503 }
+      { status: 503 },
     );
   }
 }

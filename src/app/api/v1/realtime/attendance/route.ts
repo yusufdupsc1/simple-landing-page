@@ -14,7 +14,12 @@ export async function GET(req: NextRequest) {
   const since = req.nextUrl.searchParams.get("since") ?? undefined;
 
   if (!isSseRequest(req.headers.get("accept"))) {
-    const events = getRecentDomainEvents(auth.ctx.institutionId, ["AttendanceMarked"], since, 30);
+    const events = getRecentDomainEvents(
+      auth.ctx.institutionId,
+      ["AttendanceMarked"],
+      since,
+      30,
+    );
     return apiOk(events, {
       mode: "poll",
       pollIntervalMs: 30000,

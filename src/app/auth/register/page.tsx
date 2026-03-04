@@ -5,13 +5,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  ShieldCheck,
-  CheckCircle2,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -147,16 +141,18 @@ export default function RegisterPage() {
                   {PASSWORD_RULES.map(({ label, test }) => (
                     <div key={label} className="flex items-center gap-1.5">
                       <CheckCircle2
-                        className={`h-3.5 w-3.5 ${test(form.password)
-                          ? "text-green-500"
-                          : "text-muted-foreground/40"
-                          }`}
+                        className={`h-3.5 w-3.5 ${
+                          test(form.password)
+                            ? "text-green-500"
+                            : "text-muted-foreground/40"
+                        }`}
                       />
                       <span
-                        className={`text-xs ${test(form.password)
-                          ? "text-green-500"
-                          : "text-muted-foreground"
-                          }`}
+                        className={`text-xs ${
+                          test(form.password)
+                            ? "text-green-500"
+                            : "text-muted-foreground"
+                        }`}
                       >
                         {label}
                       </span>

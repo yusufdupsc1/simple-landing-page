@@ -5,6 +5,7 @@ Enterprise-ready CSV export system for Dhadash with comprehensive security, test
 ## ✨ Features Implemented
 
 ### 🔒 Security Layer
+
 - ✅ **Role-Based Access Control (RBAC)** - 7 user roles with granular permissions
 - ✅ **Rate Limiting** - 10 exports/min per user, 50/hour per institution
 - ✅ **Token Encryption** - AES-256-GCM with HMAC signatures, 5-min TTL
@@ -14,6 +15,7 @@ Enterprise-ready CSV export system for Dhadash with comprehensive security, test
 - ✅ **Input Validation** - Strict Zod schemas for all parameters
 
 ### 📊 Export Types
+
 - ✅ **Student List Export**
   - Filters: class, status, search term
   - Fields: ID, name, email, phone, DOB, gender, class, status, joined date
@@ -25,6 +27,7 @@ Enterprise-ready CSV export system for Dhadash with comprehensive security, test
   - Supports: Present, Absent, Late, Excused, Holiday statuses
 
 ### 🎯 Performance
+
 - ✅ **Streaming Support** - Handles 50,000+ records without memory overload
 - ✅ **Chunked Processing** - 1MB chunks processed sequentially
 - ✅ **Query Optimization** - Indexed database queries
@@ -32,6 +35,7 @@ Enterprise-ready CSV export system for Dhadash with comprehensive security, test
 - ✅ **Caching Ready** - Redis integration (dev mode uses in-memory)
 
 ### 📱 User Interface
+
 - ✅ **Export Options Dialog** - Filters, GDPR mode toggle
 - ✅ **Download Management** - Token-based links with expiration
 - ✅ **Error Handling** - User-friendly error messages
@@ -39,6 +43,7 @@ Enterprise-ready CSV export system for Dhadash with comprehensive security, test
 - ✅ **Mobile Responsive** - Works on all devices
 
 ### 🧪 Testing (90%+ Coverage)
+
 - ✅ **Unit Tests** - 40+ test cases
   - Validation (all valid/invalid scenarios)
   - RBAC matrix (all roles × operations)
@@ -56,12 +61,14 @@ Enterprise-ready CSV export system for Dhadash with comprehensive security, test
   - Error scenarios and permission checks
 
 ### 📚 Documentation
+
 - ✅ **Deployment Guide** - Local testing + Vercel + Docker
 - ✅ **API Documentation** - Endpoint specifications
 - ✅ **Security Model** - RBAC matrix, encryption details
 - ✅ **Troubleshooting** - Common issues and solutions
 
 ### 🐳 DevOps
+
 - ✅ **Docker** - Multi-stage production build
 - ✅ **docker-compose** - Local development stack (PG, Redis, App)
 - ✅ **CI/CD Pipeline** - GitHub Actions workflow
@@ -124,6 +131,7 @@ vercel.json                      # Vercel config
 ## 🚀 Quick Start - Local Testing
 
 ### Prerequisites
+
 ```bash
 Node.js 22+
 Docker & Docker Compose
@@ -131,6 +139,7 @@ pnpm 10.30.3+
 ```
 
 ### 1. Setup Environment
+
 ```bash
 # Install dependencies
 pnpm install
@@ -149,6 +158,7 @@ pnpm exec prisma db seed
 ```
 
 ### 2. Run Application
+
 ```bash
 # Start dev server
 pnpm run dev
@@ -158,6 +168,7 @@ pnpm run dev
 ```
 
 ### 3. Test CSV Export
+
 ```bash
 # 1. Navigate to Students page
 # 2. Click "Export CSV" button
@@ -170,6 +181,7 @@ pnpm run dev
 ```
 
 ### 4. Run Tests
+
 ```bash
 # All tests
 pnpm test
@@ -187,6 +199,7 @@ pnpm test:e2e
 ## 📊 Production Deployment
 
 ### Option 1: Vercel (Recommended)
+
 ```bash
 # Set environment variables (see docs/EXPORT_DEPLOYMENT.md)
 vercel env add DATABASE_URL
@@ -203,6 +216,7 @@ pnpm exec prisma migrate deploy
 ```
 
 ### Option 2: Docker
+
 ```bash
 # Build image
 docker build -t dhadash:latest .
@@ -221,6 +235,7 @@ docker exec dhadash pnpm exec prisma migrate deploy
 ```
 
 ### Verify Deployment
+
 ```bash
 # Health check
 curl https://yourdomain.com/api/health
@@ -237,22 +252,25 @@ SELECT * FROM export_audit_logs ORDER BY created_at DESC LIMIT 10;
 ## 🔒 Security Features
 
 ### Rate Limiting
+
 - **Per User**: 10 exports/minute
 - **Per Institution**: 50 exports/hour
 - Graceful handling with cooldown info
 
 ### Access Control
-| Role | Student Export | Attendance Export |
-|------|---|---|
-| SUPER_ADMIN | ✓ Full | ✓ Full |
-| ADMIN | ✓ Full | ✓ Full |
-| PRINCIPAL | ✓ Full | ✓ Full |
-| TEACHER | ✓ Own classes | ✓ Own classes |
-| STAFF | ✗ Denied | ✗ Denied |
-| STUDENT | ✗ Denied | ✗ Denied |
-| PARENT | ✗ Denied | ✗ Denied |
+
+| Role        | Student Export | Attendance Export |
+| ----------- | -------------- | ----------------- |
+| SUPER_ADMIN | ✓ Full         | ✓ Full            |
+| ADMIN       | ✓ Full         | ✓ Full            |
+| PRINCIPAL   | ✓ Full         | ✓ Full            |
+| TEACHER     | ✓ Own classes  | ✓ Own classes     |
+| STAFF       | ✗ Denied       | ✗ Denied          |
+| STUDENT     | ✗ Denied       | ✗ Denied          |
+| PARENT      | ✗ Denied       | ✗ Denied          |
 
 ### Encryption
+
 - **Algorithm**: AES-256-GCM
 - **Key Size**: 256-bit
 - **Authentication**: HMAC-SHA256
@@ -260,7 +278,9 @@ SELECT * FROM export_audit_logs ORDER BY created_at DESC LIMIT 10;
 - **Single-Use**: Tokens marked used after download
 
 ### Audit Trail
+
 Every export logged with:
+
 - User ID
 - Export type
 - Record count & file size
@@ -270,6 +290,7 @@ Every export logged with:
 - Timestamp
 
 ### GDPR Compliance
+
 - **Minimal Mode**: Excludes phone, address, DOB, guardian info
 - **DSAR Tracking**: Data Subject Access Requests logged
 - **Retention**: 90-day log retention policy
@@ -317,16 +338,19 @@ GROUP BY export_type;
 ## 🐛 Troubleshooting
 
 ### Export Fails
+
 1. Check rate limits: `SELECT * FROM export_audit_logs WHERE status='FAILED' ORDER BY created_at DESC;`
 2. Verify permissions: User role must allow export type
 3. Check filters: Date range and class assignments
 
 ### Download Token Errors
+
 1. Verify token not expired: 5-minute TTL
 2. Check single-use: Token can only be downloaded once
 3. Regenerate token: Click Export again
 
 ### Performance Issues
+
 1. Check DB indexes: Query optimization
 2. Monitor connections: Connection pool limits
 3. Scale database: Increase resources for 50K+ records
@@ -334,6 +358,7 @@ GROUP BY export_type;
 ## 📞 Support
 
 For issues or questions:
+
 1. Check `docs/EXPORT_DEPLOYMENT.md` - Troubleshooting section
 2. Review test files for usage examples
 3. Check GitHub Issues
@@ -345,6 +370,7 @@ This implementation follows the Dhadash project license.
 ---
 
 **Production-Ready Checklist:**
+
 - ✅ Security: RBAC, encryption, rate limiting, audit logs
 - ✅ Testing: 90%+ coverage, all test types
 - ✅ Documentation: Deployment, API, troubleshooting

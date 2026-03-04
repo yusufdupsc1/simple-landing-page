@@ -48,14 +48,18 @@ vi.mock("next/cache", () => ({
 describe("Finance Server Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation((callback) => callback(db));
+    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
+      (callback) => callback(db),
+    );
   });
 
   it("creates a fee for a valid student", async () => {
     (db.student.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
       id: "student-123",
     });
-    (db.fee.create as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "fee-1" });
+    (db.fee.create as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "fee-1",
+    });
 
     const result = await createFee({
       title: "Tuition Fee",
@@ -100,7 +104,11 @@ describe("Finance Server Actions", () => {
         status: "UNPAID",
         feeType: "TUITION",
         term: "Term 1",
-        student: { firstName: "Hasib", lastName: "Bhuiyan", studentId: "STU2026011" },
+        student: {
+          firstName: "Hasib",
+          lastName: "Bhuiyan",
+          studentId: "STU2026011",
+        },
         payments: [],
       },
     ]);

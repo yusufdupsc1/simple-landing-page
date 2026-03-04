@@ -36,7 +36,13 @@ type MarkCell = {
 
 function getResultStatus(cells: MarkCell[]): "PASS" | "FAIL" | "INCOMPLETE" {
   if (cells.some((cell) => cell.isMissing)) return "INCOMPLETE";
-  if (cells.some((cell) => cell.isAbsent || (typeof cell.score === "number" && cell.score < PASS_MARK_THRESHOLD))) {
+  if (
+    cells.some(
+      (cell) =>
+        cell.isAbsent ||
+        (typeof cell.score === "number" && cell.score < PASS_MARK_THRESHOLD),
+    )
+  ) {
     return "FAIL";
   }
   return "PASS";
@@ -139,8 +145,10 @@ export default async function PrimaryExamPrintPage({ params }: PageProps) {
     const scores = subjects.map((subject) => {
       const mark = markMap.get(`${student.id}::${subject}`);
       if (!mark) return { score: null, isAbsent: false, isMissing: true };
-      if (mark.isAbsent) return { score: null, isAbsent: true, isMissing: false };
-      if (typeof mark.score === "number") return { score: mark.score, isAbsent: false, isMissing: false };
+      if (mark.isAbsent)
+        return { score: null, isAbsent: true, isMissing: false };
+      if (typeof mark.score === "number")
+        return { score: mark.score, isAbsent: false, isMissing: false };
       return { score: null, isAbsent: false, isMissing: true };
     });
     const total = scores.reduce((sum, cell) => sum + (cell.score ?? 0), 0);
@@ -163,8 +171,12 @@ export default async function PrimaryExamPrintPage({ params }: PageProps) {
       <header className="mb-4 border-b border-slate-300 pb-3 text-center">
         <h1 className="text-xl font-bold">ফলাফল শিট</h1>
         <p className="text-xs text-slate-600">Primary Result Sheet</p>
-        <p className="mt-2 text-sm font-semibold">{institution?.name ?? "School"}</p>
-        <p className="text-xs text-slate-600">{institution?.address ?? "Bangladesh"}</p>
+        <p className="mt-2 text-sm font-semibold">
+          {institution?.name ?? "School"}
+        </p>
+        <p className="text-xs text-slate-600">
+          {institution?.address ?? "Bangladesh"}
+        </p>
       </header>
 
       <section className="mb-4 grid grid-cols-2 gap-2 text-sm">
@@ -200,11 +212,17 @@ export default async function PrimaryExamPrintPage({ params }: PageProps) {
               <td>{row.rollNo ?? "-"}</td>
               <td>
                 <div className="font-medium">{row.studentName}</div>
-                <div className="text-[11px] text-slate-600">{row.studentCode}</div>
+                <div className="text-[11px] text-slate-600">
+                  {row.studentCode}
+                </div>
               </td>
               {row.scores.map((cell, index) => (
                 <td key={`${row.studentCode}-${subjects[index]}`}>
-                  {cell.isAbsent ? "A" : typeof cell.score === "number" ? cell.score : "—"}
+                  {cell.isAbsent
+                    ? "A"
+                    : typeof cell.score === "number"
+                      ? cell.score
+                      : "—"}
                 </td>
               ))}
               <td>{row.total}</td>

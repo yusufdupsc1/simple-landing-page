@@ -17,4 +17,3 @@ export async function safeLoader<T>(
     return fallback;
   }
 }
-

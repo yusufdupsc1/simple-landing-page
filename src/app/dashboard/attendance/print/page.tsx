@@ -35,34 +35,37 @@ export default async function AttendancePrintPage({ searchParams }: PageProps) {
   const date = new Date(dateParam);
   date.setHours(0, 0, 0, 0);
 
-  const [institution, classroom, studentsRaw, attendanceRows] = await Promise.all([
-    db.institution.findUnique({
-      where: { id: institutionId },
-      select: { name: true, address: true },
-    }),
-    db.class.findFirst({
-      where: {
-        id: classId,
-        institutionId,
-        isActive: true,
-        ...(isGovtPrimaryModeEnabled() ? { grade: { in: [...PRIMARY_GRADES] } } : {}),
-      },
-      select: { id: true, name: true, grade: true, section: true },
-    }),
-    db.student.findMany({
-      where: { institutionId, classId, status: "ACTIVE" },
-      select: {
-        id: true,
-        rollNo: true,
-        firstName: true,
-        lastName: true,
-      },
-    }),
-    db.attendance.findMany({
-      where: { institutionId, classId, date },
-      select: { studentId: true, status: true },
-    }),
-  ]);
+  const [institution, classroom, studentsRaw, attendanceRows] =
+    await Promise.all([
+      db.institution.findUnique({
+        where: { id: institutionId },
+        select: { name: true, address: true },
+      }),
+      db.class.findFirst({
+        where: {
+          id: classId,
+          institutionId,
+          isActive: true,
+          ...(isGovtPrimaryModeEnabled()
+            ? { grade: { in: [...PRIMARY_GRADES] } }
+            : {}),
+        },
+        select: { id: true, name: true, grade: true, section: true },
+      }),
+      db.student.findMany({
+        where: { institutionId, classId, status: "ACTIVE" },
+        select: {
+          id: true,
+          rollNo: true,
+          firstName: true,
+          lastName: true,
+        },
+      }),
+      db.attendance.findMany({
+        where: { institutionId, classId, date },
+        select: { studentId: true, status: true },
+      }),
+    ]);
 
   if (!classroom) {
     return (
@@ -72,7 +75,9 @@ export default async function AttendancePrintPage({ searchParams }: PageProps) {
     );
   }
 
-  const attendanceMap = new Map(attendanceRows.map((row) => [row.studentId, row.status]));
+  const attendanceMap = new Map(
+    attendanceRows.map((row) => [row.studentId, row.status]),
+  );
   const students = [...studentsRaw].sort((a, b) => {
     const rollA = Number.parseInt(a.rollNo ?? "", 10);
     const rollB = Number.parseInt(b.rollNo ?? "", 10);
@@ -119,8 +124,12 @@ export default async function AttendancePrintPage({ searchParams }: PageProps) {
       <header className="mb-4 border-b border-slate-300 pb-3 text-center">
         <h1 className="text-xl font-bold">উপস্থিতি রেজিস্টার</h1>
         <p className="text-xs text-slate-600">Attendance Register</p>
-        <p className="mt-2 text-sm font-semibold">{institution?.name ?? "Dhadash School"}</p>
-        <p className="text-xs text-slate-600">{institution?.address ?? "Bangladesh"}</p>
+        <p className="mt-2 text-sm font-semibold">
+          {institution?.name ?? "Dhadash School"}
+        </p>
+        <p className="text-xs text-slate-600">
+          {institution?.address ?? "Bangladesh"}
+        </p>
       </header>
 
       <section className="mb-4 grid grid-cols-2 gap-2 text-sm">

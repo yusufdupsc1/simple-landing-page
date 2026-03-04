@@ -7,11 +7,11 @@
 
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { AlertCircle, Download, Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
@@ -80,7 +80,9 @@ export function ExportOptionsDialog({
                 className="mt-1 h-4 w-4 rounded"
               />
               <div className="flex-1">
-                <p className="text-sm font-medium text-blue-900">GDPR Minimal Mode</p>
+                <p className="text-sm font-medium text-blue-900">
+                  GDPR Minimal Mode
+                </p>
                 <p className="text-xs text-blue-800">
                   Excludes sensitive data: phone, address, DOB, guardian info
                 </p>
@@ -92,7 +94,8 @@ export function ExportOptionsDialog({
           <div className="flex gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
             <AlertCircle className="h-4 w-4 text-amber-700 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-amber-800">
-              Large exports may take a few minutes to generate. Do not close this window.
+              Large exports may take a few minutes to generate. Do not close
+              this window.
             </p>
           </div>
 
@@ -114,7 +117,8 @@ export function ExportOptionsDialog({
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  Export {exportType === "STUDENT_LIST" ? "Students" : "Attendance"}
+                  Export{" "}
+                  {exportType === "STUDENT_LIST" ? "Students" : "Attendance"}
                 </>
               )}
             </Button>

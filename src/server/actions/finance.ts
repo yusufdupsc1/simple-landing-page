@@ -6,17 +6,13 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { generateReceiptNumber } from "@/lib/utils";
-import {
-  asPlainArray,
-  toIsoDate,
-  toNumber,
-} from "@/lib/server/serializers";
+import { asPlainArray, toIsoDate, toNumber } from "@/lib/server/serializers";
 import { createDomainEvent, publishDomainEvent } from "@/server/events/publish";
-import { buildStudentVisibilityWhere, isPrivilegedOrStaff } from "@/lib/server/role-scope";
 import {
-  isGovtPrimaryModeEnabled,
-  isPrimaryGrade,
-} from "@/lib/config";
+  buildStudentVisibilityWhere,
+  isPrivilegedOrStaff,
+} from "@/lib/server/role-scope";
+import { isGovtPrimaryModeEnabled, isPrimaryGrade } from "@/lib/config";
 import { GOVT_PRIMARY_FEE_PRESETS } from "@/lib/finance/fee-presets";
 
 const FeeSchema = z.object({
@@ -103,7 +99,9 @@ function requireFinanceRole(role: string) {
 function assertAllowedPaymentMethod(method: PaymentFormData["method"]) {
   if (!isGovtPrimaryModeEnabled()) return;
   if (!["CASH", "ONLINE"].includes(method)) {
-    throw new Error("Only Cash and SSLCommerz online payments are allowed in Govt Primary mode.");
+    throw new Error(
+      "Only Cash and SSLCommerz online payments are allowed in Govt Primary mode.",
+    );
   }
 }
 
@@ -147,7 +145,10 @@ export async function createFee(
       student.class?.grade &&
       !isPrimaryGrade(student.class.grade)
     ) {
-      return { success: false, error: "Only Class 1 to 5 students are supported in Govt Primary mode." };
+      return {
+        success: false,
+        error: "Only Class 1 to 5 students are supported in Govt Primary mode.",
+      };
     }
 
     const fee = await db.$transaction(async (tx) => {
@@ -315,7 +316,9 @@ export async function getFees({
     email,
     phone,
   });
-  const scopedWhere = isPrivilegedOrStaff(role) ? {} : { student: studentVisibility };
+  const scopedWhere = isPrivilegedOrStaff(role)
+    ? {}
+    : { student: studentVisibility };
   const normalizedStatus = VALID_FEE_STATUSES.includes(
     status as (typeof VALID_FEE_STATUSES)[number],
   )
@@ -399,8 +402,12 @@ export async function getFinanceSummary() {
     email,
     phone,
   });
-  const feeScope = isPrivilegedOrStaff(role) ? {} : { student: studentVisibility };
-  const paymentScope = isPrivilegedOrStaff(role) ? {} : { fee: { student: studentVisibility } };
+  const feeScope = isPrivilegedOrStaff(role)
+    ? {}
+    : { student: studentVisibility };
+  const paymentScope = isPrivilegedOrStaff(role)
+    ? {}
+    : { fee: { student: studentVisibility } };
 
   const [totalFees, paidFees, pendingFees, overdueCount] = await Promise.all([
     db.fee.aggregate({
@@ -414,7 +421,11 @@ export async function getFinanceSummary() {
       _count: true,
     }),
     db.fee.aggregate({
-      where: { institutionId, status: { in: ["UNPAID", "PARTIAL"] }, ...feeScope },
+      where: {
+        institutionId,
+        status: { in: ["UNPAID", "PARTIAL"] },
+        ...feeScope,
+      },
       _sum: { amount: true },
       _count: true,
     }),

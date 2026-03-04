@@ -27,12 +27,15 @@ function normalizeEmail(value: string) {
 }
 
 function buildStarterPassword(seed: string) {
-  const normalizedSeed = seed.trim().replace(/\s+/g, "").slice(0, 18) || "dhadash";
+  const normalizedSeed =
+    seed.trim().replace(/\s+/g, "").slice(0, 18) || "dhadash";
   const suffix = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `${normalizedSeed}@${suffix}`;
 }
 
-export async function provisionRoleUser(input: ProvisionInput): Promise<ProvisionResult> {
+export async function provisionRoleUser(
+  input: ProvisionInput,
+): Promise<ProvisionResult> {
   const email = normalizeEmail(input.email);
   const existing = await input.tx.user.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
@@ -62,15 +65,15 @@ export async function provisionRoleUser(input: ProvisionInput): Promise<Provisio
     const generatedPassword = buildStarterPassword(input.passwordSeed);
     const hash = await bcrypt.hash(generatedPassword, 12);
 
-      await input.tx.user.update({
-        where: { id: existing.id },
-        data: {
-          password: hash,
-          isActive: true,
-          approvalStatus: "APPROVED",
-          emailVerified: new Date(),
-        },
-      });
+    await input.tx.user.update({
+      where: { id: existing.id },
+      data: {
+        password: hash,
+        isActive: true,
+        approvalStatus: "APPROVED",
+        emailVerified: new Date(),
+      },
+    });
 
     return {
       userId: existing.id,

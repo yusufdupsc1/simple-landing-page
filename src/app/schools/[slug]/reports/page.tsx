@@ -43,7 +43,9 @@ async function getPublicReports(slug: string) {
 
   const now = new Date();
   const attendanceFrom = new Date(now.getTime() - 29 * DAY_MS);
-  const monthlyFrom = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1));
+  const monthlyFrom = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 11, 1),
+  );
 
   const [
     studentTotal,
@@ -55,8 +57,12 @@ async function getPublicReports(slug: string) {
     events,
     announcements,
   ] = await Promise.all([
-    db.student.count({ where: { institutionId: institution.id, status: "ACTIVE" } }),
-    db.teacher.count({ where: { institutionId: institution.id, status: "ACTIVE" } }),
+    db.student.count({
+      where: { institutionId: institution.id, status: "ACTIVE" },
+    }),
+    db.teacher.count({
+      where: { institutionId: institution.id, status: "ACTIVE" },
+    }),
     db.class.findMany({
       where: {
         institutionId: institution.id,
@@ -132,7 +138,13 @@ async function getPublicReports(slug: string) {
 
   const attendanceMap = new Map<
     string,
-    { date: string; present: number; absent: number; late: number; excused: number }
+    {
+      date: string;
+      present: number;
+      absent: number;
+      late: number;
+      excused: number;
+    }
   >();
 
   for (let i = 0; i < 30; i += 1) {
@@ -161,7 +173,9 @@ async function getPublicReports(slug: string) {
 
   const monthMap = new Map<string, { label: string; total: number }>();
   for (let i = 0; i < 12; i += 1) {
-    const monthDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (11 - i), 1));
+    const monthDate = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (11 - i), 1),
+    );
     const key = monthDate.toISOString().slice(0, 7);
     monthMap.set(key, { label: toMonthLabel(monthDate), total: 0 });
   }
@@ -175,7 +189,10 @@ async function getPublicReports(slug: string) {
   }
 
   const monthlyCollections = Array.from(monthMap.values());
-  const totalCollected = monthlyCollections.reduce((sum, row) => sum + row.total, 0);
+  const totalCollected = monthlyCollections.reduce(
+    (sum, row) => sum + row.total,
+    0,
+  );
   const peakMonth = monthlyCollections.reduce(
     (best, row) => (row.total > best.total ? row : best),
     { label: "-", total: 0 },
@@ -214,7 +231,9 @@ export default async function SchoolReportsPage({ params }: PageProps) {
           <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Public Reports
           </p>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight">{data.institution.name}</h1>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight">
+            {data.institution.name}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {data.institution.city ?? ""}
             {data.institution.city && data.institution.country ? ", " : ""}
@@ -243,32 +262,49 @@ export default async function SchoolReportsPage({ params }: PageProps) {
             <p className="mt-1 text-2xl font-semibold">{data.teacherTotal}</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">Collections (12 months)</p>
-            <p className="mt-1 text-2xl font-semibold">{formatCurrency(data.totalCollected)}</p>
+            <p className="text-xs text-muted-foreground">
+              Collections (12 months)
+            </p>
+            <p className="mt-1 text-2xl font-semibold">
+              {formatCurrency(data.totalCollected)}
+            </p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">Peak Month</p>
             <p className="mt-1 text-sm font-semibold">{data.peakMonth.label}</p>
-            <p className="text-xs text-muted-foreground">{formatCurrency(data.peakMonth.total)}</p>
+            <p className="text-xs text-muted-foreground">
+              {formatCurrency(data.peakMonth.total)}
+            </p>
           </div>
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-xl border border-border bg-card p-5">
-            <h2 className="text-base font-semibold">Attendance Trend (Last 30 Days)</h2>
+            <h2 className="text-base font-semibold">
+              Attendance Trend (Last 30 Days)
+            </h2>
             <div className="mt-3 max-h-[420px] space-y-2 overflow-auto pr-1">
               {data.attendanceSeries.map((row) => {
                 const total = row.present + row.absent + row.late + row.excused;
-                const presentWidth = total > 0 ? (row.present / total) * 100 : 0;
+                const presentWidth =
+                  total > 0 ? (row.present / total) * 100 : 0;
                 const absentWidth = total > 0 ? (row.absent / total) * 100 : 0;
                 const lateWidth = total > 0 ? (row.late / total) * 100 : 0;
-                const excusedWidth = total > 0 ? (row.excused / total) * 100 : 0;
+                const excusedWidth =
+                  total > 0 ? (row.excused / total) * 100 : 0;
 
                 return (
-                  <div key={row.date} className="rounded-md border border-border/70 p-2">
+                  <div
+                    key={row.date}
+                    className="rounded-md border border-border/70 p-2"
+                  >
                     <div className="mb-1 flex items-center justify-between text-xs">
-                      <span>{new Date(`${row.date}T00:00:00Z`).toLocaleDateString()}</span>
-                      <span className="text-muted-foreground">Total {total}</span>
+                      <span>
+                        {new Date(`${row.date}T00:00:00Z`).toLocaleDateString()}
+                      </span>
+                      <span className="text-muted-foreground">
+                        Total {total}
+                      </span>
                     </div>
                     <div className="h-2 overflow-hidden rounded bg-muted">
                       <div
@@ -277,7 +313,10 @@ export default async function SchoolReportsPage({ params }: PageProps) {
                       />
                       <div
                         className="-mt-2 h-2 bg-rose-500"
-                        style={{ width: `${absentWidth}%`, marginLeft: `${presentWidth}%` }}
+                        style={{
+                          width: `${absentWidth}%`,
+                          marginLeft: `${presentWidth}%`,
+                        }}
                       />
                       <div
                         className="-mt-2 h-2 bg-amber-500"
@@ -312,7 +351,9 @@ export default async function SchoolReportsPage({ params }: PageProps) {
                   <div key={row.label} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span>{row.label}</span>
-                      <span className="font-medium">{formatCurrency(row.total)}</span>
+                      <span className="font-medium">
+                        {formatCurrency(row.total)}
+                      </span>
                     </div>
                     <div className="h-2 rounded bg-muted">
                       <div
@@ -332,15 +373,22 @@ export default async function SchoolReportsPage({ params }: PageProps) {
             <h2 className="text-base font-semibold">Students by Class</h2>
             <div className="mt-3 space-y-2">
               {data.classes.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No active classes.</p>
+                <p className="text-sm text-muted-foreground">
+                  No active classes.
+                </p>
               ) : (
                 data.classes.map((classItem) => (
                   <div
                     key={classItem.id}
                     className="flex items-center justify-between rounded-md border border-border/60 p-2 text-sm"
                   >
-                    <span>{classItem.name || `${classItem.grade}-${classItem.section}`}</span>
-                    <span className="font-medium">{classItem._count.students}</span>
+                    <span>
+                      {classItem.name ||
+                        `${classItem.grade}-${classItem.section}`}
+                    </span>
+                    <span className="font-medium">
+                      {classItem._count.students}
+                    </span>
                   </div>
                 ))
               )}
@@ -351,7 +399,9 @@ export default async function SchoolReportsPage({ params }: PageProps) {
             <h2 className="text-base font-semibold">Grade Distribution</h2>
             <div className="mt-3 space-y-2">
               {data.gradeRows.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No published grade data.</p>
+                <p className="text-sm text-muted-foreground">
+                  No published grade data.
+                </p>
               ) : (
                 data.gradeRows.map((row) => (
                   <div
@@ -359,7 +409,9 @@ export default async function SchoolReportsPage({ params }: PageProps) {
                     className="flex items-center justify-between rounded-md border border-border/60 p-2 text-sm"
                   >
                     <span>{row.letterGrade || "Unspecified"}</span>
-                    <span className="font-medium">{row._count.letterGrade}</span>
+                    <span className="font-medium">
+                      {row._count.letterGrade}
+                    </span>
                   </div>
                 ))
               )}
@@ -370,23 +422,33 @@ export default async function SchoolReportsPage({ params }: PageProps) {
             <h2 className="text-base font-semibold">Public Activity Feed</h2>
             <div className="mt-3 space-y-2">
               {data.events.map((event) => (
-                <div key={event.id} className="rounded-md border border-border/60 p-2 text-sm">
+                <div
+                  key={event.id}
+                  className="rounded-md border border-border/60 p-2 text-sm"
+                >
                   <p className="font-medium">{event.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    Event • {event.type} • {new Date(event.startDate).toLocaleDateString()}
+                    Event • {event.type} •{" "}
+                    {new Date(event.startDate).toLocaleDateString()}
                   </p>
                 </div>
               ))}
               {data.announcements.map((item) => (
-                <div key={item.id} className="rounded-md border border-border/60 p-2 text-sm">
+                <div
+                  key={item.id}
+                  className="rounded-md border border-border/60 p-2 text-sm"
+                >
                   <p className="font-medium">{item.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    Announcement • {new Date(item.publishedAt).toLocaleDateString()}
+                    Announcement •{" "}
+                    {new Date(item.publishedAt).toLocaleDateString()}
                   </p>
                 </div>
               ))}
               {data.events.length === 0 && data.announcements.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No public items published.</p>
+                <p className="text-sm text-muted-foreground">
+                  No public items published.
+                </p>
               ) : null}
             </div>
           </div>

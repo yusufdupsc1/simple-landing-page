@@ -81,7 +81,8 @@ function resolveLocale(req: NextRequest) {
     return normalizeLocale(cookieLocale);
   }
 
-  const acceptLanguage = req.headers.get("accept-language")?.toLowerCase() ?? "";
+  const acceptLanguage =
+    req.headers.get("accept-language")?.toLowerCase() ?? "";
   if (acceptLanguage.includes("bn")) return "bn";
   if (acceptLanguage.includes("en")) return "en";
   // Bangladesh-first default.
@@ -118,22 +119,20 @@ export default async function middleware(req: NextRequest) {
   }
 
   const forward = () => {
-    const response = hasLocalePrefix && pathname !== "/"
-      ? (() => {
-          const rewriteUrl = req.nextUrl.clone();
-          rewriteUrl.pathname = pathname;
-          return NextResponse.rewrite(rewriteUrl);
-        })()
-      : NextResponse.next();
+    const response =
+      hasLocalePrefix && pathname !== "/"
+        ? (() => {
+            const rewriteUrl = req.nextUrl.clone();
+            rewriteUrl.pathname = pathname;
+            return NextResponse.rewrite(rewriteUrl);
+          })()
+        : NextResponse.next();
     response.headers.set("x-request-id", requestId);
     return withLocaleCookie(response, locale);
   };
 
   // 1. Allow static files and Next.js internals
-  if (
-    isAssetPath ||
-    pathname.startsWith("/api/uploadthing")
-  ) {
+  if (isAssetPath || pathname.startsWith("/api/uploadthing")) {
     return forward();
   }
 
@@ -145,10 +144,11 @@ export default async function middleware(req: NextRequest) {
 
   // 3. Get session token (Edge-compatible)
   // getToken automatically handles cookie decryption using AUTH_SECRET
-  const isSecureCookie = req.nextUrl.protocol === "https:" ||
+  const isSecureCookie =
+    req.nextUrl.protocol === "https:" ||
     req.headers.get("x-forwarded-proto") === "https";
   const presentCookies = SESSION_COOKIE_CANDIDATES.filter((cookieName) =>
-    Boolean(req.cookies.get(cookieName)?.value)
+    Boolean(req.cookies.get(cookieName)?.value),
   );
 
   let token = null;
@@ -165,15 +165,17 @@ export default async function middleware(req: NextRequest) {
 
   // Defensive fallback when proxy headers/cookie prefixes are inconsistent.
   if (!token) {
-    token = await getToken({
-      req,
-      secret: AUTH_SECRET,
-      secureCookie: isSecureCookie,
-    }) ?? await getToken({
-      req,
-      secret: AUTH_SECRET,
-      secureCookie: !isSecureCookie,
-    });
+    token =
+      (await getToken({
+        req,
+        secret: AUTH_SECRET,
+        secureCookie: isSecureCookie,
+      })) ??
+      (await getToken({
+        req,
+        secret: AUTH_SECRET,
+        secureCookie: !isSecureCookie,
+      }));
   }
 
   if (!token) {
@@ -222,7 +224,10 @@ export default async function middleware(req: NextRequest) {
   if (isAdminRoute && !isAdmin) {
     return withLocaleCookie(
       NextResponse.redirect(
-        new URL(withLocalePrefix("/dashboard", locale, hasLocalePrefix), req.url),
+        new URL(
+          withLocalePrefix("/dashboard", locale, hasLocalePrefix),
+          req.url,
+        ),
       ),
       locale,
     );
@@ -230,8 +235,8 @@ export default async function middleware(req: NextRequest) {
 
   if (pathname.startsWith("/dashboard")) {
     const allowedPrefixes = roleAllowedDashboardPrefixes(userRole);
-    const isAllowed = allowedPrefixes.some((prefix) =>
-      pathname === prefix || pathname.startsWith(`${prefix}/`)
+    const isAllowed = allowedPrefixes.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
     );
     if (!isAllowed) {
       const fallbackPath = withLocalePrefix(
@@ -247,13 +252,14 @@ export default async function middleware(req: NextRequest) {
   }
 
   // 5. Success — Add context headers for Server Components
-  const response = hasLocalePrefix && pathname !== "/"
-    ? (() => {
-        const rewriteUrl = req.nextUrl.clone();
-        rewriteUrl.pathname = pathname;
-        return NextResponse.rewrite(rewriteUrl);
-      })()
-    : NextResponse.next();
+  const response =
+    hasLocalePrefix && pathname !== "/"
+      ? (() => {
+          const rewriteUrl = req.nextUrl.clone();
+          rewriteUrl.pathname = pathname;
+          return NextResponse.rewrite(rewriteUrl);
+        })()
+      : NextResponse.next();
 
   response.headers.set("x-request-id", requestId);
   if (token.sub) response.headers.set("x-user-id", token.sub);
@@ -270,7 +276,6 @@ export default async function middleware(req: NextRequest) {
 
   return withLocaleCookie(response, locale);
 }
-
 
 export const config = {
   matcher: [

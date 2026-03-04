@@ -58,8 +58,12 @@ export function LanguageToggle() {
     persistLocale(nextLocale);
 
     const prefixedPath =
-      targetBasePath === "/" ? `/${nextLocale}` : `/${nextLocale}${targetBasePath}`;
-    const nextHref = queryString ? `${prefixedPath}?${queryString}` : prefixedPath;
+      targetBasePath === "/"
+        ? `/${nextLocale}`
+        : `/${nextLocale}${targetBasePath}`;
+    const nextHref = queryString
+      ? `${prefixedPath}?${queryString}`
+      : prefixedPath;
     router.push(nextHref);
   }
 

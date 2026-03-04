@@ -44,16 +44,16 @@ For deeper design details, see [Architecture](./docs/ARCHITECTURE.md).
 
 ## Tech Stack
 
-| Layer | Technology |
-| --- | --- |
-| Frontend | Next.js 16, React 19, Tailwind CSS 4 |
-| Backend | Next.js Server Actions, Route Handlers |
-| Data | PostgreSQL, Prisma |
-| Auth | Auth.js (NextAuth v5 beta), JWT sessions |
-| Payments | SSLCommerz (+ optional Stripe fallback) |
-| File Uploads | UploadThing |
-| Testing | Vitest, Playwright |
-| DevOps | GitHub Actions, Docker, Docker Compose |
+| Layer        | Technology                               |
+| ------------ | ---------------------------------------- |
+| Frontend     | Next.js 16, React 19, Tailwind CSS 4     |
+| Backend      | Next.js Server Actions, Route Handlers   |
+| Data         | PostgreSQL, Prisma                       |
+| Auth         | Auth.js (NextAuth v5 beta), JWT sessions |
+| Payments     | SSLCommerz (+ optional Stripe fallback)  |
+| File Uploads | UploadThing                              |
+| Testing      | Vitest, Playwright                       |
+| DevOps       | GitHub Actions, Docker, Docker Compose   |
 
 ## Local Development
 

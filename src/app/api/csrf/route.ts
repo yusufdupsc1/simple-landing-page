@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 
 export async function GET() {
   const cookieStore = await cookies();
-  
+
   let csrfToken = cookieStore.get("csrf-token")?.value;
 
   // Generate new token if not exists

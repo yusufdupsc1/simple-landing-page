@@ -192,7 +192,10 @@ export function SubjectsClient({ subjects }: Props) {
       </PageHeader>
 
       <div className="flex w-full flex-wrap items-center gap-3">
-        <SearchInput placeholder="Search subjects..." className="w-full sm:w-64" />
+        <SearchInput
+          placeholder="Search subjects..."
+          className="w-full sm:w-64"
+        />
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -200,31 +203,41 @@ export function SubjectsClient({ subjects }: Props) {
           <table className="w-full min-w-[600px] text-sm">
             <thead className="border-b border-border bg-muted/30">
               <tr>
-                {["Subject", "Code", "Credits", "Type", "Teachers", ""].map((h) => (
-                  <th
-                    key={h}
-                    className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-                  >
-                    {h}
-                  </th>
-                ))}
+                {["Subject", "Code", "Credits", "Type", "Teachers", ""].map(
+                  (h) => (
+                    <th
+                      key={h}
+                      className="whitespace-nowrap px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                    >
+                      {h}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
               {subjects.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-12 text-center text-muted-foreground"
+                  >
                     No subjects found.
                   </td>
                 </tr>
               ) : (
                 subjects.map((subject) => (
-                  <tr key={subject.id} className="transition-colors hover:bg-muted/30">
+                  <tr
+                    key={subject.id}
+                    className="transition-colors hover:bg-muted/30"
+                  >
                     <td className="px-4 py-3 font-medium">{subject.name}</td>
                     <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                       {subject.code}
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{subject.credits}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {subject.credits}
+                    </td>
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -260,7 +273,10 @@ export function SubjectsClient({ subjects }: Props) {
                           size="icon"
                           className="h-7 w-7 text-destructive hover:text-destructive"
                           onClick={() =>
-                            setDeleteTarget({ id: subject.id, name: subject.name })
+                            setDeleteTarget({
+                              id: subject.id,
+                              name: subject.name,
+                            })
                           }
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -290,10 +306,12 @@ export function SubjectsClient({ subjects }: Props) {
           </DialogHeader>
           <div className="space-y-2">
             <p className="text-sm text-zinc-200">
-              Deactivate subject <span className="font-semibold">{deleteTarget?.name}</span>?
+              Deactivate subject{" "}
+              <span className="font-semibold">{deleteTarget?.name}</span>?
             </p>
             <p className="text-xs text-zinc-400">
-              This keeps the record for audit/history and hides it from active lists.
+              This keeps the record for audit/history and hides it from active
+              lists.
             </p>
           </div>
           <div className="mt-2 flex items-center justify-end gap-2">

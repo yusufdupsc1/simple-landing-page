@@ -13,13 +13,20 @@ export const metadata: Metadata = { title: "Grades" };
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  searchParams: Promise<{ page?: string; search?: string; subjectId?: string; term?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    search?: string;
+    subjectId?: string;
+    term?: string;
+  }>;
 }
 
 export default async function GradesPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const session = await auth();
-  const institutionId = (session?.user as { institutionId?: string } | undefined)?.institutionId;
+  const institutionId = (
+    session?.user as { institutionId?: string } | undefined
+  )?.institutionId;
   if (!institutionId) return null;
 
   const page = Number(params.page) || 1;

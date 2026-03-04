@@ -54,7 +54,8 @@ const LoginSchema = z
     if (value.scope !== "ADMIN" && !value.institution?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Institution slug is required for teacher/student/parent login scope.",
+        message:
+          "Institution slug is required for teacher/student/parent login scope.",
         path: ["institution"],
       });
     }
@@ -126,12 +127,18 @@ const AUTH_ERRORS: Record<string, string> = {
   default: "An unexpected error occurred. Please try again.",
 };
 
-export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFormProps) {
+export function LoginForm({
+  callbackUrl,
+  error,
+  googleEnabled = false,
+}: LoginFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isSendingOtp, startOtpTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
-  const [scopeCounts, setScopeCounts] = useState<Record<string, number> | null>(null);
+  const [scopeCounts, setScopeCounts] = useState<Record<string, number> | null>(
+    null,
+  );
   const [scopeInfoError, setScopeInfoError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(
     error ? (AUTH_ERRORS[error] ?? AUTH_ERRORS.default) : null,
@@ -160,7 +167,8 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
 
   const selectedScope = useWatch({ control, name: "scope" });
   const selectedMode = useWatch({ control, name: "loginMode" });
-  const institutionSlug = useWatch({ control, name: "institution" })?.trim().toLowerCase() ?? "";
+  const institutionSlug =
+    useWatch({ control, name: "institution" })?.trim().toLowerCase() ?? "";
 
   useEffect(() => {
     if (!institutionSlug) {
@@ -213,7 +221,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
       });
 
       if (result?.error) {
-        setFormError(AUTH_ERRORS[result.error] ?? AUTH_ERRORS.CredentialsSignin);
+        setFormError(
+          AUTH_ERRORS[result.error] ?? AUTH_ERRORS.CredentialsSignin,
+        );
         return;
       }
 
@@ -230,7 +240,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
     }
     startTransition(async () => {
       await signIn("google", {
-        callbackUrl: callbackUrl ? decodeURIComponent(callbackUrl) : "/dashboard",
+        callbackUrl: callbackUrl
+          ? decodeURIComponent(callbackUrl)
+          : "/dashboard",
       });
     });
   };
@@ -238,7 +250,8 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
   const handleSendOtp = () => {
     setFormError(null);
     const currentScope = getValues("scope");
-    const currentInstitution = getValues("institution")?.trim().toLowerCase() ?? "";
+    const currentInstitution =
+      getValues("institution")?.trim().toLowerCase() ?? "";
     const currentPhone = getValues("phone")?.trim() ?? "";
 
     if (currentScope !== "ADMIN" && !currentInstitution) {
@@ -290,7 +303,10 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
   return (
     <div className="space-y-6 animate-fade-in">
       {formError && (
-        <Alert variant="destructive" className="border-destructive/50 bg-destructive/10 text-destructive">
+        <Alert
+          variant="destructive"
+          className="border-destructive/50 bg-destructive/10 text-destructive"
+        >
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
@@ -304,7 +320,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
               <button
                 key={scope.value}
                 type="button"
-                onClick={() => setValue("scope", scope.value, { shouldValidate: true })}
+                onClick={() =>
+                  setValue("scope", scope.value, { shouldValidate: true })
+                }
                 className={cn(
                   "rounded-lg border px-3 py-2 text-left transition-colors",
                   selectedScope === scope.value
@@ -314,7 +332,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
                 disabled={isPending || isSendingOtp}
               >
                 <p className="text-sm font-medium">{scope.label}</p>
-                <p className="text-[11px] text-muted-foreground">{scope.hint}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {scope.hint}
+                </p>
                 {scopeCounts && institutionSlug ? (
                   <p className="mt-1 text-[11px] text-primary">
                     {scopeCounts[scope.value] ?? 0} account(s)
@@ -330,7 +350,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => setValue("loginMode", "PASSWORD", { shouldValidate: true })}
+              onClick={() =>
+                setValue("loginMode", "PASSWORD", { shouldValidate: true })
+              }
               className={cn(
                 "rounded-lg border px-3 py-2 text-left text-sm transition-colors",
                 selectedMode === "PASSWORD"
@@ -343,7 +365,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
             </button>
             <button
               type="button"
-              onClick={() => setValue("loginMode", "PHONE_OTP", { shouldValidate: true })}
+              onClick={() =>
+                setValue("loginMode", "PHONE_OTP", { shouldValidate: true })
+              }
               className={cn(
                 "rounded-lg border px-3 py-2 text-left text-sm transition-colors",
                 selectedMode === "PHONE_OTP"
@@ -358,7 +382,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="institution">Institution Slug (optional for Admin)</Label>
+          <Label htmlFor="institution">
+            Institution Slug (optional for Admin)
+          </Label>
           <Input
             id="institution"
             type="text"
@@ -371,7 +397,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
             <p className="text-xs text-muted-foreground">{scopeInfoError}</p>
           ) : null}
           {errors.institution && (
-            <p className="text-xs text-destructive">{errors.institution.message}</p>
+            <p className="text-xs text-destructive">
+              {errors.institution.message}
+            </p>
           )}
         </div>
 
@@ -390,7 +418,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
                 {...register("email")}
               />
               {errors.email && (
-                <p className="text-xs text-destructive">{errors.email.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
@@ -428,7 +458,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
                 </button>
               </div>
               {errors.password && (
-                <p className="text-xs text-destructive">{errors.password.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.password.message}
+                </p>
               )}
             </div>
           </>
@@ -461,7 +493,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
                 </Button>
               </div>
               {errors.phone && (
-                <p className="text-xs text-destructive">{errors.phone.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.phone.message}
+                </p>
               )}
             </div>
 
@@ -478,13 +512,19 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
               />
               <input type="hidden" {...register("otpChallengeId")} />
               {errors.otpCode && (
-                <p className="text-xs text-destructive">{errors.otpCode.message}</p>
+                <p className="text-xs text-destructive">
+                  {errors.otpCode.message}
+                </p>
               )}
             </div>
           </>
         )}
 
-        <Button type="submit" className="w-full" disabled={isPending || isSendingOtp}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isPending || isSendingOtp}
+        >
           {isPending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -501,7 +541,9 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
           <span className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">or continue with</span>
+          <span className="bg-background px-2 text-muted-foreground">
+            or continue with
+          </span>
         </div>
       </div>
 
@@ -535,7 +577,8 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
         </Button>
       ) : (
         <p className="text-center text-xs text-muted-foreground">
-          Google sign-in is disabled. Set `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`.
+          Google sign-in is disabled. Set `AUTH_GOOGLE_ID` and
+          `AUTH_GOOGLE_SECRET`.
         </p>
       )}
 
@@ -550,18 +593,25 @@ export function LoginForm({ callbackUrl, error, googleEnabled = false }: LoginFo
         <div className="space-y-1 font-mono text-sm text-foreground/80">
           <div className="flex justify-between items-center group">
             <span>admin@school.edu</span>
-            <span className="text-muted-foreground group-hover:text-primary transition-colors text-xs">admin123</span>
+            <span className="text-muted-foreground group-hover:text-primary transition-colors text-xs">
+              admin123
+            </span>
           </div>
           <div className="flex justify-between items-center group">
             <span>principal@school.edu</span>
-            <span className="text-muted-foreground group-hover:text-primary transition-colors text-xs">principal123</span>
+            <span className="text-muted-foreground group-hover:text-primary transition-colors text-xs">
+              principal123
+            </span>
           </div>
         </div>
       </div>
 
       <p className="text-center text-xs text-muted-foreground">
         Teacher, Student, or Parent?{" "}
-        <Link href="/auth/request-access" className="underline underline-offset-4 hover:text-foreground">
+        <Link
+          href="/auth/request-access"
+          className="underline underline-offset-4 hover:text-foreground"
+        >
           Request institution access
         </Link>
       </p>

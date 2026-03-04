@@ -32,7 +32,9 @@ export function showMacDeleteToast({ entity, name }: MacDeleteToastInput) {
             <Trash2 className="h-3.5 w-3.5 text-red-300" />
           </div>
           <div>
-            <p className="text-xs font-semibold tracking-wide text-zinc-200">Dhadash</p>
+            <p className="text-xs font-semibold tracking-wide text-zinc-200">
+              Dhadash
+            </p>
             <p className="text-[10px] text-zinc-400">Archive Notification</p>
           </div>
         </div>
@@ -88,7 +90,9 @@ export function showMacStatusToast({
             )}
           </div>
           <div>
-            <p className="text-xs font-semibold tracking-wide text-zinc-200">Dhadash</p>
+            <p className="text-xs font-semibold tracking-wide text-zinc-200">
+              Dhadash
+            </p>
             <p className="text-[10px] text-zinc-400">Status Update</p>
           </div>
         </div>

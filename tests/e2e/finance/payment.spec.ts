@@ -19,14 +19,18 @@ test.describe("Finance Dashboard", () => {
     await page.goto("/dashboard/finance", { waitUntil: "domcontentloaded" });
 
     await page.getByRole("button", { name: "Create Fee" }).click();
-    await expect(page.getByRole("heading", { name: "Create New Fee" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Create New Fee" }),
+    ).toBeVisible();
   });
 
   test("finance page has no generic app error", async ({ page }) => {
     await page.goto("/dashboard/finance", { waitUntil: "domcontentloaded" });
 
     await expect(
-      page.locator("text=Application error: a server-side exception has occurred"),
+      page.locator(
+        "text=Application error: a server-side exception has occurred",
+      ),
     ).toHaveCount(0);
   });
 });

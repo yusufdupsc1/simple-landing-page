@@ -46,8 +46,12 @@ async function getPublicSchoolSummary(slug: string) {
     upcomingEvents,
     announcements,
   ] = await Promise.all([
-    db.student.count({ where: { institutionId: institution.id, status: "ACTIVE" } }),
-    db.teacher.count({ where: { institutionId: institution.id, status: "ACTIVE" } }),
+    db.student.count({
+      where: { institutionId: institution.id, status: "ACTIVE" },
+    }),
+    db.teacher.count({
+      where: { institutionId: institution.id, status: "ACTIVE" },
+    }),
     db.class.findMany({
       where: {
         institutionId: institution.id,
@@ -153,17 +157,26 @@ export default async function SchoolPublicPage({ params }: PageProps) {
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <header className="mb-8 rounded-2xl border border-border bg-card p-6">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground">Public School Summary</p>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight">{data.institution.name}</h1>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">
+            Public School Summary
+          </p>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight">
+            {data.institution.name}
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {data.institution.city ?? ""}
             {data.institution.city && data.institution.country ? ", " : ""}
             {data.institution.country ?? ""}
           </p>
           {data.institution.settings?.publicReportsDescription ? (
-            <p className="mt-3 text-sm text-muted-foreground">{data.institution.settings.publicReportsDescription}</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {data.institution.settings.publicReportsDescription}
+            </p>
           ) : null}
-          <Link href={`/schools/${slug}/reports`} className="mt-4 inline-block text-sm text-primary underline-offset-4 hover:underline">
+          <Link
+            href={`/schools/${slug}/reports`}
+            className="mt-4 inline-block text-sm text-primary underline-offset-4 hover:underline"
+          >
             View detailed reports
           </Link>
         </header>
@@ -178,15 +191,22 @@ export default async function SchoolPublicPage({ params }: PageProps) {
             <p className="mt-1 text-2xl font-semibold">{data.teacherTotal}</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">Attendance (30 days)</p>
+            <p className="text-xs text-muted-foreground">
+              Attendance (30 days)
+            </p>
             <p className="mt-1 text-sm font-medium">
-              Present {data.attendanceMap.present} · Absent {data.attendanceMap.absent} · Late {data.attendanceMap.late}
+              Present {data.attendanceMap.present} · Absent{" "}
+              {data.attendanceMap.absent} · Late {data.attendanceMap.late}
             </p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">Total Collected</p>
-            <p className="mt-1 text-2xl font-semibold">{formatCurrency(data.totalPayments)}</p>
-            <p className="text-xs text-muted-foreground">{data.paymentCount} payments</p>
+            <p className="mt-1 text-2xl font-semibold">
+              {formatCurrency(data.totalPayments)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {data.paymentCount} payments
+            </p>
           </div>
         </section>
 
@@ -195,10 +215,15 @@ export default async function SchoolPublicPage({ params }: PageProps) {
             <h2 className="text-base font-semibold">Students by Class</h2>
             <div className="mt-3 space-y-2">
               {data.classTotals.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No classes published.</p>
+                <p className="text-sm text-muted-foreground">
+                  No classes published.
+                </p>
               ) : (
                 data.classTotals.map((cls) => (
-                  <div key={cls.id} className="flex items-center justify-between rounded-md border border-border/60 p-2 text-sm">
+                  <div
+                    key={cls.id}
+                    className="flex items-center justify-between rounded-md border border-border/60 p-2 text-sm"
+                  >
                     <span>{cls.name}</span>
                     <span className="font-medium">{cls._count.students}</span>
                   </div>
@@ -211,12 +236,19 @@ export default async function SchoolPublicPage({ params }: PageProps) {
             <h2 className="text-base font-semibold">Grade Distribution</h2>
             <div className="mt-3 space-y-2">
               {data.gradeBands.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No grade data published.</p>
+                <p className="text-sm text-muted-foreground">
+                  No grade data published.
+                </p>
               ) : (
                 data.gradeBands.map((row) => (
-                  <div key={row.letterGrade ?? "UNSPECIFIED"} className="flex items-center justify-between rounded-md border border-border/60 p-2 text-sm">
+                  <div
+                    key={row.letterGrade ?? "UNSPECIFIED"}
+                    className="flex items-center justify-between rounded-md border border-border/60 p-2 text-sm"
+                  >
                     <span>{row.letterGrade || "Unspecified"}</span>
-                    <span className="font-medium">{row._count.letterGrade}</span>
+                    <span className="font-medium">
+                      {row._count.letterGrade}
+                    </span>
                   </div>
                 ))
               )}
@@ -229,13 +261,19 @@ export default async function SchoolPublicPage({ params }: PageProps) {
             <h2 className="text-base font-semibold">Upcoming Events</h2>
             <div className="mt-3 space-y-2">
               {data.upcomingEvents.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No public upcoming events.</p>
+                <p className="text-sm text-muted-foreground">
+                  No public upcoming events.
+                </p>
               ) : (
                 data.upcomingEvents.map((event) => (
-                  <div key={event.id} className="rounded-md border border-border/60 p-2">
+                  <div
+                    key={event.id}
+                    className="rounded-md border border-border/60 p-2"
+                  >
                     <p className="text-sm font-medium">{event.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(event.startDate).toLocaleDateString()} • {event.type}
+                      {new Date(event.startDate).toLocaleDateString()} •{" "}
+                      {event.type}
                       {event.location ? ` • ${event.location}` : ""}
                     </p>
                   </div>
@@ -248,12 +286,19 @@ export default async function SchoolPublicPage({ params }: PageProps) {
             <h2 className="text-base font-semibold">Public Announcements</h2>
             <div className="mt-3 space-y-2">
               {data.announcements.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No announcements published.</p>
+                <p className="text-sm text-muted-foreground">
+                  No announcements published.
+                </p>
               ) : (
                 data.announcements.map((item) => (
-                  <div key={item.id} className="rounded-md border border-border/60 p-2">
+                  <div
+                    key={item.id}
+                    className="rounded-md border border-border/60 p-2"
+                  >
                     <p className="text-sm font-medium">{item.title}</p>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{item.content}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {item.content}
+                    </p>
                   </div>
                 ))
               )}

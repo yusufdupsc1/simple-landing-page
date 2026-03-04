@@ -1,5 +1,9 @@
 import { NextRequest } from "next/server";
-import { createGrade, getGradeDistribution, getGrades } from "@/server/actions/grades";
+import {
+  createGrade,
+  getGradeDistribution,
+  getGrades,
+} from "@/server/actions/grades";
 import { GradeCreateSchema } from "@/lib/contracts/v1/grades";
 import { requireApiPermission } from "@/lib/api/guard";
 import { apiError, apiOk } from "@/lib/api/response";
@@ -14,7 +18,11 @@ export async function GET(req: NextRequest) {
   if (auth.response) return auth.response;
 
   try {
-    const includeDistribution = queryBool(req.nextUrl.searchParams, "distribution", false);
+    const includeDistribution = queryBool(
+      req.nextUrl.searchParams,
+      "distribution",
+      false,
+    );
     if (includeDistribution) {
       const distribution = await getGradeDistribution();
       return apiOk(distribution, { mode: "distribution" });

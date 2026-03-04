@@ -10,13 +10,17 @@ test.describe("Academic Route Smoke", () => {
     await page.goto("/dashboard/students", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByRole("heading", { name: "Students" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Ready-Made Reports" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Ready-Made Reports" }),
+    ).toBeVisible();
   });
 
   test("teachers page renders", async ({ page }) => {
     await page.goto("/dashboard/teachers", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByRole("heading", { name: /teachers/i })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /teachers/i }),
+    ).toBeVisible();
   });
 
   test("classes page renders tabs", async ({ page }) => {
@@ -30,7 +34,9 @@ test.describe("Academic Route Smoke", () => {
   test("attendance page renders", async ({ page }) => {
     await page.goto("/dashboard/attendance", { waitUntil: "domcontentloaded" });
 
-    await expect(page.getByRole("heading", { name: "Attendance", exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Attendance", exact: true }),
+    ).toBeVisible();
   });
 
   test("grades page renders", async ({ page }) => {

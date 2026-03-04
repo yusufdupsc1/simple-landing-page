@@ -13,7 +13,7 @@ export function cn(...inputs: ClassValue[]) {
 export function formatCurrency(
   amount: number | string,
   currency = DEFAULT_CURRENCY,
-  locale = DEFAULT_LOCALE
+  locale = DEFAULT_LOCALE,
 ): string {
   const num = typeof amount === "string" ? parseFloat(amount) : amount;
   return new Intl.NumberFormat(locale, {
@@ -24,7 +24,10 @@ export function formatCurrency(
   }).format(num);
 }
 
-export function formatDate(date: Date | string, options?: Intl.DateTimeFormatOptions): string {
+export function formatDate(
+  date: Date | string,
+  options?: Intl.DateTimeFormatOptions,
+): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return d.toLocaleDateString(DEFAULT_LOCALE, {
     timeZone: DEFAULT_TIMEZONE,

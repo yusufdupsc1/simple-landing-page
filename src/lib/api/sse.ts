@@ -29,7 +29,9 @@ export function createEventStream({
 }) {
   return new ReadableStream<Uint8Array>({
     start(controller) {
-      controller.enqueue(toSseFrame(`event: ready\ndata: ${JSON.stringify({ types })}`));
+      controller.enqueue(
+        toSseFrame(`event: ready\ndata: ${JSON.stringify({ types })}`),
+      );
 
       const initialEvents = getRecentDomainEvents(
         institutionId,
@@ -46,9 +48,12 @@ export function createEventStream({
         controller.enqueue(eventFrame(event));
       });
 
-      const heartbeat = setInterval(() => {
-        controller.enqueue(toSseFrame(`event: ping\ndata: ${Date.now()}`));
-      }, Math.max(10000, pollIntervalMs));
+      const heartbeat = setInterval(
+        () => {
+          controller.enqueue(toSseFrame(`event: ping\ndata: ${Date.now()}`));
+        },
+        Math.max(10000, pollIntervalMs),
+      );
 
       const onAbort = () => {
         clearInterval(heartbeat);

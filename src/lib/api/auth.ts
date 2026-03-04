@@ -73,7 +73,13 @@ async function fromBearer(req: NextRequest): Promise<ApiAuthContext | null> {
       if (payload.email && typeof payload.email === "string") {
         const dbUser = await db.user.findUnique({
           where: { email: payload.email },
-          select: { id: true, institutionId: true, role: true, email: true, phone: true },
+          select: {
+            id: true,
+            institutionId: true,
+            role: true,
+            email: true,
+            phone: true,
+          },
         });
 
         if (dbUser) {

@@ -1,0 +1,56 @@
+
+> dhadash@2.0.3 lint
+> eslint .
+
+
+/home/neo/Videos/dhadash/scripts/trace.mjs
+  22:7  warning  'TRACE_PATH' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/components/dashboard/modern-toolkit.tsx
+  3:67  warning  'Zap' is defined but never used    @typescript-eslint/no-unused-vars
+  3:72  warning  'Cloud' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/components/dashboard/quick-actions.tsx
+  14:10  warning  'isGovtPrimaryModeEnabled' is defined but never used  @typescript-eslint/no-unused-vars
+  48:31  warning  'i' is defined but never used                         @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/components/dashboard/recent-students.tsx
+  3:32  warning  'ArrowUpRight' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/components/dashboard/upcoming-events.tsx
+  1:22  warning  'cn' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/components/landing/role-modules.tsx
+  21:38  warning  'i' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/components/layout/mobile-nav.server.tsx
+   1:89  warning  'ArchiveRestore' is defined but never used            @typescript-eslint/no-unused-vars
+   7:10  warning  'cn' is defined but never used                        @typescript-eslint/no-unused-vars
+  10:11  warning  'govtPrimaryMode' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/components/layout/sidebar.server.tsx
+   1:8   warning  'Link' is defined but never used      @typescript-eslint/no-unused-vars
+  16:3   warning  'FileText' is defined but never used  @typescript-eslint/no-unused-vars
+  24:10  warning  'cn' is defined but never used        @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/components/layout/sidebar.tsx
+   22:3   warning  'FileText' is defined but never used                             @typescript-eslint/no-unused-vars
+   23:3   warning  'ChevronRight' is defined but never used                         @typescript-eslint/no-unused-vars
+  475:17  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  475:54  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/home/neo/Videos/dhadash/src/components/students/student-dialogs.client.tsx
+  51:6  warning  'CaseColor' is defined but never used                      @typescript-eslint/no-unused-vars
+  88:7  warning  'NUMERIC_ROLL_PATTERN' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/lib/exports/encryption.ts
+  79:12  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/neo/Videos/dhadash/src/server/actions/attendance.ts
+  462:32  warning  'userId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  462:40  warning  'role' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  462:46  warning  'email' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  462:53  warning  'phone' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+✖ 25 problems (2 errors, 23 warnings)
+

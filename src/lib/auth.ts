@@ -187,16 +187,16 @@ async function upsertGoogleUserContext(user: {
 const providers: any[] = [
   Credentials({
     name: "Credentials",
-      credentials: {
-        institution: { label: "Institution", type: "text" },
-        scope: { label: "Scope", type: "text" },
-        loginMode: { label: "Login Mode", type: "text" },
-        email: { label: "Email", type: "email" },
-        phone: { label: "Phone", type: "tel" },
-        otpCode: { label: "OTP Code", type: "text" },
-        otpChallengeId: { label: "OTP Challenge", type: "text" },
-        password: { label: "Password", type: "password" },
-      },
+    credentials: {
+      institution: { label: "Institution", type: "text" },
+      scope: { label: "Scope", type: "text" },
+      loginMode: { label: "Login Mode", type: "text" },
+      email: { label: "Email", type: "email" },
+      phone: { label: "Phone", type: "tel" },
+      otpCode: { label: "OTP Code", type: "text" },
+      otpChallengeId: { label: "OTP Challenge", type: "text" },
+      password: { label: "Password", type: "password" },
+    },
     async authorize(credentials) {
       const institutionInput = credentials?.institution;
       const scopeInput = credentials?.scope;
@@ -342,7 +342,10 @@ const providers: any[] = [
         };
       }
 
-      if (normalizedInstitution && normalizedInstitution !== DEMO_INSTITUTION.slug) {
+      if (
+        normalizedInstitution &&
+        normalizedInstitution !== DEMO_INSTITUTION.slug
+      ) {
         return null;
       }
       if (normalizedScope !== "ADMIN") {
@@ -455,9 +458,8 @@ const authConfig: any = {
         (session.user as { institutionSlug?: string }).institutionSlug = (
           token as any
         ).institutionSlug as string;
-        (session.user as { phone?: string | null }).phone = (
-          token as any
-        ).phone as string | null;
+        (session.user as { phone?: string | null }).phone = (token as any)
+          .phone as string | null;
       }
       return session;
     },

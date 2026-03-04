@@ -1,11 +1,20 @@
 "use client";
 
-import { FileBadge2, FileCheck2, IdCard, ScrollText, type LucideIcon } from "lucide-react";
+import {
+  FileBadge2,
+  FileCheck2,
+  IdCard,
+  ScrollText,
+  type LucideIcon,
+} from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { MANUAL_TEMPLATE_OPTIONS } from "@/lib/contracts/v1/students-records";
 import { cn } from "@/lib/utils";
 
-const TEMPLATE_LABELS: Record<(typeof MANUAL_TEMPLATE_OPTIONS)[number], string> = {
+const TEMPLATE_LABELS: Record<
+  (typeof MANUAL_TEMPLATE_OPTIONS)[number],
+  string
+> = {
   ID_CARD: "ID Card",
   RESULT_SHEET: "Result Sheet Report",
   ATTENDANCE_RECORD: "Attendance Record",
@@ -96,12 +105,24 @@ export function TemplateSelector({ value, onChange }: TemplateSelectorProps) {
               )}
             >
               <div className="mb-1 flex items-center gap-2">
-                <Icon className={cn("h-4 w-4", active ? "text-primary" : "text-muted-foreground")} />
-                <p className={cn("text-sm font-semibold", active ? "text-primary" : "text-foreground")}>
+                <Icon
+                  className={cn(
+                    "h-4 w-4",
+                    active ? "text-primary" : "text-muted-foreground",
+                  )}
+                />
+                <p
+                  className={cn(
+                    "text-sm font-semibold",
+                    active ? "text-primary" : "text-foreground",
+                  )}
+                >
                   {templateLabel(item)}
                 </p>
               </div>
-              <p className="text-xs text-muted-foreground">{meta.description}</p>
+              <p className="text-xs text-muted-foreground">
+                {meta.description}
+              </p>
             </button>
           );
         })}

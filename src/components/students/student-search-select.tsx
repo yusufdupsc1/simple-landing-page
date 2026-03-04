@@ -84,10 +84,16 @@ export function StudentSearchSelect({
           <div className="flex min-w-0 items-center gap-2">
             <UserRound className="h-4 w-4 text-muted-foreground" />
             <p className="truncate font-medium">
-              {selectedStudent.firstName} {selectedStudent.lastName} ({selectedStudent.studentId})
+              {selectedStudent.firstName} {selectedStudent.lastName} (
+              {selectedStudent.studentId})
             </p>
           </div>
-          <Button type="button" variant="ghost" size="sm" onClick={() => onSelect(null)}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => onSelect(null)}
+          >
             Clear
           </Button>
         </div>
@@ -95,9 +101,13 @@ export function StudentSearchSelect({
 
       <div className="max-h-56 overflow-y-auto rounded-md border border-border">
         {loading ? (
-          <p className="px-3 py-2 text-sm text-muted-foreground">Searching students...</p>
+          <p className="px-3 py-2 text-sm text-muted-foreground">
+            Searching students...
+          </p>
         ) : !hasItems ? (
-          <p className="px-3 py-2 text-sm text-muted-foreground">No students found</p>
+          <p className="px-3 py-2 text-sm text-muted-foreground">
+            No students found
+          </p>
         ) : (
           <ul className="divide-y divide-border">
             {items.map((item) => {

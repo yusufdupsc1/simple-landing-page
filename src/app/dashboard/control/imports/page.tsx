@@ -43,8 +43,13 @@ export default async function ImportCenterPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Use structured CSV batches and validate class mapping before sync.</p>
-            <Link href="/dashboard/students" className="inline-flex items-center gap-1 text-primary hover:underline">
+            <p>
+              Use structured CSV batches and validate class mapping before sync.
+            </p>
+            <Link
+              href="/dashboard/students"
+              className="inline-flex items-center gap-1 text-primary hover:underline"
+            >
               Go to students module <ArrowRight className="h-4 w-4" />
             </Link>
           </CardContent>
@@ -58,10 +63,22 @@ export default async function ImportCenterPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Create classes and subjects first, then attach teacher mappings.</p>
+            <p>
+              Create classes and subjects first, then attach teacher mappings.
+            </p>
             <div className="flex gap-3">
-              <Link href="/dashboard/classes" className="text-primary hover:underline">Classes</Link>
-              <Link href="/dashboard/subjects" className="text-primary hover:underline">Subjects</Link>
+              <Link
+                href="/dashboard/classes"
+                className="text-primary hover:underline"
+              >
+                Classes
+              </Link>
+              <Link
+                href="/dashboard/subjects"
+                className="text-primary hover:underline"
+              >
+                Subjects
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -74,8 +91,16 @@ export default async function ImportCenterPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
-            <p>Every import should be tenant-scoped, audited, and reversible through status control.</p>
-            <Link href="/dashboard/control/inactive" className="text-primary hover:underline">Open inactive rollback controls</Link>
+            <p>
+              Every import should be tenant-scoped, audited, and reversible
+              through status control.
+            </p>
+            <Link
+              href="/dashboard/control/inactive"
+              className="text-primary hover:underline"
+            >
+              Open inactive rollback controls
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -88,7 +113,10 @@ export default async function ImportCenterPage() {
           <p>1. Import with institution slug context only.</p>
           <p>2. Validate email/phone uniqueness before commit.</p>
           <p>3. Keep parent/guardian mapping linked to existing students.</p>
-          <p>4. Use Inactive Control Center for safe rollback instead of hard delete.</p>
+          <p>
+            4. Use Inactive Control Center for safe rollback instead of hard
+            delete.
+          </p>
         </CardContent>
       </Card>
     </div>

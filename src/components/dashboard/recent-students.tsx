@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import { UserPlus, ArrowRight } from "lucide-react";
 
 interface StudentItem {
   id: string;
@@ -12,36 +13,71 @@ interface StudentItem {
 
 export function RecentStudents({ students }: { students: StudentItem[] }) {
   return (
-    <section className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border/50 bg-card p-4 shadow-sm transition-colors hover:border-border sm:p-6">
-      <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="relative z-10 mb-6 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold tracking-tight">Recent Enrollments</h2>
-        <Link className="text-sm font-medium text-primary hover:text-primary/80 transition-colors" href="/dashboard/students">
-          View directory &rarr;
+    <section className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-border/40 bg-card/60 backdrop-blur-xl p-6 shadow-sm transition-premium hover:border-primary/20 premium-shadow">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col">
+          <h2 className="text-lg font-black tracking-tight text-foreground/90">
+            New Admissions
+          </h2>
+          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            Recent Enrollments
+          </p>
+        </div>
+        <Link
+          href="/dashboard/students"
+          className="text-[11px] font-bold text-muted-foreground hover:text-primary flex items-center gap-1 transition-colors uppercase tracking-widest leading-none"
+        >
+          Registry <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
-      <div className="space-y-3 flex-1 relative z-10">
+
+      <div className="space-y-3 flex-1">
         {students.length ? (
-          students.map((student) => (
-            <div key={student.id} className="flex items-center justify-between rounded-2xl border border-border/40 bg-muted/20 px-4 py-3 hover:bg-muted/50 transition-colors group/item">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                  {student.firstName[0]}{student.lastName[0]}
+          students.map((student, i) => (
+            <div
+              key={student.id}
+              className="flex items-center justify-between rounded-2xl border border-border/40 bg-muted/20 px-4 py-3 hover:bg-card hover:border-border hover:shadow-md transition-premium group/item"
+              style={{ animationDelay: `${i * 100}ms` }}
+            >
+              <div className="flex items-center gap-4">
+                <div className="h-11 w-11 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-black text-xs shadow-inner">
+                  {student.firstName[0]}
+                  {student.lastName[0]}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold">{student.firstName} {student.lastName}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{student.studentId} {student.class?.name ? `• ${student.class.name}` : ""}</p>
+                  <p className="text-sm font-black text-foreground/90 leading-none mb-1">
+                    {student.firstName} {student.lastName}
+                  </p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
+                    ID: {student.studentId}{" "}
+                    {student.class?.name ? `• ${student.class.name}` : ""}
+                  </p>
                 </div>
               </div>
-              <p className="text-xs font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded-md">
-                {student.createdAt ? formatDate(student.createdAt) : "—"}
-              </p>
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-tighter">
+                  Joined
+                </span>
+                <p className="text-[11px] font-bold text-muted-foreground">
+                  {student.createdAt ? formatDate(student.createdAt) : "—"}
+                </p>
+              </div>
             </div>
           ))
         ) : (
-          <div className="h-full flex flex-col items-center justify-center p-6 border border-dashed border-border rounded-xl bg-muted/10">
-            <p className="text-sm font-medium text-muted-foreground">No students found.</p>
-            <p className="text-xs text-muted-foreground mt-1">Enrollments will appear here.</p>
+          <div className="h-48 flex flex-col items-center justify-center p-6 border-2 border-dashed border-border/60 rounded-[1.5rem] bg-muted/10">
+            <div className="h-12 w-12 rounded-full bg-primary/5 flex items-center justify-center mb-4">
+              <UserPlus className="h-6 w-6 text-muted-foreground/30" />
+            </div>
+            <p className="text-sm font-bold text-muted-foreground/60">
+              No recent enrollments
+            </p>
+            <p className="text-[10px] text-muted-foreground/40 mt-1 uppercase tracking-widest text-center">
+              New student data will appear here
+            </p>
+            <button className="mt-4 px-4 py-2 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary/20 transition-colors">
+              Add First Student
+            </button>
           </div>
         )}
       </div>

@@ -6,7 +6,13 @@
 import { db } from "@/lib/db";
 import { env } from "@/lib/env";
 import { logApiError } from "@/lib/logger";
-import { createCipheriv, createDecipheriv, createHmac, randomBytes, timingSafeEqual } from "crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHmac,
+  randomBytes,
+  timingSafeEqual,
+} from "crypto";
 import type { ExportType } from "./validation";
 
 const ALGORITHM = "aes-256-gcm";
@@ -44,7 +50,11 @@ function encryptPayload(
   authTag: string;
 } {
   const iv = randomBytes(16).toString("hex");
-  const cipher = createCipheriv(ALGORITHM, Buffer.from(secret, "hex").subarray(0, 32), Buffer.from(iv, "hex"));
+  const cipher = createCipheriv(
+    ALGORITHM,
+    Buffer.from(secret, "hex").subarray(0, 32),
+    Buffer.from(iv, "hex"),
+  );
 
   const plaintext = JSON.stringify(payload);
   let encrypted = cipher.update(plaintext, "utf8", "hex");
@@ -76,7 +86,7 @@ function decryptPayload(
     decrypted += decipher.final("utf8");
 
     return JSON.parse(decrypted) as TokenPayload;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -103,7 +113,9 @@ function verifySignature(provided: string, expected: string): boolean {
  * Create a download token
  * Returns the token to be sent to client for download
  */
-export async function createDownloadToken(payload: Omit<TokenPayload, "iat" | "exp">): Promise<{
+export async function createDownloadToken(
+  payload: Omit<TokenPayload, "iat" | "exp">,
+): Promise<{
   token: string;
   expiresIn: number;
 } | null> {
@@ -118,7 +130,10 @@ export async function createDownloadToken(payload: Omit<TokenPayload, "iat" | "e
     };
 
     const encryptSecret = env.AUTH_SECRET || "default-secret";
-    const { encrypted, iv, authTag } = encryptPayload(fullPayload, encryptSecret);
+    const { encrypted, iv, authTag } = encryptPayload(
+      fullPayload,
+      encryptSecret,
+    );
 
     // Create signature for integrity verification
     const signatureData = `${encrypted}:${iv}:${authTag}`;
@@ -155,7 +170,9 @@ export async function createDownloadToken(payload: Omit<TokenPayload, "iat" | "e
 /**
  * Verify and extract payload from token
  */
-export async function verifyDownloadToken(clientToken: string): Promise<TokenPayload | null> {
+export async function verifyDownloadToken(
+  clientToken: string,
+): Promise<TokenPayload | null> {
   try {
     // Parse token format: fileId.signature
     const [fileId, providedSignature] = clientToken.split(".");
@@ -191,7 +208,8 @@ export async function verifyDownloadToken(clientToken: string): Promise<TokenPay
     }
 
     // Verify signature
-    const [iv, authTag, storedSignature] = tokenRecord.encryptedToken.split(":");
+    const [iv, authTag, storedSignature] =
+      tokenRecord.encryptedToken.split(":");
     if (!verifySignature(providedSignature, storedSignature)) {
       return null;
     }
@@ -223,7 +241,9 @@ export async function verifyDownloadToken(clientToken: string): Promise<TokenPay
 
     return payload;
   } catch (error) {
-    logApiError("VERIFY_DOWNLOAD_TOKEN_FAILED", error, { token: clientToken.substring(0, 10) });
+    logApiError("VERIFY_DOWNLOAD_TOKEN_FAILED", error, {
+      token: clientToken.substring(0, 10),
+    });
     return null;
   }
 }

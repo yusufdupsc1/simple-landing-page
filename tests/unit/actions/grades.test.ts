@@ -46,11 +46,15 @@ vi.mock("next/cache", () => ({
 describe("Grades Server Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation((callback) => callback(db));
+    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
+      (callback) => callback(db),
+    );
   });
 
   it("creates grade and computes percentage/letter", async () => {
-    (db.student.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "student-1" });
+    (db.student.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "student-1",
+    });
 
     let createCall: any;
     (db.grade.create as ReturnType<typeof vi.fn>).mockImplementation((args) => {
@@ -86,7 +90,10 @@ describe("Grades Server Actions", () => {
   });
 
   it("updates existing grade", async () => {
-    (db.grade.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "grade-1", score: 80 });
+    (db.grade.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "grade-1",
+      score: 80,
+    });
 
     const result = await updateGrade("grade-1", {
       studentId: "student-1",

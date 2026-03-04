@@ -112,9 +112,13 @@ export function PrimaryExamClient({
   const [pending, startTransition] = useTransition();
 
   const [newExamName, setNewExamName] = useState("");
-  const [newExamYear, setNewExamYear] = useState(String(new Date().getFullYear()));
+  const [newExamYear, setNewExamYear] = useState(
+    String(new Date().getFullYear()),
+  );
   const [newExamClassId, setNewExamClassId] = useState(classes[0]?.id ?? "");
-  const [newExamSubjects, setNewExamSubjects] = useState("বাংলা\nইংরেজি\nগণিত\nবিজ্ঞান");
+  const [newExamSubjects, setNewExamSubjects] = useState(
+    "বাংলা\nইংরেজি\nগণিত\nবিজ্ঞান",
+  );
 
   const [marksMap, setMarksMap] = useState<Record<string, string>>(() => {
     const next: Record<string, string> = {};
@@ -174,13 +178,16 @@ export function PrimaryExamClient({
   };
 
   const computeRowMetrics = (studentId: string) => {
-    if (!resultData) return { total: 0, resultStatus: "INCOMPLETE" as RowResultStatus };
+    if (!resultData)
+      return { total: 0, resultStatus: "INCOMPLETE" as RowResultStatus };
 
     let total = 0;
     let hasMissing = false;
     let hasFailOrAbsent = false;
     for (const subject of resultData.subjects) {
-      const parsed = parseMarkInput(marksMap[cellKey(studentId, subject)] ?? "");
+      const parsed = parseMarkInput(
+        marksMap[cellKey(studentId, subject)] ?? "",
+      );
       if (parsed.kind === "missing" || parsed.kind === "invalid") {
         hasMissing = true;
         continue;
@@ -215,7 +222,9 @@ export function PrimaryExamClient({
       let invalidCells = 0;
       const entries = resultData.rows.flatMap((row) =>
         resultData.subjects.map((subject) => ({
-          parsed: parseMarkInput(marksMap[cellKey(row.studentId, subject)] ?? ""),
+          parsed: parseMarkInput(
+            marksMap[cellKey(row.studentId, subject)] ?? "",
+          ),
           studentId: row.studentId,
           subjectName: subject,
         })),
@@ -224,7 +233,9 @@ export function PrimaryExamClient({
         if (entry.parsed.kind === "invalid") invalidCells += 1;
       }
       if (invalidCells > 0) {
-        toast.error(`Found ${invalidCells} invalid mark input(s). Use 0-100, A, or leave blank.`);
+        toast.error(
+          `Found ${invalidCells} invalid mark input(s). Use 0-100, A, or leave blank.`,
+        );
         return;
       }
 
@@ -319,7 +330,12 @@ export function PrimaryExamClient({
             />
           </div>
           <div className="flex items-end">
-            <Button type="button" onClick={handleCreateExam} disabled={pending} className="w-full">
+            <Button
+              type="button"
+              onClick={handleCreateExam}
+              disabled={pending}
+              className="w-full"
+            >
               <Plus className="mr-1.5 h-4 w-4" />
               {pending ? "Creating..." : "Create Exam"}
             </Button>
@@ -331,7 +347,12 @@ export function PrimaryExamClient({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-4 sm:items-end">
           <div className="space-y-1.5 sm:col-span-2">
             <Label>Exam</Label>
-            <Select value={selectedExamId || "none"} onValueChange={(value) => updateExamQuery(value === "none" ? "" : value)}>
+            <Select
+              value={selectedExamId || "none"}
+              onValueChange={(value) =>
+                updateExamQuery(value === "none" ? "" : value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder={selectedExamLabel} />
               </SelectTrigger>
@@ -343,18 +364,28 @@ export function PrimaryExamClient({
                 ) : (
                   exams.map((exam) => (
                     <SelectItem key={exam.id} value={exam.id}>
-                      {exam.name} {exam.year} • Class {exam.class.grade}-{exam.class.section}
+                      {exam.name} {exam.year} • Class {exam.class.grade}-
+                      {exam.class.section}
                     </SelectItem>
                   ))
                 )}
               </SelectContent>
             </Select>
           </div>
-          <Button type="button" variant="outline" onClick={openPrintSheet} disabled={!hasExam}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={openPrintSheet}
+            disabled={!hasExam}
+          >
             <Printer className="mr-1.5 h-4 w-4" />
             Print A4
           </Button>
-          <Button type="button" onClick={handleSaveMarks} disabled={pending || !hasExam}>
+          <Button
+            type="button"
+            onClick={handleSaveMarks}
+            disabled={pending || !hasExam}
+          >
             <Save className="mr-1.5 h-4 w-4" />
             {pending ? "Saving..." : "Save Marks"}
           </Button>
@@ -384,7 +415,9 @@ export function PrimaryExamClient({
                   <tr key={row.studentId}>
                     <td>
                       <div className="font-medium">{row.studentName}</div>
-                      <div className="text-xs text-muted-foreground">{row.studentCode}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {row.studentCode}
+                      </div>
                     </td>
                     <td>{row.rollNo ?? "-"}</td>
                     {resultData.subjects.map((subject) => {

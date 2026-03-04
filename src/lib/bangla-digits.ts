@@ -11,7 +11,9 @@ const BANGLA_DIGITS = "০১২৩৪৫৬৭৮৯";
  * @param text - Input string potentially containing English digits
  * @returns String with all English digits replaced by Bangla equivalents
  */
-export function convertToBanglaDigits(text: string | number | null | undefined): string {
+export function convertToBanglaDigits(
+  text: string | number | null | undefined,
+): string {
   if (text === null || text === undefined) return "";
 
   const str = String(text);
@@ -35,7 +37,10 @@ export function convertToBanglaDigits(text: string | number | null | undefined):
  * @param useBangla - Whether to convert to Bangla digits
  * @returns Formatted string
  */
-export function formatNumber(value: number | null | undefined, useBangla: boolean): string {
+export function formatNumber(
+  value: number | null | undefined,
+  useBangla: boolean,
+): string {
   if (value === null || value === undefined) return "-";
 
   const formatted = value.toString();
@@ -48,7 +53,10 @@ export function formatNumber(value: number | null | undefined, useBangla: boolea
  * @param useBangla - Whether to convert to Bangla digits
  * @returns Formatted date string
  */
-export function formatDateWithBangla(dateStr: string, useBangla: boolean): string {
+export function formatDateWithBangla(
+  dateStr: string,
+  useBangla: boolean,
+): string {
   if (!useBangla) return dateStr;
   return convertToBanglaDigits(dateStr);
 }

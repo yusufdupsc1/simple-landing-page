@@ -464,7 +464,10 @@ export async function loadGovtPrimaryDemoData(): Promise<
       `${attendanceDate.getFullYear()}-${attendanceDate.getFullYear() + 1}`;
 
     const seedSummary = await db.$transaction(async (tx) => {
-      const classMap = new Map<string, { id: string; grade: string; section: string }>();
+      const classMap = new Map<
+        string,
+        { id: string; grade: string; section: string }
+      >();
 
       for (const blueprint of GOVT_PRIMARY_DEMO_BLUEPRINT) {
         const classroom = await tx.class.upsert({
@@ -516,11 +519,13 @@ export async function loadGovtPrimaryDemoData(): Promise<
           const studentCode = `GPD-${blueprint.grade}${blueprint.section}-${String(index).padStart(2, "0")}`;
           const firstName =
             GOVT_PRIMARY_DEMO_FIRST_NAMES[
-              (index + Number(blueprint.grade)) % GOVT_PRIMARY_DEMO_FIRST_NAMES.length
+              (index + Number(blueprint.grade)) %
+                GOVT_PRIMARY_DEMO_FIRST_NAMES.length
             ];
           const lastName =
             GOVT_PRIMARY_DEMO_LAST_NAMES[
-              (index + blueprint.section.charCodeAt(0)) % GOVT_PRIMARY_DEMO_LAST_NAMES.length
+              (index + blueprint.section.charCodeAt(0)) %
+                GOVT_PRIMARY_DEMO_LAST_NAMES.length
             ];
 
           const existing = await tx.student.findUnique({
@@ -582,17 +587,42 @@ export async function loadGovtPrimaryDemoData(): Promise<
 
       const routineClass = classMap.get("3-A");
       const routineTemplate = [
-        ["Bangla", "English", "Mathematics", "General Science", "Religion", "Drawing"],
-        ["Mathematics", "Bangla", "English", "General Science", "ICT", "Physical Education"],
+        [
+          "Bangla",
+          "English",
+          "Mathematics",
+          "General Science",
+          "Religion",
+          "Drawing",
+        ],
+        [
+          "Mathematics",
+          "Bangla",
+          "English",
+          "General Science",
+          "ICT",
+          "Physical Education",
+        ],
         ["Bangla", "Mathematics", "English", "BGS", "Religion", "Handwriting"],
-        ["English", "Bangla", "Mathematics", "General Science", "Arts", "Music"],
+        [
+          "English",
+          "Bangla",
+          "Mathematics",
+          "General Science",
+          "Arts",
+          "Music",
+        ],
         ["Mathematics", "Bangla", "English", "BGS", "Religion", "Games"],
       ] as const;
 
       let routineEntries = 0;
 
       if (routineClass) {
-        for (let dayOfWeek = 0; dayOfWeek < routineTemplate.length; dayOfWeek += 1) {
+        for (
+          let dayOfWeek = 0;
+          dayOfWeek < routineTemplate.length;
+          dayOfWeek += 1
+        ) {
           const subjects = routineTemplate[dayOfWeek];
           for (let periodNo = 1; periodNo <= subjects.length; periodNo += 1) {
             await tx.classRoutineEntry.upsert({

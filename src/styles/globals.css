@@ -11,6 +11,12 @@
     sans-serif;
 
   /* ERP semantic tokens */
+  /* Bangladesh National Flag Theme */
+  --color-bd-green: #006a4e;
+  --color-bd-red: #f42a41;
+  --color-bd-gold: #f7d117;
+  /* Golden Bengal theme */
+
   --color-brand-50: #e7f4ef;
   --color-brand-600: #006a4e;
   --color-bg: #f8fafc;
@@ -59,41 +65,37 @@
 /* ─── Design Token Layer ─── */
 @layer base {
   :root {
-    /* Light mode — Bangladesh-first green/red */
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    /* Bangladesh-first light UI */
+    --background: 210 18% 95.5%;
+    --foreground: 215 26% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
+    --card-foreground: 215 26% 18%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 215 26% 18%;
 
-    /* Bangladesh-first brand tokens */
-    --primary: #006a4e;
-    --accent: #f42a41;
-    --primary-contrast: #ffffff;
-    --primary-rgb: 0 106 78;
-    --accent-rgb: 244 42 65;
-    --primary-foreground: var(--primary-contrast);
+    /* Bangladesh Green */
+    --primary: 163 100% 21%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 20%;
+    /* Bangladesh Red */
+    --accent: 352 90% 56%;
+    --accent-foreground: 210 40% 98%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --secondary: 210 18% 93%;
+    --secondary-foreground: 215 20% 28%;
 
-    --accent-contrast: #111827;
-    --accent-foreground: var(--accent-contrast);
+    --muted: 210 16% 92%;
+    --muted-foreground: 215 15% 42%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --border: 214 18% 84%;
+    --input: 214 20% 90%;
     --ring: 163 100% 21%;
 
-    --radius: 8px;
+    --radius: 14px;
 
     /* Custom semantic tokens */
     --success: 142 71% 25%;
@@ -138,36 +140,32 @@
   }
 
   .dark {
-    /* Dark mode */
+    /* Premium Dark Mode: Deep Obsidian with soft overlays */
     --background: 225 15% 7%;
-    --foreground: 40 15% 94%;
+    --foreground: 210 15% 94%;
 
     --card: 225 14% 10%;
-    --card-foreground: 40 15% 94%;
+    --card-foreground: 210 15% 94%;
 
     --popover: 225 14% 10%;
-    --popover-foreground: 40 15% 94%;
+    --popover-foreground: 210 15% 94%;
 
-    --primary: #006a4e;
-    --accent: #f42a41;
-    --primary-contrast: #ffffff;
-    --primary-rgb: 0 106 78;
-    --accent-rgb: 244 42 65;
-    --primary-foreground: var(--primary-contrast);
+    --primary: 163 80% 45%;
+    --primary-foreground: 225 15% 7%;
+
+    --accent: 352 84% 62%;
+    --accent-foreground: 225 15% 7%;
 
     --secondary: 225 13% 14%;
-    --secondary-foreground: 40 10% 80%;
+    --secondary-foreground: 210 10% 80%;
 
     --muted: 225 12% 14%;
     --muted-foreground: 220 10% 56%;
 
-    --accent-contrast: #111827;
-    --accent-foreground: var(--accent-contrast);
-
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 225 12% 16%;
+    --border: 225 12% 18%;
     --input: 225 12% 16%;
     --ring: 163 72% 55%;
 
@@ -201,17 +199,7 @@
 
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(
-        1200px 600px at 100% -10%,
-        rgb(var(--primary-rgb) / 0.07),
-        transparent 55%
-      ),
-      radial-gradient(
-        900px 500px at -10% 110%,
-        rgb(var(--accent-rgb) / 0.04),
-        transparent 50%
-      );
+    background-image: none;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -258,16 +246,18 @@
   h4,
   h5,
   h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-semibold tracking-tight text-foreground/90;
+    letter-spacing: -0.02em;
   }
 
   a {
-    color: var(--primary);
+    color: hsl(var(--primary));
     text-underline-offset: 0.16em;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   a:hover {
-    text-decoration-color: var(--accent);
+    color: hsl(var(--accent));
   }
 
   /* Focus visible only for keyboard navigation */
@@ -279,12 +269,15 @@
   ::-webkit-scrollbar {
     @apply w-1.5 h-1.5;
   }
+
   ::-webkit-scrollbar-track {
     @apply bg-transparent;
   }
+
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-border;
+    @apply rounded-full bg-border/60 transition-colors;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/30;
   }
@@ -295,67 +288,91 @@
   }
 }
 
-/* ─── Utility Classes ─── */
+/* ─── Premium UI Utility Classes ─── */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+
   .text-pretty {
     text-wrap: pretty;
   }
 
-  .primary-cta {
-    background-color: var(--primary);
-    color: var(--primary-contrast);
+  /* ─── National Theme Utilities ─── */
+  .national-brand-green {
+    color: var(--color-bd-green);
   }
 
-  .primary-cta:hover {
-    background-color: var(--accent);
-    color: #111827;
+  .national-brand-red {
+    color: var(--color-bd-red);
+  }
+
+  .flag-gradient {
+    background: linear-gradient(135deg, var(--color-bd-green) 0%, #004d38 100%);
+  }
+
+  .monument-motif {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 0 L100 100 L0 100 Z' opacity='0.2'/%3E%3C/svg%3E");
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: currentColor;
+  }
+
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-md border border-border/50 shadow-sm transition-all duration-300;
+  }
+
+  .glass-card:hover {
+    @apply bg-card/90 border-border/80 shadow-md;
+  }
+
+  .premium-shadow {
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, 0.03),
+      0 2px 4px rgba(0, 0, 0, 0.02),
+      0 12px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 0 15px 2px hsla(var(--primary), 0.15);
+    border-color: hsla(var(--primary), 0.3);
   }
 
   .sidebar-active-item {
-    background-color: color-mix(in srgb, var(--primary) 12%, transparent);
-    color: var(--primary);
-    box-shadow: inset 0 0 0 1px
-      color-mix(in srgb, var(--primary) 20%, transparent);
+    @apply relative bg-primary/5 text-primary;
+    box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.1);
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 20%;
+      height: 60%;
+      width: 3px;
+      background: hsl(var(--primary));
+      border-radius: 0 4px 4px 0;
+    }
   }
 
   .sidebar-active-icon {
-    color: var(--primary);
+    @apply text-primary scale-110 transition-transform;
   }
 
-  .sidebar-active-dot {
-    background-color: var(--primary);
-  }
-
-  /* Gradient text */
   .gradient-text {
     @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
     background-size: 200% auto;
     animation: shimmer 4s linear infinite;
   }
 
-  /* Glass card */
-  .glass {
-    backdrop-filter: none;
-    @apply bg-card border border-border;
-  }
-
-  /* Noise texture overlay */
-  .noise::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    border-radius: inherit;
-  }
-
   /* Shimmer loading state */
   .shimmer {
     @apply relative overflow-hidden;
   }
+
   .shimmer::after {
     content: "";
     position: absolute;
@@ -363,10 +380,14 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      hsl(var(--muted)) 50%,
+      rgba(255, 255, 255, 0.2) 50%,
       transparent 100%
     );
-    animation: shimmer 1.5s infinite;
+    animation: shimmer-anim 1.5s infinite;
+  }
+
+  .transition-premium {
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
   }
 }
 
@@ -375,6 +396,7 @@
   from {
     background-position: 200% center;
   }
+
   to {
     background-position: -200% center;
   }
@@ -384,6 +406,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -393,6 +416,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -402,6 +426,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -412,6 +437,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.9;
   }
@@ -423,13 +449,16 @@
     animation: fade-in 0.16s ease-out forwards;
     animation-delay: 0ms;
   }
+
   .animate-slide-right {
     animation: slide-in-right 0.16s ease-out forwards;
     animation-delay: 0ms;
   }
+
   .animate-scale-in {
     animation: scale-in 0.16s ease-out forwards;
   }
+
   .animate-pulse-slow {
     animation: pulse-slow 2.2s ease-in-out infinite;
   }
@@ -439,21 +468,27 @@
     opacity: 0;
     animation: fade-in 0.4s ease-out forwards;
   }
+
   .stagger > *:nth-child(1) {
     animation-delay: 0ms;
   }
+
   .stagger > *:nth-child(2) {
     animation-delay: 60ms;
   }
+
   .stagger > *:nth-child(3) {
     animation-delay: 120ms;
   }
+
   .stagger > *:nth-child(4) {
     animation-delay: 180ms;
   }
+
   .stagger > *:nth-child(5) {
     animation-delay: 240ms;
   }
+
   .stagger > *:nth-child(6) {
     animation-delay: 300ms;
   }
@@ -463,7 +498,16 @@
   }
 
   .safe-bottom {
-    padding-bottom: max(0px, var(--safe-bottom));
+    padding-bottom: max(1rem, var(--safe-bottom));
+  }
+
+  /* Mobile Nav Active Item Typography */
+  .mobile-nav-active span {
+    @apply text-primary font-black scale-105;
+  }
+
+  .mobile-nav-active svg {
+    @apply scale-100;
   }
 
   .surface-panel {
@@ -506,18 +550,6 @@
     @apply border-b border-border/70 px-2 py-2 align-middle;
   }
 
-  .rounded-xl,
-  .rounded-2xl,
-  .rounded-3xl {
-    border-radius: 8px;
-  }
-
-  .shadow-lg,
-  .shadow-xl,
-  .shadow-2xl {
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
-  }
-
   .fluid-grid {
     display: grid;
     gap: 1rem;
@@ -530,6 +562,7 @@
   .no-print {
     display: none !important;
   }
+
   body {
     @apply text-black bg-white;
     background-image: none !important;

@@ -52,7 +52,9 @@ vi.mock("next/cache", () => ({
 describe("Teachers Server Actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation((callback) => callback(db));
+    (db.$transaction as ReturnType<typeof vi.fn>).mockImplementation(
+      (callback) => callback(db),
+    );
   });
 
   const validTeacher = {
@@ -86,7 +88,9 @@ describe("Teachers Server Actions", () => {
 
   it("prevents duplicate teacher email", async () => {
     (db.teacher.count as ReturnType<typeof vi.fn>).mockResolvedValue(0);
-    (db.teacher.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "existing" });
+    (db.teacher.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "existing",
+    });
 
     const result = await createTeacher(validTeacher);
 
@@ -95,7 +99,11 @@ describe("Teachers Server Actions", () => {
   });
 
   it("updates an existing teacher", async () => {
-    (db.teacher.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "teacher-1", firstName: "Emily", lastName: "Thompson" });
+    (db.teacher.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "teacher-1",
+      firstName: "Emily",
+      lastName: "Thompson",
+    });
 
     const result = await updateTeacher("teacher-1", {
       ...validTeacher,
@@ -111,7 +119,9 @@ describe("Teachers Server Actions", () => {
   });
 
   it("deactivates teacher", async () => {
-    (db.teacher.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({ id: "teacher-1" });
+    (db.teacher.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: "teacher-1",
+    });
 
     const result = await deleteTeacher("teacher-1");
 

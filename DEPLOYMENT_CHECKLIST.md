@@ -3,6 +3,7 @@
 ## ✅ Implementation Complete
 
 ### Phase A: Foundation & Security ✅
+
 - [x] Prisma schema with 3 new tables (ExportAuditLog, ExportDownloadToken, DsarRequest)
 - [x] Export validation (Zod schemas for Student & Attendance)
 - [x] RBAC matrix (7 roles with granular permissions)
@@ -11,6 +12,7 @@
 - [x] Rate limiting (10/min per user, 50/hour per institution)
 
 ### Phase B: Infrastructure ✅
+
 - [x] Export server action with security checks
 - [x] Download streaming API endpoint
 - [x] CSV generation utility
@@ -18,6 +20,7 @@
 - [x] Error handling & user feedback
 
 ### Phase C: Testing ✅
+
 - [x] Unit tests (validation, RBAC, rate limiting, encryption)
 - [x] Integration tests (full flow, database)
 - [x] E2E test framework (Playwright ready)
@@ -25,6 +28,7 @@
 - [x] Mock fixtures & test utilities
 
 ### Phase D: DevOps ✅
+
 - [x] Docker multi-stage build
 - [x] docker-compose (PostgreSQL, Redis, App)
 - [x] GitHub Actions CI/CD pipeline
@@ -32,6 +36,7 @@
 - [x] Environment variable templates
 
 ### Phase E: Documentation ✅
+
 - [x] CSV_EXPORT_README.md (comprehensive overview)
 - [x] EXPORT_DEPLOYMENT.md (detailed deployment guide)
 - [x] Troubleshooting guide
@@ -44,6 +49,7 @@
 ## 🚀 LOCAL TESTING - Quick Start (5 minutes)
 
 ### Step 1: Environment Setup
+
 ```bash
 cd /home/neo/Videos/dhadash
 
@@ -57,6 +63,7 @@ EOF
 ```
 
 ### Step 2: Start Services
+
 ```bash
 # Start PostgreSQL and Redis via docker-compose
 docker-compose up -d postgres redis
@@ -69,6 +76,7 @@ docker-compose ps
 ```
 
 ### Step 3: Database Setup
+
 ```bash
 # Generate Prisma Client
 pnpm prisma generate
@@ -81,6 +89,7 @@ pnpm prisma db seed
 ```
 
 ### Step 4: Start Development Server
+
 ```bash
 # Terminal 1: Start app
 pnpm run dev
@@ -91,6 +100,7 @@ pnpm run dev
 ```
 
 ### Step 5: Test CSV Export
+
 ```bash
 # Open browser: http://localhost:3000
 
@@ -121,6 +131,7 @@ pnpm run dev
 ```
 
 ### Step 6: Verify Attendance Export
+
 ```bash
 # In same login (admin):
 
@@ -137,6 +148,7 @@ pnpm run dev
 ```
 
 ### Step 7: Check Audit Trail
+
 ```bash
 # In database client (psql or GUI):
 
@@ -159,6 +171,7 @@ LIMIT 10;
 ```
 
 ### Step 8: Run Tests (Optional)
+
 ```bash
 # Unit tests
 pnpm test
@@ -179,12 +192,14 @@ pnpm test:e2e
 ## 🌐 DEPLOY TO VERCEL - Production Ready
 
 ### Prerequisites
+
 1. Vercel account (https://vercel.com)
 2. GitHub repo connected to Vercel
 3. PostgreSQL database (Vercel Postgres or external)
 4. Redis instance (optional but recommended)
 
 ### Step 1: Create Vercel Project
+
 ```bash
 # Install Vercel CLI
 npm install -g vercel
@@ -199,6 +214,7 @@ vercel link
 ```
 
 ### Step 2: Set Environment Variables
+
 ```bash
 # Create production database (if using Vercel Postgres)
 # Via Vercel dashboard or CLI
@@ -218,6 +234,7 @@ vercel env ls
 ```
 
 ### Step 3: Deploy
+
 ```bash
 # Build and deploy to Vercel
 vercel --prod
@@ -232,6 +249,7 @@ git push origin main
 ```
 
 ### Step 4: Run Migrations on Production
+
 ```bash
 # Pull production environment
 vercel env pull
@@ -245,6 +263,7 @@ psql $DATABASE_URL -c "SELECT * FROM export_audit_logs LIMIT 1;"
 ```
 
 ### Step 5: Verify Production Deployment
+
 ```bash
 # Health check
 curl https://yourdomain.com/api/health
@@ -271,11 +290,13 @@ vercel ls
 ## 🔍 Key Files for Testing
 
 ### Test Endpoints
+
 - Export Server Action: `src/server/actions/exports.ts`
 - Download API: `src/app/api/exports/stream/[tokenId]/route.ts`
 - UI Component: `src/components/exports/export-options-dialog.tsx`
 
 ### Verify Security
+
 ```bash
 # Test rate limiting (should fail on 11th request):
 for i in {1..15}; do
@@ -292,6 +313,7 @@ done
 ```
 
 ### Verify Audit Logging
+
 ```bash
 # Check database
 psql -U postgres -d dhadash -c "
@@ -308,6 +330,7 @@ psql -U postgres -d dhadash -c "
 ```
 
 ### Verify Encryption
+
 ```bash
 # Check tokens table
 psql -U postgres -d dhadash -c "
@@ -350,12 +373,14 @@ time curl http://localhost:3000/api/exports/request \
 ## 🔐 Security Quick Checks
 
 ### Authorization
+
 - [x] Admin can export all types
 - [x] Teacher can export own classes only
 - [x] Staff cannot export
 - [x] Student/Parent cannot export
 
 ### Data Protection
+
 - [x] Download tokens validated
 - [x] Tokens expire after 5 minutes
 - [x] Tokens are single-use
@@ -363,6 +388,7 @@ time curl http://localhost:3000/api/exports/request \
 - [x] Audit trail complete
 
 ### Rate Limiting
+
 - [x] 10 exports/minute per user
 - [x] 50 exports/hour per institution
 - [x] Graceful error with cooldown time
@@ -392,6 +418,7 @@ time curl http://localhost:3000/api/exports/request \
 ## 🆘 Deployment Troubleshooting
 
 ### "Database connection failed"
+
 ```bash
 # Check DATABASE_URL
 vercel env ls | grep DATABASE_URL
@@ -404,6 +431,7 @@ vercel logs --prod
 ```
 
 ### "Prisma migration failed"
+
 ```bash
 # Pull environment
 vercel env pull
@@ -416,6 +444,7 @@ pnpm exec prisma migrate status
 ```
 
 ### "Export fails silently"
+
 ```bash
 # Check Vercel logs
 vercel logs --prod --tail
@@ -428,6 +457,7 @@ SELECT * FROM export_audit_logs WHERE status = 'FAILED' AND error_reason LIKE '%
 ```
 
 ### "Token verification fails"
+
 ```bash
 # Check token expiration
 SELECT COUNT(*) FROM export_download_tokens WHERE expires_at < NOW();
@@ -453,6 +483,7 @@ SELECT * FROM export_download_tokens WHERE used_at IS NOT NULL ORDER BY created_
 ## ✨ Summary
 
 **✅ Production-Ready System Built:**
+
 - 6 core security modules
 - 3 API endpoints
 - 2 export types (Students, Attendance)
@@ -462,6 +493,7 @@ SELECT * FROM export_download_tokens WHERE used_at IS NOT NULL ORDER BY created_
 - Full documentation
 
 **🎯 Ready For:**
+
 - Local testing ✓
 - Continuous Integration ✓
 - Production deployment ✓
@@ -469,6 +501,7 @@ SELECT * FROM export_download_tokens WHERE used_at IS NOT NULL ORDER BY created_
 - GDPR/Privacy compliance ✓
 
 **🚀 Next Steps:**
+
 1. Test locally (5 mins)
 2. Deploy to Vercel (10 mins)
 3. Verify production (5 mins)

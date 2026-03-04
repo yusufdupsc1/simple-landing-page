@@ -5,7 +5,10 @@ import {
   getFinanceSummary,
   recordPayment,
 } from "@/server/actions/finance";
-import { FeeCreateSchema, PaymentCreateSchema } from "@/lib/contracts/v1/finance";
+import {
+  FeeCreateSchema,
+  PaymentCreateSchema,
+} from "@/lib/contracts/v1/finance";
 import { requireApiPermission } from "@/lib/api/guard";
 import { apiError, apiOk } from "@/lib/api/response";
 import { logApiError } from "@/lib/logger";
@@ -80,7 +83,11 @@ export async function POST(req: NextRequest) {
       return apiError(400, "VALIDATION_ERROR", result.error);
     }
 
-    return apiOk(result.data ?? null, { action: "record-payment" }, { status: 201 });
+    return apiOk(
+      result.data ?? null,
+      { action: "record-payment" },
+      { status: 201 },
+    );
   } catch (error) {
     logApiError("API_V1_FINANCE_POST", error);
     return apiError(500, "INTERNAL_ERROR", "Failed to process finance action");

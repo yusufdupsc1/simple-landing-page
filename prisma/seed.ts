@@ -49,7 +49,8 @@ async function main() {
   console.log("🌱 Seeding Dhadash database...\n");
   const enableDemoPlaceholders =
     (process.env.ENABLE_DEMO_PLACEHOLDERS ?? "false") === "true";
-  const seedDemoStudents = (process.env.SEED_DEMO_STUDENTS ?? "false") === "true";
+  const seedDemoStudents =
+    (process.env.SEED_DEMO_STUDENTS ?? "false") === "true";
   const govtPrimaryMode =
     (process.env.GOVT_PRIMARY_MODE ??
       process.env.NEXT_PUBLIC_GOVT_PRIMARY_MODE ??
@@ -159,7 +160,9 @@ async function main() {
   const subjects = [];
   for (const s of subjectData) {
     const subject = await db.subject.upsert({
-      where: { institutionId_code: { institutionId: institution.id, code: s.code } },
+      where: {
+        institutionId_code: { institutionId: institution.id, code: s.code },
+      },
       update: {},
       create: { ...s, institutionId: institution.id },
     });
@@ -210,12 +213,42 @@ async function main() {
 
   // ── Teachers ─────────────────────────────────
   const teacherData = [
-    { firstName: "Fahim", lastName: "Hasan", email: "fahim.hasan@school.edu", specialization: "Mathematics" },
-    { firstName: "Nusrat", lastName: "Jahan", email: "nusrat.jahan@school.edu", specialization: "General Science" },
-    { firstName: "Rakib", lastName: "Hossain", email: "rakib.hossain@school.edu", specialization: "Bangla" },
-    { firstName: "Sharmin", lastName: "Akter", email: "sharmin.akter@school.edu", specialization: "English" },
-    { firstName: "Mahmud", lastName: "Rahman", email: "mahmud.rahman@school.edu", specialization: "Bangladesh and Global Studies" },
-    { firstName: "Tanjina", lastName: "Sultana", email: "tanjina.sultana@school.edu", specialization: "Religion" },
+    {
+      firstName: "Fahim",
+      lastName: "Hasan",
+      email: "fahim.hasan@school.edu",
+      specialization: "Mathematics",
+    },
+    {
+      firstName: "Nusrat",
+      lastName: "Jahan",
+      email: "nusrat.jahan@school.edu",
+      specialization: "General Science",
+    },
+    {
+      firstName: "Rakib",
+      lastName: "Hossain",
+      email: "rakib.hossain@school.edu",
+      specialization: "Bangla",
+    },
+    {
+      firstName: "Sharmin",
+      lastName: "Akter",
+      email: "sharmin.akter@school.edu",
+      specialization: "English",
+    },
+    {
+      firstName: "Mahmud",
+      lastName: "Rahman",
+      email: "mahmud.rahman@school.edu",
+      specialization: "Bangladesh and Global Studies",
+    },
+    {
+      firstName: "Tanjina",
+      lastName: "Sultana",
+      email: "tanjina.sultana@school.edu",
+      specialization: "Religion",
+    },
   ];
 
   const teachers = [];
@@ -285,7 +318,12 @@ async function main() {
         const sid = `STU-2024-${String(studentCount + 1).padStart(4, "0")}`;
 
         await db.student.upsert({
-          where: { institutionId_studentId: { institutionId: institution.id, studentId: sid } },
+          where: {
+            institutionId_studentId: {
+              institutionId: institution.id,
+              studentId: sid,
+            },
+          },
           update: {},
           create: {
             studentId: sid,
@@ -385,7 +423,11 @@ async function main() {
     for (const student of allStudents) {
       const rand = Math.random();
       const status =
-        rand > 0.7 ? FeeStatus.PAID : rand > 0.4 ? FeeStatus.PARTIAL : FeeStatus.UNPAID;
+        rand > 0.7
+          ? FeeStatus.PAID
+          : rand > 0.4
+            ? FeeStatus.PARTIAL
+            : FeeStatus.UNPAID;
 
       const presetTitles = [
         "মাসিক ফি",
@@ -394,7 +436,8 @@ async function main() {
         "সেশন চার্জ",
         "কোচিং ফি",
       ];
-      const feeTitle = presetTitles[Math.floor(Math.random() * presetTitles.length)];
+      const feeTitle =
+        presetTitles[Math.floor(Math.random() * presetTitles.length)];
 
       await db.fee.create({
         data: {
@@ -412,15 +455,33 @@ async function main() {
     }
     console.log(`✅ Fees seeded for ${allStudents.length} students`);
   } else {
-    console.log("ℹ️ Student/attendance/grade/fee demo seeding skipped (set SEED_DEMO_STUDENTS=true to enable)");
+    console.log(
+      "ℹ️ Student/attendance/grade/fee demo seeding skipped (set SEED_DEMO_STUDENTS=true to enable)",
+    );
   }
 
   // ── Events ───────────────────────────────────
   const events = [
-    { title: "Annual Sports Day", startDate: new Date("2025-03-15"), type: EventType.SPORTS },
-    { title: "Science Fair 2025", startDate: new Date("2025-04-10"), type: EventType.ACADEMIC },
-    { title: "Parent-Teacher Conference", startDate: new Date("2025-02-28"), type: EventType.GENERAL },
-    { title: "Mid-Term Examinations", startDate: new Date("2025-03-03"), type: EventType.EXAM },
+    {
+      title: "Annual Sports Day",
+      startDate: new Date("2025-03-15"),
+      type: EventType.SPORTS,
+    },
+    {
+      title: "Science Fair 2025",
+      startDate: new Date("2025-04-10"),
+      type: EventType.ACADEMIC,
+    },
+    {
+      title: "Parent-Teacher Conference",
+      startDate: new Date("2025-02-28"),
+      type: EventType.GENERAL,
+    },
+    {
+      title: "Mid-Term Examinations",
+      startDate: new Date("2025-03-03"),
+      type: EventType.EXAM,
+    },
   ];
 
   for (const e of events) {
@@ -457,24 +518,87 @@ async function main() {
       periodLabel: string;
       title: string;
     }> = [
-      { recordType: StudentRecordType.ID_CARD, periodType: RecordPeriodType.CUSTOM, periodLabel: "Identity", title: "ID Card" },
-      { recordType: StudentRecordType.RESULT_SHEET, periodType: RecordPeriodType.MONTHLY, periodLabel: "2026-01", title: "Result Sheet Report" },
-      { recordType: StudentRecordType.ATTENDANCE_RECORD, periodType: RecordPeriodType.WEEKLY, periodLabel: "2026-W08", title: "Attendance Record" },
-      { recordType: StudentRecordType.BEHAVIOR_TRACKING, periodType: RecordPeriodType.QUARTERLY, periodLabel: "2026-Q1", title: "Behavior Tracking Report" },
-      { recordType: StudentRecordType.FINAL_EXAM_CERTIFICATE, periodType: RecordPeriodType.ANNUAL, periodLabel: "2025", title: "Final Exam Certificate" },
-      { recordType: StudentRecordType.CHARACTER_CERTIFICATE, periodType: RecordPeriodType.ANNUAL, periodLabel: "2025", title: "Character Certificate" },
-      { recordType: StudentRecordType.EXTRA_SKILLS_CERTIFICATE, periodType: RecordPeriodType.QUARTERLY, periodLabel: "2026-Q1", title: "Extra Skills Certificate" },
-      { recordType: StudentRecordType.TRANSFER_CERTIFICATE, periodType: RecordPeriodType.CUSTOM, periodLabel: "Transfer", title: "Transfer Certificate" },
-      { recordType: StudentRecordType.WEEKLY_PROGRESS, periodType: RecordPeriodType.WEEKLY, periodLabel: "2026-W08", title: "Weekly Progress Record" },
-      { recordType: StudentRecordType.MONTHLY_PROGRESS, periodType: RecordPeriodType.MONTHLY, periodLabel: "2026-01", title: "Monthly Progress Record" },
-      { recordType: StudentRecordType.QUARTERLY_PROGRESS, periodType: RecordPeriodType.QUARTERLY, periodLabel: "2026-Q1", title: "Quarterly Progress Record" },
-      { recordType: StudentRecordType.ANNUAL_FINAL_REPORT, periodType: RecordPeriodType.ANNUAL, periodLabel: "2025", title: "Annual Final Progress Report" },
+      {
+        recordType: StudentRecordType.ID_CARD,
+        periodType: RecordPeriodType.CUSTOM,
+        periodLabel: "Identity",
+        title: "ID Card",
+      },
+      {
+        recordType: StudentRecordType.RESULT_SHEET,
+        periodType: RecordPeriodType.MONTHLY,
+        periodLabel: "2026-01",
+        title: "Result Sheet Report",
+      },
+      {
+        recordType: StudentRecordType.ATTENDANCE_RECORD,
+        periodType: RecordPeriodType.WEEKLY,
+        periodLabel: "2026-W08",
+        title: "Attendance Record",
+      },
+      {
+        recordType: StudentRecordType.BEHAVIOR_TRACKING,
+        periodType: RecordPeriodType.QUARTERLY,
+        periodLabel: "2026-Q1",
+        title: "Behavior Tracking Report",
+      },
+      {
+        recordType: StudentRecordType.FINAL_EXAM_CERTIFICATE,
+        periodType: RecordPeriodType.ANNUAL,
+        periodLabel: "2025",
+        title: "Final Exam Certificate",
+      },
+      {
+        recordType: StudentRecordType.CHARACTER_CERTIFICATE,
+        periodType: RecordPeriodType.ANNUAL,
+        periodLabel: "2025",
+        title: "Character Certificate",
+      },
+      {
+        recordType: StudentRecordType.EXTRA_SKILLS_CERTIFICATE,
+        periodType: RecordPeriodType.QUARTERLY,
+        periodLabel: "2026-Q1",
+        title: "Extra Skills Certificate",
+      },
+      {
+        recordType: StudentRecordType.TRANSFER_CERTIFICATE,
+        periodType: RecordPeriodType.CUSTOM,
+        periodLabel: "Transfer",
+        title: "Transfer Certificate",
+      },
+      {
+        recordType: StudentRecordType.WEEKLY_PROGRESS,
+        periodType: RecordPeriodType.WEEKLY,
+        periodLabel: "2026-W08",
+        title: "Weekly Progress Record",
+      },
+      {
+        recordType: StudentRecordType.MONTHLY_PROGRESS,
+        periodType: RecordPeriodType.MONTHLY,
+        periodLabel: "2026-01",
+        title: "Monthly Progress Record",
+      },
+      {
+        recordType: StudentRecordType.QUARTERLY_PROGRESS,
+        periodType: RecordPeriodType.QUARTERLY,
+        periodLabel: "2026-Q1",
+        title: "Quarterly Progress Record",
+      },
+      {
+        recordType: StudentRecordType.ANNUAL_FINAL_REPORT,
+        periodType: RecordPeriodType.ANNUAL,
+        periodLabel: "2025",
+        title: "Annual Final Progress Report",
+      },
     ];
 
     for (const student of demoStudents) {
       for (const item of bundles) {
         const fileName = `${student.studentId}-${item.recordType}-${item.periodLabel}.pdf`;
-        const fileUrl = makeSeedPdfDataUri(item.title, `${student.firstName} ${student.lastName}`);
+        const fileUrl = makeSeedPdfDataUri(
+          item.title,
+          `${student.firstName} ${student.lastName}`,
+        );
         await db.studentRecord.upsert({
           where: {
             studentId_periodType_periodLabel_recordType: {
@@ -508,9 +632,13 @@ async function main() {
         });
       }
     }
-    console.log(`✅ Demo placeholder records seeded for ${demoStudents.length} students`);
+    console.log(
+      `✅ Demo placeholder records seeded for ${demoStudents.length} students`,
+    );
   } else {
-    console.log("ℹ️ Demo placeholders skipped (set ENABLE_DEMO_PLACEHOLDERS=true to seed)");
+    console.log(
+      "ℹ️ Demo placeholders skipped (set ENABLE_DEMO_PLACEHOLDERS=true to seed)",
+    );
   }
 
   console.log("\n🎉 Seeding complete!\n");

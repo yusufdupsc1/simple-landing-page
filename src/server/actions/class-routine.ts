@@ -81,7 +81,9 @@ async function getAuthContext() {
   };
 }
 
-export async function getClassRoutineGrid(classId?: string): Promise<RoutineGrid> {
+export async function getClassRoutineGrid(
+  classId?: string,
+): Promise<RoutineGrid> {
   const { institutionId } = await getAuthContext();
 
   if (!classId) {
@@ -173,7 +175,10 @@ export async function saveClassRoutine(
       return {
         success: false,
         error: "Validation failed",
-        fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+        fieldErrors: parsed.error.flatten().fieldErrors as Record<
+          string,
+          string[]
+        >,
       };
     }
 
@@ -199,7 +204,10 @@ export async function saveClassRoutine(
       };
     }
 
-    const normalizedMap = new Map<string, { dayOfWeek: number; periodNo: number; subjectName: string }>();
+    const normalizedMap = new Map<
+      string,
+      { dayOfWeek: number; periodNo: number; subjectName: string }
+    >();
 
     for (const entry of data.entries) {
       const key = `${entry.dayOfWeek}-${entry.periodNo}`;

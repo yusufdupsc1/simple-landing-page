@@ -45,7 +45,11 @@ async function markSslPaymentAsPaid(payload: {
       fee.payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0) +
       payload.amount;
     const status =
-      totalPaid >= Number(fee.amount) - 0.01 ? "PAID" : totalPaid > 0 ? "PARTIAL" : "UNPAID";
+      totalPaid >= Number(fee.amount) - 0.01
+        ? "PAID"
+        : totalPaid > 0
+          ? "PARTIAL"
+          : "UNPAID";
 
     await tx.fee.update({
       where: { id: payload.feeId },
@@ -89,7 +93,8 @@ async function handleCallback(req: NextRequest) {
   }
 
   const status = normalizeStatus(
-    bodyData?.get("status") ?? (queryStatus === "SUCCESS" ? "VALID" : queryStatus),
+    bodyData?.get("status") ??
+      (queryStatus === "SUCCESS" ? "VALID" : queryStatus),
   );
   const feeId = bodyData?.get("value_a") ?? "";
   const institutionId = bodyData?.get("value_b") ?? "";
@@ -118,7 +123,10 @@ async function handleCallback(req: NextRequest) {
     }
   }
 
-  redirectUrl.searchParams.set("payment", status === "CANCELLED" ? "cancelled" : "failed");
+  redirectUrl.searchParams.set(
+    "payment",
+    status === "CANCELLED" ? "cancelled" : "failed",
+  );
   redirectUrl.searchParams.set("gateway", "sslcommerz");
   if (feeId) redirectUrl.searchParams.set("feeId", feeId);
   return NextResponse.redirect(redirectUrl);
@@ -131,4 +139,3 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   return handleCallback(req);
 }
-

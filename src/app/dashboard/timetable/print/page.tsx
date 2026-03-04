@@ -21,7 +21,9 @@ const ROUTINE_PERIODS = [1, 2, 3, 4, 5, 6] as const;
 export default async function TimetablePrintPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const session = await auth();
-  const currentUser = session?.user as { id?: string; institutionId?: string } | undefined;
+  const currentUser = session?.user as
+    | { id?: string; institutionId?: string }
+    | undefined;
   const institutionId = currentUser?.institutionId;
 
   if (!institutionId) {
@@ -77,7 +79,10 @@ export default async function TimetablePrintPage({ searchParams }: PageProps) {
   }
 
   const cellMap = new Map<string, string>(
-    entries.map((entry) => [`${entry.dayOfWeek}-${entry.periodNo}`, entry.subjectName]),
+    entries.map((entry) => [
+      `${entry.dayOfWeek}-${entry.periodNo}`,
+      entry.subjectName,
+    ]),
   );
 
   const generatedDate = new Date().toLocaleDateString("bn-BD", {
@@ -91,8 +96,12 @@ export default async function TimetablePrintPage({ searchParams }: PageProps) {
       <header className="mb-4 border-b border-slate-300 pb-3 text-center">
         <h1 className="text-xl font-bold">ক্লাস রুটিন</h1>
         <p className="text-xs text-slate-600">Class Routine (Govt Primary)</p>
-        <p className="mt-2 text-sm font-semibold">{institution?.name ?? "School"}</p>
-        <p className="text-xs text-slate-600">{institution?.address ?? "Bangladesh"}</p>
+        <p className="mt-2 text-sm font-semibold">
+          {institution?.name ?? "School"}
+        </p>
+        <p className="text-xs text-slate-600">
+          {institution?.address ?? "Bangladesh"}
+        </p>
       </header>
 
       <section className="mb-4 grid grid-cols-2 gap-2 text-sm">

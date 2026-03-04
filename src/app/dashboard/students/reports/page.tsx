@@ -13,7 +13,9 @@ export const dynamic = "force-dynamic";
 
 export default async function StudentReportsPage() {
   const session = await auth();
-  const institutionId = (session?.user as { institutionId?: string } | undefined)?.institutionId;
+  const institutionId = (
+    session?.user as { institutionId?: string } | undefined
+  )?.institutionId;
 
   if (!institutionId) {
     return null;

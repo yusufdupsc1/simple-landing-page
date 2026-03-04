@@ -5,7 +5,8 @@ export default function OfflinePage() {
     <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center gap-3 px-6 py-16 text-center">
       <h1 className="text-2xl font-bold">You are offline</h1>
       <p className="text-sm text-muted-foreground">
-        Dhadash could not reach the network. Reconnect to sync your latest school data.
+        Dhadash could not reach the network. Reconnect to sync your latest
+        school data.
       </p>
       <Link
         href="/"

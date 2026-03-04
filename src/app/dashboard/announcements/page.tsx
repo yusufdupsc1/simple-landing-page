@@ -17,7 +17,9 @@ interface PageProps {
 export default async function AnnouncementsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const session = await auth();
-  const institutionId = (session?.user as { institutionId?: string } | undefined)?.institutionId;
+  const institutionId = (
+    session?.user as { institutionId?: string } | undefined
+  )?.institutionId;
   if (!institutionId) return null;
 
   const page = Number(params.page) || 1;

@@ -75,8 +75,26 @@ export function createUserFixture(overrides: Partial<User> = {}): User {
 export function createStudentFixture(
   overrides: Partial<Student> = {},
 ): Student {
-  const bdFirstNames = ["Ayaan", "Arisha", "Nabil", "Sadia", "Rafi", "Nafisa", "Tahmid", "Anika"];
-  const bdLastNames = ["Rahman", "Ahmed", "Hossain", "Islam", "Karim", "Khan", "Sarker", "Akter"];
+  const bdFirstNames = [
+    "Ayaan",
+    "Arisha",
+    "Nabil",
+    "Sadia",
+    "Rafi",
+    "Nafisa",
+    "Tahmid",
+    "Anika",
+  ];
+  const bdLastNames = [
+    "Rahman",
+    "Ahmed",
+    "Hossain",
+    "Islam",
+    "Karim",
+    "Khan",
+    "Sarker",
+    "Akter",
+  ];
   const firstName = faker.helpers.arrayElement(bdFirstNames);
   const lastName = faker.helpers.arrayElement(bdLastNames);
 
@@ -112,8 +130,22 @@ export function createStudentFixture(
 export function createTeacherFixture(
   overrides: Partial<Teacher> = {},
 ): Teacher {
-  const bdFirstNames = ["Fahim", "Nusrat", "Rakib", "Sharmin", "Mahmud", "Tanjina"];
-  const bdLastNames = ["Hasan", "Jahan", "Hossain", "Akter", "Rahman", "Sultana"];
+  const bdFirstNames = [
+    "Fahim",
+    "Nusrat",
+    "Rakib",
+    "Sharmin",
+    "Mahmud",
+    "Tanjina",
+  ];
+  const bdLastNames = [
+    "Hasan",
+    "Jahan",
+    "Hossain",
+    "Akter",
+    "Rahman",
+    "Sultana",
+  ];
   const firstName = faker.helpers.arrayElement(bdFirstNames);
   const lastName = faker.helpers.arrayElement(bdLastNames);
 

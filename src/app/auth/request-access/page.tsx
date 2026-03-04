@@ -90,7 +90,9 @@ export default function RequestAccessPage() {
           <div className="mx-auto mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
             <UserCheck className="h-5 w-5 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">Request School Access</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Request School Access
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Submit your request. Admin/Principal will approve your role access.
           </p>
@@ -108,15 +110,17 @@ export default function RequestAccessPage() {
             <Input
               id="institution"
               value={form.institutionSlug}
-              onChange={(e) => set("institutionSlug", e.target.value.toLowerCase())}
+              onChange={(e) =>
+                set("institutionSlug", e.target.value.toLowerCase())
+              }
               placeholder="e.g. greenfield-school"
               required
             />
           </div>
 
           <div className="space-y-1.5">
-              <Label>Requested Scope</Label>
-              <div className="grid grid-cols-3 gap-2">
+            <Label>Requested Scope</Label>
+            <div className="grid grid-cols-3 gap-2">
               {scopeOptions.map((option) => (
                 <button
                   key={option.value}
@@ -136,17 +140,37 @@ export default function RequestAccessPage() {
 
           <div className="space-y-1.5">
             <Label htmlFor="name">Full Name</Label>
-            <Input id="name" value={form.fullName} onChange={(e) => set("fullName", e.target.value)} required />
+            <Input
+              id="name"
+              value={form.fullName}
+              onChange={(e) => set("fullName", e.target.value)}
+              required
+            />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="email">Approved Email (optional if phone provided)</Label>
-            <Input id="email" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
+            <Label htmlFor="email">
+              Approved Email (optional if phone provided)
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={(e) => set("email", e.target.value)}
+            />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="phone">Approved Phone (optional if email provided)</Label>
-            <Input id="phone" type="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+8801XXXXXXXXX" />
+            <Label htmlFor="phone">
+              Approved Phone (optional if email provided)
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={form.phone}
+              onChange={(e) => set("phone", e.target.value)}
+              placeholder="+8801XXXXXXXXX"
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -166,7 +190,11 @@ export default function RequestAccessPage() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 tabIndex={-1}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
           </div>
@@ -196,7 +224,10 @@ export default function RequestAccessPage() {
 
         <p className="text-center text-sm text-muted-foreground">
           Already approved?{" "}
-          <Link href="/auth/login" className="text-primary underline-offset-4 hover:underline">
+          <Link
+            href="/auth/login"
+            className="text-primary underline-offset-4 hover:underline"
+          >
             Sign in
           </Link>
         </p>

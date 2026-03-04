@@ -27,9 +27,8 @@ vi.mock("@/lib/db", () => ({
   db: dbMock,
 }));
 
-const { generateStudentRecord, generatePeriodicRecords } = await import(
-  "@/server/services/student-records/generate"
-);
+const { generateStudentRecord, generatePeriodicRecords } =
+  await import("@/server/services/student-records/generate");
 
 describe("student records generation service", () => {
   beforeEach(() => {

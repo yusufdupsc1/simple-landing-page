@@ -21,21 +21,20 @@ function escapeCSVField(field: unknown): string {
 export function convertToCSV<T extends Record<string, unknown>>(
   data: T[],
   headers: (keyof T)[] | string[],
-  headerLabels?: string[]
+  headerLabels?: string[],
 ): string {
   if (data.length === 0) return "";
 
   // Header row
-  const headerRow = (headerLabels && headerLabels.length > 0
-    ? headerLabels
-    : headers
-  ).map((h) => escapeCSVField(h)).join(",");
+  const headerRow = (
+    headerLabels && headerLabels.length > 0 ? headerLabels : headers
+  )
+    .map((h) => escapeCSVField(h))
+    .join(",");
 
   // Data rows
   const rows = data.map((row) =>
-    headers
-      .map((header) => escapeCSVField(row[header as keyof T]))
-      .join(",")
+    headers.map((header) => escapeCSVField(row[header as keyof T])).join(","),
   );
 
   return [headerRow, ...rows].join("\n");
@@ -65,7 +64,7 @@ export function exportToCSV<T extends Record<string, unknown>>(
   data: T[],
   filename: string,
   headers: (keyof T)[] | string[],
-  headerLabels?: string[]
+  headerLabels?: string[],
 ): void {
   const csv = convertToCSV(data, headers, headerLabels);
   downloadCSV(csv, filename);

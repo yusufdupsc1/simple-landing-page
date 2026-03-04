@@ -24,7 +24,10 @@ const GOVT_ROUTINE_FALLBACK_ROWS = [
   { dayOfWeek: 4, label: "বৃহস্পতিবার" },
 ].map((row) => ({
   ...row,
-  periods: [1, 2, 3, 4, 5, 6].map((periodNo) => ({ periodNo, subjectName: "" })),
+  periods: [1, 2, 3, 4, 5, 6].map((periodNo) => ({
+    periodNo,
+    subjectName: "",
+  })),
 }));
 
 interface PageProps {

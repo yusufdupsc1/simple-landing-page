@@ -41,7 +41,7 @@ describe("Auth Integration Tests", () => {
     it("should create institution and admin user together", async () => {
       // This tests the full registration flow
       // In real implementation, this would be a full integration test
-      
+
       const mockInstitution = {
         id: "inst-123",
         name: "Test School",
@@ -56,7 +56,9 @@ describe("Auth Integration Tests", () => {
       };
 
       // Mock the create calls
-      (db.institution.create as ReturnType<typeof vi.fn>).mockResolvedValue(mockInstitution);
+      (db.institution.create as ReturnType<typeof vi.fn>).mockResolvedValue(
+        mockInstitution,
+      );
       (db.user.create as ReturnType<typeof vi.fn>).mockResolvedValue(mockUser);
 
       // Verify mocks are set up correctly
@@ -66,10 +68,12 @@ describe("Auth Integration Tests", () => {
 
     it("should prevent duplicate institution slugs", async () => {
       // Setup existing institution
-      (db.institution.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue({
-        id: "existing-inst",
-        slug: "test-school",
-      });
+      (db.institution.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(
+        {
+          id: "existing-inst",
+          slug: "test-school",
+        },
+      );
 
       // The action should check for existing slug
       const existing = await db.institution.findUnique({
@@ -111,7 +115,9 @@ describe("Auth Integration Tests", () => {
         },
       };
 
-      (db.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(mockUser);
+      (db.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(
+        mockUser,
+      );
 
       const user = await db.user.findUnique({
         where: { email: "test@example.com" },
@@ -129,7 +135,9 @@ describe("Auth Integration Tests", () => {
         isActive: false,
       };
 
-      (db.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(mockUser);
+      (db.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(
+        mockUser,
+      );
 
       const user = await db.user.findUnique({
         where: { email: "test@example.com" },
@@ -153,7 +161,9 @@ describe("Auth Integration Tests", () => {
         name: "Test User",
       };
 
-      (db.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(mockUser);
+      (db.user.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(
+        mockUser,
+      );
 
       const user = await db.user.findUnique({
         where: { email: "test@example.com" },
@@ -202,14 +212,14 @@ describe("Auth Integration Tests", () => {
     it("should filter queries by institutionId", async () => {
       // This is a critical security test
       // All queries should include institutionId filter
-      
+
       const mockUsers = [
         { id: "user-1", institutionId: "inst-1" },
         { id: "user-2", institutionId: "inst-2" },
       ];
 
       (db.user.findMany as ReturnType<typeof vi.fn>).mockResolvedValue(
-        mockUsers.filter(u => u.institutionId === "inst-1")
+        mockUsers.filter((u) => u.institutionId === "inst-1"),
       );
 
       const users = await db.user.findMany({
@@ -217,7 +227,7 @@ describe("Auth Integration Tests", () => {
       });
 
       // Should only return users from institution 1
-      users.forEach(user => {
+      users.forEach((user) => {
         expect(user.institutionId).toBe("inst-1");
       });
     });
