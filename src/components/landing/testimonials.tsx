@@ -3,37 +3,39 @@ import { testimonialItems } from "@/components/landing/landing-data";
 export function Testimonials() {
   return (
     <section
-      id="testimonials"
+      id="field-notes"
       className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-8"
     >
-      <div className="flex flex-col items-center text-center mb-12">
-        <h2 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-          Pilot School Feedback
+      <div className="mb-10 flex flex-col items-center text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#006a4e]">
+          Field Notes
+        </p>
+        <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          মাঠপর্যায়ের অভিজ্ঞতা
         </h2>
-        <p className="mt-4 max-w-2xl text-base text-muted-foreground leading-relaxed">
-          আমাদের ব্যবহারকারীদের অভিজ্ঞতা ও মতামত।
+        <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-700">
+          পাইলট বাস্তবায়নে বিদ্যালয় ও শিক্ষা প্রশাসনের মতামত।
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {testimonialItems.map((item, i) => (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {testimonialItems.map((item) => (
           <figure
             key={item.author}
-            className="glass-card p-8 rounded-3xl premium-shadow flex flex-col transition-premium hover:-translate-y-1"
-            style={{ animationDelay: `${i * 200}ms` }}
+            className="flex h-full flex-col rounded-xl border border-[#006a4e]/15 bg-white p-5 shadow-sm"
           >
-            <blockquote className="text-sm leading-relaxed text-foreground/90 italic flex-1">
+            <blockquote className="flex-1 text-sm leading-relaxed text-slate-800">
               &ldquo;{item.quote}&rdquo;
             </blockquote>
-            <figcaption className="mt-6 pt-4 border-t border-border/40 flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+            <figcaption className="mt-5 flex items-center gap-3 border-t border-[#006a4e]/10 pt-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#006a4e]/10 text-xs font-bold text-[#006a4e]">
                 {item.author.charAt(0)}
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold text-foreground truncate">
+                <p className="truncate text-sm font-bold text-slate-900">
                   {item.author}
                 </p>
-                <p className="text-[11px] font-medium text-muted-foreground truncate">
+                <p className="truncate text-[11px] font-medium text-slate-600">
                   {item.role}
                 </p>
               </div>

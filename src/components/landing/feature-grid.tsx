@@ -1,57 +1,37 @@
-"use client";
-
-import { CreditCard, FileText, MessageSquareText } from "lucide-react";
-import { useT } from "@/lib/i18n/client";
+import { featureItems } from "@/components/landing/landing-data";
 
 export function FeatureGrid() {
-  const { t } = useT();
-
-  const featureItems = [
-    {
-      title: t("landing_feature_fee_receipt_title"),
-      description: t("landing_feature_fee_receipt_description"),
-      icon: CreditCard,
-    },
-    {
-      title: t("landing_feature_report_card_title"),
-      description: t("landing_feature_report_card_description"),
-      icon: FileText,
-    },
-    {
-      title: t("landing_feature_sms_notice_title"),
-      description: t("landing_feature_sms_notice_description"),
-      icon: MessageSquareText,
-    },
-  ];
-
   return (
     <section
       id="features"
       className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-8"
     >
-      <div className="flex flex-col items-center text-center mb-12">
-        <h2 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-          {t("landing_features_title")}
+      <div className="mb-10 flex flex-col items-center text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#006a4e]">
+          Core Services
+        </p>
+        <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          সরকারি প্রাথমিক বিদ্যালয়ের জন্য প্রয়োজনীয় ডিজিটাল ফিচারসমূহ
         </h2>
-        <p className="mt-4 max-w-2xl text-base text-muted-foreground leading-relaxed">
-          {t("landing_features_description")}
+        <p className="mt-3 max-w-3xl text-base leading-relaxed text-slate-700">
+          মাঠপর্যায়ের প্রশাসনিক বাস্তবতা ও মন্ত্রণালয় পর্যায়ের রিপোর্টিং চাহিদা
+          মাথায় রেখে প্রতিটি মডিউল ডিজাইন করা হয়েছে।
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {featureItems.map((item, i) => (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {featureItems.map((item) => (
           <article
             key={item.title}
-            className="glass-card p-6 rounded-2xl premium-shadow group hover-glow"
-            style={{ animationDelay: `${i * 150}ms` }}
+            className="rounded-xl border border-[#006a4e]/15 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
           >
-            <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-sm transition-transform group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground">
+            <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-[#006a4e]/10 text-[#006a4e]">
               <item.icon className="h-6 w-6" aria-hidden="true" />
             </div>
-            <h3 className="text-xl font-bold text-foreground mb-3">
+            <h3 className="mb-2 text-lg font-bold text-slate-900">
               {item.title}
             </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground/90">
+            <p className="text-sm leading-relaxed text-slate-700">
               {item.description}
             </p>
           </article>

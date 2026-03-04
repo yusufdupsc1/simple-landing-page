@@ -2,8 +2,10 @@ import type { LucideIcon } from "lucide-react";
 import {
   BarChart3,
   BookOpen,
+  Building2,
   CalendarCheck2,
   CreditCard,
+  FileText,
   MessageSquareText,
   ShieldCheck,
   Users,
@@ -17,95 +19,104 @@ export type FeatureItem = {
 
 export const featureItems: FeatureItem[] = [
   {
-    title: "উপস্থিতি রেজিস্টার + প্রিন্ট",
-    description: "দৈনিক উপস্থিতি নিন, এক ক্লিকে A4 রেজিস্টার প্রিন্ট করুন।",
+    title: "উপস্থিতি রেজিস্টার ও প্রিন্ট",
+    description:
+      "দৈনিক উপস্থিতি নথিভুক্ত করে A4 ফরম্যাটে রেজিস্টার প্রিন্ট করুন।",
     icon: CalendarCheck2,
   },
   {
-    title: "মাসিক ফি ও রশিদ",
+    title: "ফি ব্যবস্থাপনা ও সরকারি রশিদ",
     description:
-      "মাসিক ফি, ভর্তি ফি, পরীক্ষা ফি থেকে দ্রুত বিল তৈরি ও রশিদ প্রিন্টিং।",
+      "মাসিক ফি, ভর্তি ও পরীক্ষা ফি ট্র্যাকিংসহ রশিদ ইস্যু ও প্রিন্ট।",
     icon: CreditCard,
   },
   {
-    title: "Guardian-ready Profiles",
+    title: "শিক্ষার্থী প্রোফাইল ও অভিভাবক তথ্য",
     description:
-      "Father/Mother/Guardian Phone সহ সরকারি প্রাথমিক অফিস উপযোগী তথ্য কাঠামো।",
+      "NID/যোগাযোগসহ প্রাথমিক বিদ্যালয় অফিস-উপযোগী তথ্য কাঠামো।",
     icon: Users,
   },
   {
-    title: "Class 1-5 Focus",
-    description: "শুধু ১ম–৫ম শ্রেণির workflow; জটিলতা ছাড়াই দ্রুত adoption.",
+    title: "১ম–৫ম শ্রেণির একীভূত ব্যবস্থাপনা",
+    description: "ক্লাস রুটিন, মূল্যায়ন ও রিপোর্ট শিট একটি ধারাবাহিক workflow-এ।",
     icon: BookOpen,
   },
   {
-    title: "SMS নোটিশ",
-    description: "স্কুল নোটিশ দ্রুত parent/guardian communication-ready flow.",
+    title: "নোটিশ, ফলাফল ও এসএমএস যোগাযোগ",
+    description: "বিদ্যালয় নোটিশ ও গুরুত্বপূর্ণ আপডেট দ্রুত অভিভাবকের কাছে পাঠান।",
     icon: MessageSquareText,
   },
   {
-    title: "Secure & Audit-ready",
-    description: "Role-based access এবং ট্র্যাকযোগ্য action history.",
+    title: "নিরাপদ, নিরীক্ষা-উপযোগী প্রশাসন",
+    description: "রোলভিত্তিক অনুমতি, কার্যক্রম লগ এবং দাপ্তরিক স্বচ্ছতা নিশ্চিত।",
     icon: ShieldCheck,
   },
 ];
 
 export const roleHighlights = [
   {
-    role: "Head Teacher",
-    outcome: "Attendance summary + print-ready register in minutes.",
+    role: "প্রধান শিক্ষক",
+    outcome: "বিদ্যালয়ের সার্বিক উপস্থিতি, ফলাফল এবং প্রশাসনিক অগ্রগতি মনিটরিং।",
   },
   {
-    role: "Office Staff",
-    outcome: "Student admission data entry with govt primary format.",
+    role: "অফিস সহকারী",
+    outcome: "ভর্তি, রেজিস্টার ও অফিস নথি সরকারি ফরম্যাটে দ্রুত সম্পন্ন।",
   },
   {
-    role: "Accounts",
-    outcome:
-      "Preset fee setup, payment record, and receipt print without complexity.",
+    role: "হিসাব শাখা",
+    outcome: "ফি সংগ্রহ, বকেয়া ট্র্যাকিং ও রশিদ প্রিন্টিং একসাথে পরিচালনা।",
+  },
+  {
+    role: "উপজেলা/জেলা প্রশাসন",
+    outcome: "একাধিক বিদ্যালয়ের অগ্রগতি, উপস্থিতি ও আর্থিক রিপোর্ট পর্যবেক্ষণ।",
   },
 ];
 
 export const trustStats = [
-  { label: "Attendance Register", value: "A4 Ready" },
-  { label: "Fee Collection", value: "Receipt First" },
-  { label: "Target Segment", value: "Govt Primary" },
+  { label: "জাতীয় কারিকুলাম সাপোর্ট", value: "শ্রেণি ১-৫" },
+  { label: "দাপ্তরিক নথি প্রিন্ট", value: "A4 রেডি" },
+  { label: "ডাটা নিরাপত্তা", value: "Role Based" },
+  { label: "রোলআউট সক্ষমতা", value: "বিদ্যালয়-উপজেলা-জেলা" },
 ];
 
 export const pricingTiers = [
   {
-    name: "Pilot",
+    name: "Pilot বিদ্যালয়",
     price: "BDT 0",
-    cadence: "60-day pilot",
-    cta: "ডেমো দেখুন",
+    cadence: "৬০ দিনের বাস্তবায়ন",
+    cta: "পাইলট শুরু করুন",
     href: "/#demo-booking",
     features: [
-      "Class 1-5 workflow",
-      "Attendance + register print",
-      "Fee + receipt print",
+      "১-৫ শ্রেণির পূর্ণ workflow",
+      "উপস্থিতি ও রেজিস্টার প্রিন্ট",
+      "ফি ও রশিদ মডিউল",
     ],
     highlighted: true,
   },
   {
-    name: "School",
-    price: "BDT 5,000",
-    cadence: "per month",
-    cta: "শুরু করুন",
+    name: "উপজেলা ক্লাস্টার",
+    price: "BDT 25,000",
+    cadence: "প্রতি মাস (৫ বিদ্যালয় পর্যন্ত)",
+    cta: "প্রস্তাব দেখুন",
     href: "/auth/register",
     features: [
-      "Full office operations",
-      "Bangla-first interface",
-      "Priority onboarding",
+      "একাধিক বিদ্যালয় ড্যাশবোর্ড",
+      "প্রশিক্ষণ ও অনবোর্ডিং সহায়তা",
+      "প্রাধান্যভিত্তিক সাপোর্ট",
     ],
     highlighted: false,
   },
   {
-    name: "District Rollout",
+    name: "জেলা রোলআউট",
     price: "Custom",
-    cadence: "annual",
-    cta: "Talk to team",
+    cadence: "বার্ষিক চুক্তি",
+    cta: "যোগাযোগ করুন",
     href: "/auth/register",
-    features: ["Multi-school rollout", "On-site training", "Dedicated support"],
+    features: [
+      "জেলা পর্যায়ে কেন্দ্রীভূত রিপোর্টিং",
+      "অনসাইট বাস্তবায়ন ও প্রশিক্ষণ",
+      "ডেডিকেটেড টেকনিক্যাল সহায়তা",
+    ],
     highlighted: false,
   },
 ];
@@ -113,46 +124,58 @@ export const pricingTiers = [
 export const testimonialItems = [
   {
     quote:
-      "আমাদের অফিসে attendance register print workflow-টাই সবচেয়ে বড় সুবিধা দিয়েছে।",
-    author: "Head Teacher, Pilot School",
-    role: "Govt Primary",
+      "অফিস কাগজপত্র থেকে উপস্থিতি রেজিস্টার পর্যন্ত সবকিছু এখন একই প্ল্যাটফর্মে সম্পন্ন হয়।",
+    author: "মোছাঃ রাশেদা বেগম",
+    role: "প্রধান শিক্ষক, সরকারি প্রাথমিক বিদ্যালয়",
   },
   {
-    quote: "ফি রশিদ প্রিন্ট এখন দ্রুত হয়, staff training time অনেক কমেছে।",
-    author: "Accounts Operator",
-    role: "Govt Primary",
+    quote:
+      "হিসাব শাখায় ফি ও রশিদ ব্যবস্থাপনা দ্রুত হওয়ায় অভিভাবক সেবার মান স্পষ্টভাবে বেড়েছে।",
+    author: "মোঃ আব্দুল কাদের",
+    role: "হিসাব সহকারী",
   },
   {
-    quote: "Class 1-5 focused হওয়ায় unnecessary feature distraction নেই।",
-    author: "Assistant Teacher",
-    role: "Govt Primary",
+    quote:
+      "উপজেলা পর্যায়ের পর্যবেক্ষণে বিদ্যালয়ভিত্তিক অগ্রগতি রিপোর্ট পাওয়া এখন অনেক সহজ।",
+    author: "শারমিন আক্তার",
+    role: "সহকারী উপজেলা শিক্ষা কর্মকর্তা",
   },
 ];
 
 export const heroHighlights = [
   {
-    label: "উপস্থিতি রেজিস্টার",
-    value: "A4 প্রিন্ট রেডি",
+    label: "Ministry Alignment",
+    value: "Primary Education Workflow",
     icon: CalendarCheck2,
   },
   {
-    label: "মাসিক ফি ও রশিদ",
-    value: "ক্যাশ + SSLCommerz",
+    label: "Administration",
+    value: "Admission + Attendance + Fees",
     icon: CreditCard,
   },
   {
-    label: "Govt Primary Scope",
-    value: "Class 1-5 only",
-    icon: Users,
+    label: "Reporting",
+    value: "Print-ready Result & Registers",
+    icon: FileText,
   },
   {
-    label: "SMS নোটিশ",
-    value: "অভিভাবক যোগাযোগ রেডি",
-    icon: MessageSquareText,
+    label: "Scale",
+    value: "School to District",
+    icon: Building2,
   },
   {
-    label: "Office Simplicity",
-    value: "Low training required",
+    label: "Insight",
+    value: "Realtime Progress Overview",
     icon: BarChart3,
+  },
+  {
+    label: "Security",
+    value: "Role-based and Audit-ready",
+    icon: ShieldCheck,
+  },
+  {
+    label: "Users",
+    value: "Teacher, Office, Accounts",
+    icon: Users,
   },
 ];

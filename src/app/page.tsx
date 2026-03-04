@@ -12,9 +12,9 @@ import { Testimonials } from "@/components/landing/testimonials";
 import { TrustStrip } from "@/components/landing/trust-strip";
 
 export const metadata: Metadata = {
-  title: "Dhadash — Govt. Primary School Operations",
+  title: "প্রাথমিক শিক্ষা মন্ত্রণালয় — সরকারি প্রাথমিক বিদ্যালয় ডিজিটাল প্ল্যাটফর্ম",
   description:
-    "সরকারি প্রাথমিক বিদ্যালয় (১ম–৫ম শ্রেণি) এর জন্য attendance, fee, notice এবং print workflow.",
+    "বাংলাদেশের সরকারি প্রাথমিক বিদ্যালয়ের (শ্রেণি ১-৫) জন্য অফিসিয়াল ডিজিটাল প্রশাসন ও সেবা প্ল্যাটফর্ম।",
   alternates: {
     canonical: "/",
   },

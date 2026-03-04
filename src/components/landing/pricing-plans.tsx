@@ -7,52 +7,56 @@ import { pricingTiers } from "@/components/landing/landing-data";
 export function PricingPlans() {
   return (
     <section
-      id="pricing"
+      id="plans"
       className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-8"
     >
-      <div className="flex flex-col items-center text-center mb-12">
-        <h2 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-          Simple Govt Primary Pricing
+      <div className="mb-10 flex flex-col items-center text-center">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#006a4e]">
+          Rollout Models
+        </p>
+        <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          বাস্তবায়ন ও সহায়তা পরিকল্পনা
         </h2>
-        <p className="mt-4 max-w-2xl text-base text-muted-foreground leading-relaxed">
-          Pilot দিয়ে শুরু করুন, ব্যবহার প্রমাণ হলে স্কুল-লেভেল rollout করুন।
+        <p className="mt-3 max-w-3xl text-base leading-relaxed text-slate-700">
+          বিদ্যালয় থেকে জেলা পর্যায় পর্যন্ত ধাপে ধাপে বাস্তবায়নের জন্য পরিকল্পিত
+          সাপোর্ট কাঠামো।
         </p>
       </div>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-3">
+      <div className="mt-6 grid gap-5 lg:grid-cols-3">
         {pricingTiers.map((tier) => (
           <article
             key={tier.name}
             className={[
-              "relative glass-card p-8 rounded-3xl premium-shadow flex flex-col transition-premium hover:-translate-y-1",
+              "relative flex flex-col rounded-xl border p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
               tier.highlighted
-                ? "border-primary/40 ring-1 ring-primary/20 bg-primary/[0.03]"
-                : "border-border/40 bg-card/40",
+                ? "border-[#006a4e]/40 bg-[#f2f9f6]"
+                : "border-[#006a4e]/15 bg-white",
             ].join(" ")}
           >
             {tier.highlighted && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest px-4 py-1 rounded-full shadow-lg">
+              <div className="absolute -top-3 left-5 rounded-full bg-[#da291c] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white shadow-sm">
                 Recommended
               </div>
             )}
 
-            <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
-            <div className="mt-4 flex items-baseline gap-1">
-              <p className="text-4xl font-extrabold tabular-nums text-foreground">
+            <h3 className="text-xl font-bold text-slate-900">{tier.name}</h3>
+            <div className="mt-3 flex items-baseline gap-1">
+              <p className="text-3xl font-extrabold tabular-nums text-[#006a4e]">
                 {tier.price}
               </p>
-              <p className="text-sm font-medium text-muted-foreground">
+              <p className="text-sm font-medium text-slate-600">
                 {tier.cadence}
               </p>
             </div>
 
-            <div className="mt-8 space-y-4 flex-1">
+            <div className="mt-6 flex-1 space-y-3">
               {tier.features.map((feature) => (
                 <div
                   key={feature}
-                  className="flex items-start gap-3 text-sm text-foreground/80 leading-snug"
+                  className="flex items-start gap-2 text-sm leading-snug text-slate-700"
                 >
-                  <div className="mt-0.5 h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                  <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#006a4e]/10 text-[#006a4e]">
                     <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                   </div>
                   <span>{feature}</span>
@@ -63,10 +67,10 @@ export function PricingPlans() {
             <Button
               asChild
               className={[
-                "mt-8 w-full h-12 rounded-2xl font-bold transition-premium active:scale-95 shadow-md",
+                "mt-7 h-11 w-full rounded-md text-sm font-bold",
                 tier.highlighted
                   ? "primary-cta"
-                  : "bg-card/80 border-border/60 hover:bg-muted",
+                  : "border-[#006a4e]/30 bg-white text-[#006a4e] hover:bg-[#006a4e]/5",
               ].join(" ")}
               variant={tier.highlighted ? "default" : "outline"}
             >

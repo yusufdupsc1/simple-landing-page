@@ -1,71 +1,90 @@
 "use client";
 
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
 
+import { GovtMonogram } from "@/components/landing/govt-monogram";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
-import { useT } from "@/lib/i18n/client";
 
 export function LandingHeader() {
-  const { t } = useT();
-
   return (
-    <header className="safe-top sticky top-0 z-50 border-b border-border/40 bg-background/60 backdrop-blur-xl transition-premium">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-8">
+    <header className="safe-top sticky top-0 z-50 border-b border-[#006a4e]/15 bg-white/95 backdrop-blur-md">
+      <div className="govt-top-band">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-1.5 text-[11px] font-semibold text-white sm:px-8">
+          <span>গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</span>
+          <span className="hidden sm:inline">
+            Ministry of Primary and Mass Education
+          </span>
+        </div>
+      </div>
+      <div className="mx-auto flex min-h-20 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-8">
         <Link
           href="/"
-          className="flex items-center gap-3 group transition-premium"
+          className="group flex items-center gap-3"
+          aria-label="প্রাথমিক শিক্ষা ব্যবস্থাপনা সিস্টেম হোমপেজ"
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-[0_2px_10px_-3px_rgba(var(--primary),0.5)] transition-transform group-hover:scale-105">
-            <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-base font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70 leading-none">
-              Dhadash
-            </span>
-            <span className="text-[9px] font-bold text-primary tracking-widest uppercase opacity-70 leading-none mt-1">
-              National Ops
-            </span>
+          <GovtMonogram className="h-12 w-12 shrink-0 group-hover:scale-[1.02] transition-transform" />
+          <div className="min-w-0">
+            <p className="truncate text-[11px] font-semibold uppercase tracking-wider text-[#006a4e]">
+              Primary Education Ministry
+            </p>
+            <p className="truncate text-sm font-bold text-slate-900 sm:text-base">
+              প্রাথমিক শিক্ষা ডিজিটাল ব্যবস্থাপনা প্ল্যাটফর্ম
+            </p>
+            <p className="truncate text-[11px] text-slate-600">
+              সরকারি প্রাথমিক বিদ্যালয় প্রশাসন (শ্রেণি ১-৫)
+            </p>
           </div>
         </Link>
 
         <nav
-          aria-label="Marketing"
-          className="hidden items-center gap-8 md:flex"
+          aria-label="Landing Sections"
+          className="hidden items-center gap-6 lg:flex"
         >
-          {["ফিচার", "প্ল্যান", "মতামত"].map((item, i) => (
+          {[
+            { label: "ফিচারসমূহ", href: "#features" },
+            { label: "রোলভিত্তিক মডিউল", href: "#modules" },
+            { label: "রোলআউট পরিকল্পনা", href: "#plans" },
+            { label: "পাইলট অভিজ্ঞতা", href: "#field-notes" },
+          ].map((item) => (
             <a
-              key={i}
-              href={`#${["features", "pricing", "testimonials"][i]}`}
-              className="text-sm font-medium text-muted-foreground transition-premium hover:text-primary relative group"
+              key={item.href}
+              href={item.href}
+              className="text-sm font-semibold text-slate-700 transition-colors hover:text-[#006a4e]"
             >
-              {item}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
+              {item.label}
             </a>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="hidden xs:block">
             <LanguageToggle />
           </div>
           <Link
             href="/auth/login"
             prefetch={false}
-            className="hidden sm:inline-flex text-sm font-bold text-muted-foreground hover:text-foreground transition-premium px-3"
+            className="hidden rounded-md border border-[#006a4e]/20 px-3 py-2 text-sm font-semibold text-[#006a4e] transition-colors hover:border-[#006a4e]/40 hover:bg-[#006a4e]/5 sm:inline-flex"
           >
             লগইন
           </Link>
           <Button
             asChild
-            className="primary-cta group rounded-xl px-6 font-bold shadow-sm transition-premium active:scale-95"
+            className="primary-cta h-10 rounded-md px-4 text-sm font-bold sm:px-5"
           >
             <Link href="/#demo-booking" prefetch={false}>
-              {t("demo_cta")}
+              ডেমো অনুরোধ
             </Link>
           </Button>
         </div>
+      </div>
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 pb-3 text-[11px] text-slate-600 sm:px-8 lg:hidden">
+        <span className="rounded-full bg-[#006a4e]/10 px-2 py-0.5 font-semibold text-[#006a4e]">
+          Govt Official Theme
+        </span>
+        <span className="truncate">
+          জাতীয় সেবার মান বজায় রেখে দ্রুত ও নিরাপদ ব্যবস্থাপনা।
+        </span>
       </div>
     </header>
   );

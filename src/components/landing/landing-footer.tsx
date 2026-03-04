@@ -1,56 +1,67 @@
 import Link from "next/link";
+import { GovtMonogram } from "@/components/landing/govt-monogram";
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border/40 bg-card/60 backdrop-blur-xl transition-premium py-12">
+    <footer className="border-t border-[#006a4e]/15 bg-white py-12">
       <div className="mx-auto max-w-6xl px-4 sm:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+        <div className="grid gap-8 lg:grid-cols-[1.25fr_1fr_1fr]">
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-foreground to-foreground/70">
-                Dhadash
-              </span>
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            <div className="flex items-center gap-3">
+              <GovtMonogram className="h-12 w-12" />
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wider text-[#006a4e]">
+                  Government Service
+                </p>
+                <p className="text-base font-bold text-slate-900">
+                  প্রাথমিক শিক্ষা ডিজিটাল প্ল্যাটফর্ম
+                </p>
+              </div>
             </div>
-            <p className="max-w-xs text-sm text-muted-foreground leading-relaxed">
-              ডিজিটাল বাংলাদেশ ভিশনে সরকারি প্রাথমিক বিদ্যালয়ের অটোমেশন
-              পার্টনার।
+            <p className="max-w-md text-sm leading-relaxed text-slate-700">
+              Ministry-aligned এই প্ল্যাটফর্ম সরকারি প্রাথমিক বিদ্যালয়ের
+              প্রশাসনিক কাজকে দ্রুত, স্বচ্ছ ও সুশৃঙ্খল করে।
             </p>
           </div>
 
-          <nav
-            className="flex flex-wrap items-center gap-x-8 gap-y-4 text-sm font-semibold"
-            aria-label="Footer"
-          >
-            {[
-              { label: "Privacy", href: "/privacy" },
-              { label: "Terms", href: "/terms" },
-              { label: "Portal Login", href: "/auth/login" },
-              { label: "Contact Admin", href: "mailto:admin@dhadash.com" },
-            ].map((link) => (
+          <div>
+            <p className="mb-3 text-sm font-bold text-slate-900">প্রয়োজনীয় লিংক</p>
+            <nav className="flex flex-col gap-2 text-sm" aria-label="Footer">
+              {[
+                { label: "Privacy Policy", href: "/privacy" },
+                { label: "Terms of Service", href: "/terms" },
+                { label: "Admin Login", href: "/auth/login" },
+                { label: "Demo Booking", href: "/#demo-booking" },
+              ].map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
                 prefetch={false}
-                className="text-muted-foreground transition-premium hover:text-primary"
+                className="text-slate-700 transition-colors hover:text-[#006a4e]"
               >
                 {link.label}
               </Link>
             ))}
-          </nav>
+            </nav>
+          </div>
+
+          <div>
+            <p className="mb-3 text-sm font-bold text-slate-900">যোগাযোগ</p>
+            <ul className="space-y-2 text-sm text-slate-700">
+              <li>Implementation Desk: +880 1700-000000</li>
+              <li>Email: support@dhadash.com</li>
+              <li>ঢাকা, বাংলাদেশ</li>
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border/40 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs font-medium text-muted-foreground">
-            © {new Date().getFullYear()} Dhadash. All rights reserved. Built
-            with ❤️ for Bangladesh.
+        <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-[#006a4e]/10 pt-6 sm:flex-row sm:items-center">
+          <p className="text-xs font-medium text-slate-600">
+            © {new Date().getFullYear()} Dhadash. All rights reserved.
           </p>
-          <div className="flex items-center gap-4 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-            {/* National Emblem Shape Simulated */}
-            <div className="h-6 w-6 monument-motif bg-primary" />
-            <span className="text-[10px] font-bold tracking-widest uppercase">
-              Digital Bangladesh
-            </span>
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-[#006a4e]">
+            <span className="inline-block h-2 w-2 rounded-full bg-[#da291c]" />
+            Bangladesh Primary Education Digital Vision
           </div>
         </div>
       </div>

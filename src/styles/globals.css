@@ -179,31 +179,11 @@
     text-size-adjust: 100%;
   }
 
-  /* Sophisticated mesh gradient with National Flag colors */
+  /* Lightweight official background to keep scrolling smooth on low-end devices */
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(
-        at 0% 0%,
-        hsla(163, 100%, 21%, 0.08) 0px,
-        transparent 42%
-      ),
-      radial-gradient(
-        at 100% 0%,
-        hsla(352, 90%, 56%, 0.06) 0px,
-        transparent 42%
-      ),
-      radial-gradient(
-        at 100% 100%,
-        hsla(163, 100%, 21%, 0.06) 0px,
-        transparent 42%
-      ),
-      radial-gradient(
-        at 0% 100%,
-        hsla(352, 90%, 56%, 0.05) 0px,
-        transparent 42%
-      );
-    background-attachment: fixed;
+    background-image: linear-gradient(180deg, #f4fbf8 0%, #ffffff 42%, #f8fcfa 100%);
+    background-attachment: scroll;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
@@ -421,6 +401,41 @@
 
   .transition-premium {
     transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .govt-top-band {
+    background:
+      linear-gradient(
+        90deg,
+        #006a4e 0%,
+        #006a4e 78%,
+        #da291c 78%,
+        #da291c 100%
+      );
+  }
+
+  .govt-slab-border {
+    position: relative;
+    border-top: 4px solid #006a4e;
+  }
+
+  .govt-slab-border::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    right: 0;
+    height: 4px;
+    width: 24%;
+    background: #da291c;
+  }
+
+  .primary-cta {
+    @apply border border-[#006a4e] bg-[#006a4e] text-white transition-all duration-200 hover:bg-[#00533d] hover:text-white;
+    box-shadow: 0 6px 16px rgb(0 106 78 / 0.18);
+  }
+
+  .primary-cta:hover {
+    box-shadow: 0 8px 22px rgb(0 106 78 / 0.26);
   }
 }
 
