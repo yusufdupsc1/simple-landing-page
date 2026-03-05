@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Hind_Siliguri } from "next/font/google";
 import { cookies } from "next/headers";
+import { Analytics } from "@vercel/analytics/next";
 import "@/styles/globals.css";
 import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { ServiceWorkerRegistration } from "@/components/pwa/sw-register";
@@ -111,6 +112,7 @@ export default async function RootLayout({
         <TabLoadingIndicator />
         <OfflineBanner />
         {children}
+        <Analytics />
       </body>
     </html>
   );
