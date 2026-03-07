@@ -30,9 +30,11 @@ export function SuperAdminAccess() {
         </p>
 
         <div className="mb-4 rounded-lg border border-[#da291c]/20 bg-[#fff7f7] px-3 py-2 text-xs text-slate-700">
-          <p className="font-semibold text-[#a1271c]">Demo Central Access</p>
-          <p className="mt-1 font-mono">username: yusuf_ali</p>
-          <p className="font-mono">password: yusuf_ali</p>
+          <p className="font-semibold text-[#a1271c]">Central Authentication</p>
+          <p className="mt-1">
+            Use ministry-issued central super-admin credentials. Demo credentials are
+            only available in controlled non-production environments.
+          </p>
         </div>
 
         <form action={ownerSignInAction} className="grid gap-3 md:grid-cols-[1fr_1fr_auto]">
@@ -40,7 +42,6 @@ export function SuperAdminAccess() {
             type="text"
             name="username"
             autoComplete="username"
-            defaultValue="yusuf_ali"
             aria-label="Central super admin username"
             className="h-11 rounded-md border border-[#006a4e]/25 bg-white px-3 text-sm outline-none ring-offset-1 focus:border-[#006a4e] focus:ring-2 focus:ring-[#006a4e]/20"
             placeholder="Central super admin username"

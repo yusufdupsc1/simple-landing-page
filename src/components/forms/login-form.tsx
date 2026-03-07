@@ -212,7 +212,7 @@ export function LoginForm({
   } = useForm<LoginFormValues>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      institution: "",
+      institution: normalizeInstitutionSlug(lockedInstitution ?? "bd-gps"),
       scope: "ADMIN",
       loginMode: "PASSWORD",
       email: "",
@@ -228,6 +228,7 @@ export function LoginForm({
   const watchedInstitution = useWatch({ control, name: "institution" }) ?? "";
   const institutionSlug = normalizeInstitutionSlug(watchedInstitution);
   const scopeLocked = Boolean(lockedScope);
+  const isOwnerMode = lockedInstitution === "mope-owner-control";
 
   const dashboardByScope: Record<
     "ADMIN" | "TEACHER" | "STUDENT" | "PARENT",
@@ -558,24 +559,38 @@ export function LoginForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="institution">School Code</Label>
-          <Input
-            id="institution"
-            type="text"
-            autoComplete="organization"
-            placeholder="e.g. greenfield"
-            disabled={isPending || isSendingOtp || Boolean(lockedInstitution)}
-            onBlur={(e) => {
-              const normalized = normalizeInstitutionSlug(e.target.value);
-              setValue("institution", normalized, { shouldValidate: true });
-            }}
-            {...register("institution")}
-          />
-          <p className="text-xs text-muted-foreground">
-            Use your tenant school code provided during onboarding.
-          </p>
-          {scopeInfoError && institutionSlug ? (
-            <p className="text-xs text-muted-foreground">{scopeInfoError}</p>
-          ) : null}
+          {isOwnerMode ? (
+            <>
+              <input type="hidden" {...register("institution")} />
+              <div className="rounded-lg border border-[#006a4e]/20 bg-[#f7fbf9] px-3 py-2 text-sm text-slate-800">
+                Ministry Super Admin mode (global cross-school governance)
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Owner login is centrally managed and not limited to a single school dashboard.
+              </p>
+            </>
+          ) : (
+            <>
+              <Input
+                id="institution"
+                type="text"
+                autoComplete="organization"
+                placeholder="e.g. bd-gps"
+                disabled={isPending || isSendingOtp || Boolean(lockedInstitution)}
+                onBlur={(e) => {
+                  const normalized = normalizeInstitutionSlug(e.target.value);
+                  setValue("institution", normalized, { shouldValidate: true });
+                }}
+                {...register("institution")}
+              />
+              <p className="text-xs text-muted-foreground">
+                Demo default is <strong>bd-gps</strong>. Use your tenant school code for production.
+              </p>
+              {scopeInfoError && institutionSlug ? (
+                <p className="text-xs text-muted-foreground">{scopeInfoError}</p>
+              ) : null}
+            </>
+          )}
           {errors.institution && (
             <p className="text-xs text-destructive">
               {errors.institution.message}
@@ -745,68 +760,91 @@ export function LoginForm({
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             Smart utilities
           </p>
-          <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
-            <button
-              type="button"
-              onClick={() =>
-                applyDemoCredentials("superadmin@school.edu", "superadmin123")
-              }
-              className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
-              disabled={isPending || isSendingOtp}
-            >
-              Use demo superadmin
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                applyDemoCredentials("admin@school.edu", "admin123")
-              }
-              className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
-              disabled={isPending || isSendingOtp}
-            >
-              Use demo admin
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                applyDemoCredentials("principal@school.edu", "principal123")
-              }
-              className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
-              disabled={isPending || isSendingOtp}
-            >
-              Use demo principal
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                applyDemoCredentials("teacher.demo@school.edu", "teacher123")
-              }
-              className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
-              disabled={isPending || isSendingOtp}
-            >
-              Use demo teacher
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                applyDemoCredentials("student.demo@school.edu", "student123")
-              }
-              className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
-              disabled={isPending || isSendingOtp}
-            >
-              Use demo student
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                applyDemoCredentials("parent.demo@school.edu", "parent123")
-              }
-              className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
-              disabled={isPending || isSendingOtp}
-            >
-              Use demo parent
-            </button>
-          </div>
+          {isOwnerMode ? (
+            <div className="grid grid-cols-1 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setValue("scope", "ADMIN", { shouldValidate: true });
+                  setValue("loginMode", "PASSWORD", { shouldValidate: true });
+                  setValue("institution", "mope-owner-control", {
+                    shouldValidate: true,
+                  });
+                  setValue("email", "yusuf_ali", { shouldValidate: true });
+                  setValue("password", "yusuf_ali", { shouldValidate: true });
+                  setFormError(null);
+                  toast.success("Owner demo credentials applied.");
+                }}
+                className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
+                disabled={isPending || isSendingOtp}
+              >
+                Use owner super-admin demo
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-2">
+              <button
+                type="button"
+                onClick={() =>
+                  applyDemoCredentials("superadmin@school.edu", "superadmin123")
+                }
+                className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
+                disabled={isPending || isSendingOtp}
+              >
+                Use demo superadmin
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  applyDemoCredentials("admin@school.edu", "admin123")
+                }
+                className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
+                disabled={isPending || isSendingOtp}
+              >
+                Use demo admin
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  applyDemoCredentials("principal@school.edu", "principal123")
+                }
+                className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
+                disabled={isPending || isSendingOtp}
+              >
+                Use demo principal
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  applyDemoCredentials("teacher.demo@school.edu", "teacher123")
+                }
+                className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
+                disabled={isPending || isSendingOtp}
+              >
+                Use demo teacher
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  applyDemoCredentials("student.demo@school.edu", "student123")
+                }
+                className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
+                disabled={isPending || isSendingOtp}
+              >
+                Use demo student
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  applyDemoCredentials("parent.demo@school.edu", "parent123")
+                }
+                className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
+                disabled={isPending || isSendingOtp}
+              >
+                Use demo parent
+              </button>
+            </div>
+          )}
         </div>
       </form>
 
@@ -864,6 +902,16 @@ export function LoginForm({
           </span>
           Demo Access
         </p>
+        {isOwnerMode ? (
+          <div className="space-y-1 font-mono text-sm text-foreground/80">
+            <div className="flex justify-between items-center group">
+              <span className="max-w-[65%] truncate">yusuf_ali</span>
+              <span className="text-xs text-muted-foreground transition-colors group-hover:text-[#006a4e]">
+                yusuf_ali
+              </span>
+            </div>
+          </div>
+        ) : (
           <div className="space-y-1 font-mono text-sm text-foreground/80">
             <div className="flex justify-between items-center group">
               <span className="max-w-[65%] truncate">superadmin@school.edu</span>
@@ -874,9 +922,9 @@ export function LoginForm({
             <div className="flex justify-between items-center group">
               <span className="max-w-[65%] truncate">admin@school.edu</span>
               <span className="text-xs text-muted-foreground transition-colors group-hover:text-[#006a4e]">
-              admin123
-            </span>
-          </div>
+                admin123
+              </span>
+            </div>
             <div className="flex justify-between items-center group">
               <span className="max-w-[65%] truncate">principal@school.edu</span>
               <span className="text-xs text-muted-foreground transition-colors group-hover:text-[#006a4e]">
@@ -902,6 +950,7 @@ export function LoginForm({
               </span>
             </div>
           </div>
+        )}
         </div>
 
       <p className="text-center text-xs text-muted-foreground">
