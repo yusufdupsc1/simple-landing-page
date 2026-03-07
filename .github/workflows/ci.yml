@@ -187,6 +187,7 @@ jobs:
           pnpm exec prisma db seed
         env:
           DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/e2e"
+          DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/e2e"
           AUTH_SECRET: "playwright-secret-32-chars-minimum"
           NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3100"
           GOVT_PRIMARY_MODE: "true"

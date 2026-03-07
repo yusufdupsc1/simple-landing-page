@@ -13,6 +13,7 @@ const AUTH_SECRETS = [
 ].filter((secret): secret is string => Boolean(secret));
 
 const ALLOW_DEMO_LOGIN = process.env.ALLOW_DEMO_LOGIN === "true";
+const AUTH_DEBUG_LOGS = process.env.AUTH_DEBUG_LOGS === "true";
 
 const DEMO_INSTITUTION = {
   slug: "bd-gps",
@@ -392,7 +393,20 @@ const providers: any[] = [
           : "PASSWORD";
       const userRoleFilter = roleWhereForScope(normalizedScope);
 
+      if (AUTH_DEBUG_LOGS) {
+        console.info("[auth] authorize:start", {
+          institution: normalizedInstitution || null,
+          scope: normalizedScope,
+          loginMode,
+          hasIdentifier: typeof identifierInput === "string" && identifierInput.length > 0,
+          hasPhone: typeof phoneInput === "string" && phoneInput.length > 0,
+        });
+      }
+
       if (!normalizedInstitution) {
+        if (AUTH_DEBUG_LOGS) {
+          console.warn("[auth] authorize:missing_institution");
+        }
         return null;
       }
 
@@ -402,6 +416,13 @@ const providers: any[] = [
           typeof otpCodeInput !== "string" ||
           typeof otpChallengeInput !== "string"
         ) {
+          if (AUTH_DEBUG_LOGS) {
+            console.warn("[auth] authorize:otp:missing_fields", {
+              hasPhone: typeof phoneInput === "string",
+              hasOtpCode: typeof otpCodeInput === "string",
+              hasOtpChallenge: typeof otpChallengeInput === "string",
+            });
+          }
           return null;
         }
 
@@ -422,7 +443,14 @@ const providers: any[] = [
           select: { id: true, name: true, slug: true },
         });
 
-        if (!institution) return null;
+        if (!institution) {
+          if (AUTH_DEBUG_LOGS) {
+            console.warn("[auth] authorize:otp:institution_not_found", {
+              institution: normalizedInstitution,
+            });
+          }
+          return null;
+        }
 
         const otpResult = await verifyOtpChallenge({
           challengeId: otpChallengeInput.trim(),
@@ -433,6 +461,13 @@ const providers: any[] = [
         });
 
         if (!otpResult.success) {
+          if (AUTH_DEBUG_LOGS) {
+            console.warn("[auth] authorize:otp:challenge_failed", {
+              institution: normalizedInstitution,
+              scope: normalizedScope,
+              reason: otpResult.reason ?? "UNKNOWN",
+            });
+          }
           return null;
         }
 
@@ -454,7 +489,16 @@ const providers: any[] = [
           },
         });
 
-        if (!user) return null;
+        if (!user) {
+          if (AUTH_DEBUG_LOGS) {
+            console.warn("[auth] authorize:otp:user_not_found", {
+              institution: normalizedInstitution,
+              scope: normalizedScope,
+              normalizedPhone,
+            });
+          }
+          return null;
+        }
 
         return {
           id: user.id,
@@ -475,6 +519,12 @@ const providers: any[] = [
         typeof identifierInput !== "string" ||
         typeof password !== "string"
       ) {
+        if (AUTH_DEBUG_LOGS) {
+          console.warn("[auth] authorize:password:missing_identifier_or_password", {
+            hasIdentifier: typeof identifierInput === "string" && identifierInput.length > 0,
+            hasPassword: typeof password === "string" && password.length > 0,
+          });
+        }
         return null;
       }
 
@@ -498,6 +548,14 @@ const providers: any[] = [
       if (user?.password && user.institution?.slug) {
         const isValid = await bcrypt.compare(password, user.password);
         if (!isValid) {
+          if (AUTH_DEBUG_LOGS) {
+            console.warn("[auth] authorize:password:invalid_password", {
+              institution: normalizedInstitution,
+              scope: normalizedScope,
+              identifier: normalizedIdentifier,
+              userId: user.id,
+            });
+          }
           return null;
         }
 
@@ -514,7 +572,21 @@ const providers: any[] = [
         };
       }
 
+      if (AUTH_DEBUG_LOGS) {
+        console.warn("[auth] authorize:password:user_not_found_or_not_eligible", {
+          institution: normalizedInstitution,
+          scope: normalizedScope,
+          identifier: normalizedIdentifier,
+        });
+      }
+
       if (normalizedScope !== "ADMIN") {
+        if (AUTH_DEBUG_LOGS) {
+          console.warn("[auth] authorize:scope_fallback_blocked", {
+            institution: normalizedInstitution,
+            scope: normalizedScope,
+          });
+        }
         return null;
       }
 
@@ -524,6 +596,12 @@ const providers: any[] = [
           password,
         );
         if (ownerUser?.password && ownerUser.institution?.slug) {
+          if (AUTH_DEBUG_LOGS) {
+            console.info("[auth] authorize:owner_provisioned", {
+              institution: normalizedInstitution,
+              userId: ownerUser.id,
+            });
+          }
           return {
             id: ownerUser.id,
             name: ownerUser.name,
@@ -537,6 +615,12 @@ const providers: any[] = [
           };
         }
 
+        if (AUTH_DEBUG_LOGS) {
+          console.warn("[auth] authorize:owner_provision_failed", {
+            institution: normalizedInstitution,
+            identifier: normalizedIdentifier,
+          });
+        }
         return null;
       }
 
@@ -545,7 +629,23 @@ const providers: any[] = [
       }
 
       user = await provisionDemoUserIfNeeded(normalizedIdentifier, password);
-      if (!user?.password || !user.isActive) return null;
+      if (!user?.password || !user.isActive) {
+        if (AUTH_DEBUG_LOGS) {
+          console.warn("[auth] authorize:demo_provision_failed", {
+            institution: normalizedInstitution,
+            identifier: normalizedIdentifier,
+          });
+        }
+        return null;
+      }
+
+      if (AUTH_DEBUG_LOGS) {
+        console.info("[auth] authorize:demo_provisioned", {
+          institution: normalizedInstitution,
+          userId: user.id,
+          role: user.role,
+        });
+      }
 
       return {
         id: user.id,
