@@ -98,6 +98,11 @@ const globalForPrisma = globalThis as { prisma?: unknown };
 function createDbClient() {
   try {
     const datasourceUrl = normalizeDatasourceUrl(process.env.DATABASE_URL);
+
+    if (!datasourceUrl) {
+      throw new Error("DATABASE_URL is not configured");
+    }
+
     const client = new PrismaClient({
       datasourceUrl,
       log:
@@ -110,8 +115,17 @@ function createDbClient() {
     );
     return client;
   } catch (error) {
-    console.warn("[db] Falling back to mock database client.", error);
-    return createMockDb();
+    const allowMockFallback =
+      process.env.NODE_ENV !== "production" &&
+      process.env.DB_MOCK_FALLBACK === "true";
+
+    if (allowMockFallback) {
+      console.warn("[db] Falling back to mock database client.", error);
+      return createMockDb();
+    }
+
+    console.error("[db] Failed to initialize Prisma client.", error);
+    throw error;
   }
 }
 
