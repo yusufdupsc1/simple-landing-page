@@ -29,12 +29,6 @@ const DEMO_INSTITUTION = {
 
 const DEMO_USERS = [
   {
-    email: "superadmin@school.edu",
-    password: "superadmin123",
-    name: "Demo Super Admin",
-    role: "SUPER_ADMIN",
-  },
-  {
     email: "admin@school.edu",
     password: "admin123",
     name: "Admin",
@@ -65,36 +59,6 @@ const DEMO_USERS = [
     role: "PARENT",
   },
 ] as const;
-
-const OWNER_CONTROL_INSTITUTION = {
-  slug: "mope-owner-control",
-  name: "Ministry of Primary and Mass Education - Owner Control",
-  email: "owner@mope.gov.bd",
-  country: "BD",
-  timezone: "Asia/Dhaka",
-  currency: "BDT",
-};
-
-const OWNER_SUPER_ADMIN = {
-  username: (process.env.OWNER_SUPER_ADMIN_USERNAME ?? "").trim().toLowerCase(),
-  email: normalizeEmail(process.env.OWNER_SUPER_ADMIN_EMAIL ?? ""),
-  password: (process.env.OWNER_SUPER_ADMIN_PASSWORD ?? "").trim(),
-  name: (process.env.OWNER_SUPER_ADMIN_NAME ?? "Yusuf_Ali").trim(),
-};
-
-const OWNER_SUPER_ADMIN_EMAIL_RESOLVED =
-  OWNER_SUPER_ADMIN.email ||
-  (OWNER_SUPER_ADMIN.username
-    ? `owner+${OWNER_SUPER_ADMIN.username}@local.invalid`
-    : "");
-
-const OWNER_SUPER_ADMIN_IDENTIFIERS = new Set(
-  [OWNER_SUPER_ADMIN.username, OWNER_SUPER_ADMIN.email]
-    .map((v) => v.trim().toLowerCase())
-    .filter(Boolean),
-);
-const OWNER_SUPER_ADMIN_ENABLED =
-  OWNER_SUPER_ADMIN.password.length > 0 && OWNER_SUPER_ADMIN_IDENTIFIERS.size > 0;
 
 async function provisionDemoUserIfNeeded(email: string, password: string) {
   if (!ALLOW_DEMO_LOGIN) return null;
@@ -150,141 +114,6 @@ async function provisionDemoUserIfNeeded(email: string, password: string) {
     },
     include: { institution: { select: { name: true, slug: true } } },
   });
-
-  return user;
-}
-
-async function provisionOwnerSuperAdminIfNeeded(
-  identifier: string,
-  password: string,
-) {
-  if (!OWNER_SUPER_ADMIN_ENABLED) {
-    return null;
-  }
-
-  if (!OWNER_SUPER_ADMIN_EMAIL_RESOLVED) {
-    return null;
-  }
-
-  const normalizedIdentifier = identifier.trim().toLowerCase();
-  if (!normalizedIdentifier || !OWNER_SUPER_ADMIN_IDENTIFIERS.size) {
-    return null;
-  }
-
-  if (!OWNER_SUPER_ADMIN_IDENTIFIERS.has(normalizedIdentifier)) {
-    return null;
-  }
-
-  const ownerIdentityWhere = [
-    ...(OWNER_SUPER_ADMIN.email
-      ? [{ email: { equals: OWNER_SUPER_ADMIN.email, mode: "insensitive" as const } }]
-      : []),
-    ...(OWNER_SUPER_ADMIN.username
-      ? [{ username: { equals: OWNER_SUPER_ADMIN.username, mode: "insensitive" as const } }]
-      : []),
-    ...(OWNER_SUPER_ADMIN.username
-      ? [{ email: { equals: OWNER_SUPER_ADMIN.username, mode: "insensitive" as const } }]
-      : []),
-  ];
-
-  const institution = await db.institution.upsert({
-    where: { slug: OWNER_CONTROL_INSTITUTION.slug },
-    update: {
-      name: OWNER_CONTROL_INSTITUTION.name,
-      email: OWNER_CONTROL_INSTITUTION.email,
-      country: OWNER_CONTROL_INSTITUTION.country,
-      timezone: OWNER_CONTROL_INSTITUTION.timezone,
-      currency: OWNER_CONTROL_INSTITUTION.currency,
-      isActive: true,
-    },
-    create: {
-      name: OWNER_CONTROL_INSTITUTION.name,
-      slug: OWNER_CONTROL_INSTITUTION.slug,
-      email: OWNER_CONTROL_INSTITUTION.email,
-      country: OWNER_CONTROL_INSTITUTION.country,
-      timezone: OWNER_CONTROL_INSTITUTION.timezone,
-      currency: OWNER_CONTROL_INSTITUTION.currency,
-      isActive: true,
-    },
-  });
-
-  const existingUser = await db.user.findFirst({
-    where: {
-      OR: ownerIdentityWhere,
-      role: "SUPER_ADMIN",
-      approvalStatus: "APPROVED",
-      isActive: true,
-    },
-    include: { institution: { select: { name: true, slug: true } } },
-  });
-
-  if (existingUser?.password) {
-    const isExistingPasswordValid = await bcrypt.compare(
-      password,
-      existingUser.password,
-    );
-    if (isExistingPasswordValid) {
-      if (
-        existingUser.role === "SUPER_ADMIN" &&
-        existingUser.institutionId === institution.id &&
-        existingUser.isActive &&
-        existingUser.approvalStatus === "APPROVED"
-      ) {
-        return existingUser;
-      }
-
-      return db.user.update({
-        where: { id: existingUser.id },
-        data: {
-          name: OWNER_SUPER_ADMIN.name,
-          username: OWNER_SUPER_ADMIN.username || existingUser.username,
-          email: OWNER_SUPER_ADMIN_EMAIL_RESOLVED,
-          role: "SUPER_ADMIN",
-          approvalStatus: "APPROVED",
-          isActive: true,
-          emailVerified: existingUser.emailVerified ?? new Date(),
-          institutionId: institution.id,
-        },
-        include: { institution: { select: { name: true, slug: true } } },
-      });
-    }
-  }
-
-  if (password !== OWNER_SUPER_ADMIN.password) {
-    return null;
-  }
-
-  const hashedPassword = await bcrypt.hash(OWNER_SUPER_ADMIN.password, 12);
-  const user = existingUser
-    ? await db.user.update({
-        where: { id: existingUser.id },
-        data: {
-          name: OWNER_SUPER_ADMIN.name,
-          username: OWNER_SUPER_ADMIN.username || existingUser.username,
-          email: OWNER_SUPER_ADMIN_EMAIL_RESOLVED,
-          password: hashedPassword,
-          role: "SUPER_ADMIN",
-          approvalStatus: "APPROVED",
-          isActive: true,
-          emailVerified: existingUser.emailVerified ?? new Date(),
-          institutionId: institution.id,
-        },
-        include: { institution: { select: { name: true, slug: true } } },
-      })
-    : await db.user.create({
-        data: {
-          name: OWNER_SUPER_ADMIN.name,
-          username: OWNER_SUPER_ADMIN.username || null,
-          email: OWNER_SUPER_ADMIN_EMAIL_RESOLVED,
-          password: hashedPassword,
-          role: "SUPER_ADMIN",
-          approvalStatus: "APPROVED",
-          isActive: true,
-          emailVerified: new Date(),
-          institutionId: institution.id,
-        },
-        include: { institution: { select: { name: true, slug: true } } },
-      });
 
   return user;
 }
@@ -352,7 +181,7 @@ async function upsertGoogleUserContext(user: {
         email: normalizedEmail,
         name: user.name?.trim() || localPart,
         image: user.image ?? null,
-        role: "SUPER_ADMIN",
+        role: "ADMIN",
         approvalStatus: "APPROVED",
         emailVerified: new Date(),
         isActive: true,
@@ -611,40 +440,6 @@ const providers: any[] = [
         return null;
       }
 
-      if (normalizedInstitution === OWNER_CONTROL_INSTITUTION.slug) {
-        const ownerUser = await provisionOwnerSuperAdminIfNeeded(
-          normalizedIdentifier,
-          password,
-        );
-        if (ownerUser?.password && ownerUser.institution?.slug) {
-          if (AUTH_DEBUG_LOGS) {
-            console.info("[auth] authorize:owner_provisioned", {
-              institution: normalizedInstitution,
-              userId: ownerUser.id,
-            });
-          }
-          return {
-            id: ownerUser.id,
-            name: ownerUser.name,
-            email: ownerUser.email,
-            image: ownerUser.image,
-            role: ownerUser.role,
-            institutionId: ownerUser.institutionId,
-            institutionName: ownerUser.institution.name,
-            institutionSlug: ownerUser.institution.slug,
-            phone: ownerUser.phone,
-          };
-        }
-
-        if (AUTH_DEBUG_LOGS) {
-          console.warn("[auth] authorize:owner_provision_failed", {
-            institution: normalizedInstitution,
-            identifier: normalizedIdentifier,
-          });
-        }
-        return null;
-      }
-
       if (normalizedInstitution !== DEMO_INSTITUTION.slug) {
         return null;
       }
@@ -742,7 +537,7 @@ const authConfig: any = {
 
       if (!(token as any).institutionId && token.email) {
         const dbUser = await db.user.findUnique({
-          where: { email: token.email },
+          where: { email: token.email as string },
           include: { institution: { select: { name: true, slug: true } } },
         });
 

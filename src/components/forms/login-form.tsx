@@ -228,7 +228,7 @@ export function LoginForm({
   const watchedInstitution = useWatch({ control, name: "institution" }) ?? "";
   const institutionSlug = normalizeInstitutionSlug(watchedInstitution);
   const scopeLocked = Boolean(lockedScope);
-  const isOwnerMode = lockedInstitution === "mope-owner-control";
+  // Owner mode removed
 
   const dashboardByScope: Record<
     "ADMIN" | "TEACHER" | "STUDENT" | "PARENT",
@@ -465,7 +465,7 @@ export function LoginForm({
     setValue(
       "institution",
       normalizeInstitutionSlug(
-        lockedInstitution === "mope-owner-control" ? lockedInstitution : "bd-gps",
+        lockedInstitution === "bd-gps" ? lockedInstitution : "bd-gps",
       ),
       { shouldValidate: true },
     );
@@ -565,7 +565,7 @@ export function LoginForm({
 
         <div className="space-y-1.5">
           <Label htmlFor="institution">School Code</Label>
-          {isOwnerMode ? (
+          {false ? (
             <>
               <input type="hidden" {...register("institution")} />
               <div className="rounded-lg border border-[#006a4e]/20 bg-[#f7fbf9] px-3 py-2 text-sm text-slate-800">
@@ -766,25 +766,25 @@ export function LoginForm({
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             Smart utilities
           </p>
-          {isOwnerMode ? (
+          {false ? (
             <div className="grid grid-cols-1 gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setValue("scope", "ADMIN", { shouldValidate: true });
                   setValue("loginMode", "PASSWORD", { shouldValidate: true });
-                  setValue("institution", "mope-owner-control", {
+                  setValue("institution", "bd-gps", {
                     shouldValidate: true,
                   });
                   setValue("email", "yusuf_ali", { shouldValidate: true });
                   setValue("password", "yusuf_ali", { shouldValidate: true });
                   setFormError(null);
-                  toast.success("Owner demo credentials applied.");
+                  toast.success("Demo credentials applied.");
                 }}
                 className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
                 disabled={isPending || isSendingOtp}
               >
-                Use owner super-admin demo
+                Use Admin demo
               </button>
             </div>
           ) : (
@@ -793,15 +793,15 @@ export function LoginForm({
                 type="button"
                 onClick={() =>
                   applyDemoCredentials(
-                    "superadmin@school.edu",
-                    "superadmin123",
+                    "admin@school.edu",
+                    "admin123",
                     "ADMIN",
                   )
                 }
                 className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
                 disabled={isPending || isSendingOtp}
               >
-                Use demo superadmin
+                Use demo admin
               </button>
               <button
                 type="button"
@@ -928,7 +928,7 @@ export function LoginForm({
           </span>
           Demo Access
         </p>
-        {isOwnerMode ? (
+        {false ? (
           <div className="space-y-1 font-mono text-sm text-foreground/80">
             <div className="flex justify-between items-center group">
               <span className="max-w-[65%] truncate">yusuf_ali</span>
@@ -940,9 +940,9 @@ export function LoginForm({
         ) : (
           <div className="space-y-1 font-mono text-sm text-foreground/80">
             <div className="flex justify-between items-center group">
-              <span className="max-w-[65%] truncate">superadmin@school.edu</span>
+              <span className="max-w-[65%] truncate">admin@school.edu</span>
               <span className="text-xs text-muted-foreground transition-colors group-hover:text-[#006a4e]">
-                superadmin123
+                admin123
               </span>
             </div>
             <div className="flex justify-between items-center group">
