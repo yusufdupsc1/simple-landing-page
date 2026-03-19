@@ -491,6 +491,7 @@ const authConfig: any = {
   secret: AUTH_SECRETS.length > 1 ? AUTH_SECRETS : AUTH_SECRETS[0],
   session: { strategy: "jwt" },
   pages: { signIn: "/auth/login/admin" },
+  trustHost: true,
   providers,
   callbacks: {
     async signIn({ user, account }) {
