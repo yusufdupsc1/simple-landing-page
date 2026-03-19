@@ -54,7 +54,7 @@ async function ensureDemoUser(email: string, password: string, name: string, rol
     },
   });
 
-  return user;
+  return { ...user, institution: { name: institution.name, slug: institution.slug } };
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -70,56 +70,52 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const institution = (credentials?.institution as string)?.trim().toLowerCase() || "";
+        const institutionSlug = (credentials?.institution as string)?.trim().toLowerCase() || "";
         const email = (credentials?.email as string)?.trim().toLowerCase();
         const password = credentials?.password as string;
 
-        if (!institution || !email || !password) {
+        if (!institutionSlug || !email || !password) {
+          console.error("[auth] Missing credentials", { institutionSlug, email: !!email, password: !!password });
           return null;
         }
 
-        // Find user in database
-        const user = await db.user.findFirst({
-          where: {
-            email: { equals: email, mode: "insensitive" },
-            isActive: true,
-            approvalStatus: "APPROVED",
-            institution: { slug: { equals: institution, mode: "insensitive" } },
-          },
-          include: { institution: { select: { name: true, slug: true } } },
-        });
+        // Only allow demo institution for now
+        if (institutionSlug !== DEMO_INSTITUTION.slug) {
+          console.error("[auth] Invalid institution", institutionSlug);
+          return null;
+        }
 
-        if (!user?.password) {
-          // Demo auto-provision: only for bd-gps institution
-          if (institution !== DEMO_INSTITUTION.slug) return null;
+        // Find demo user
+        const demoUser = DEMO_USERS.find(u => u.email.toLowerCase() === email);
+        if (!demoUser) {
+          console.error("[auth] Demo user not found", email);
+          return null;
+        }
+
+        // Verify password
+        if (demoUser.password !== password) {
+          console.error("[auth] Invalid password", email);
+          return null;
+        }
+
+        // Ensure user exists in database
+        try {
+          const user = await ensureDemoUser(demoUser.email, demoUser.password, demoUser.name, demoUser.role);
+          console.log("[auth] Demo login success", email);
           
-          const demoUser = DEMO_USERS.find(u => u.email.toLowerCase() === email);
-          if (!demoUser || demoUser.password !== password) return null;
-          
-          const created = await ensureDemoUser(demoUser.email, demoUser.password, demoUser.name, demoUser.role);
           return {
-            id: created.id,
-            email: created.email,
-            name: created.name,
-            role: created.role,
-            institutionId: created.institutionId,
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            institutionId: user.institutionId,
             institutionName: DEMO_INSTITUTION.name,
             institutionSlug: DEMO_INSTITUTION.slug,
           };
+        } catch (error) {
+          console.error("[auth] Database error", error);
+          return null;
         }
-
-        const isValid = await bcrypt.compare(password, user.password);
-        if (!isValid) return null;
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          institutionId: user.institutionId,
-          institutionName: user.institution.name,
-          institutionSlug: user.institution.slug,
-        };
       },
     }),
   ],
@@ -136,6 +132,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.sub;
+        (token as any).role = (token as any).role || "ADMIN";
         (session.user as any).role = (token as any).role;
         (session.user as any).institutionId = (token as any).institutionId;
         (session.user as any).institutionName = (token as any).institutionName;
