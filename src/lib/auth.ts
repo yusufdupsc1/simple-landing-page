@@ -5,104 +5,67 @@ import * as bcrypt from "bcryptjs";
 
 export const runtime = "nodejs";
 
-const DEMO_INSTITUTION = {
-  slug: "bd-gps",
-  name: "BD-GPS Govt Primary Demo School",
-  email: "admin@school.edu",
-  city: "Dhaka",
-  country: "BD",
-  timezone: "Asia/Dhaka",
-  currency: "BDT",
-};
-
+// Simple demo users
 const DEMO_USERS = [
   { email: "admin@school.edu", password: "admin123", name: "Admin", role: "ADMIN" },
-  { email: "principal@school.edu", password: "principal123", name: "Dr. Sarah Chen", role: "PRINCIPAL" },
-  { email: "teacher.demo@school.edu", password: "teacher123", name: "Demo Teacher", role: "TEACHER" },
-  { email: "student.demo@school.edu", password: "student123", name: "Demo Student", role: "STUDENT" },
-  { email: "parent.demo@school.edu", password: "parent123", name: "Demo Parent", role: "PARENT" },
-] as const;
+  { email: "principal@school.edu", password: "principal123", name: "Principal", role: "PRINCIPAL" },
+  { email: "teacher@school.edu", password: "teacher123", name: "Teacher", role: "TEACHER" },
+  { email: "student@school.edu", password: "student123", name: "Student", role: "STUDENT" },
+  { email: "parent@school.edu", password: "parent123", name: "Parent", role: "PARENT" },
+];
 
-async function ensureDemoUser(email: string, password: string, name: string, role: string) {
+async function setupDemoUser(email: string, password: string, name: string, role: string) {
+  // Ensure institution exists
   const institution = await db.institution.upsert({
-    where: { slug: DEMO_INSTITUTION.slug },
+    where: { slug: "bd-gps" },
     update: { isActive: true },
     create: {
-      name: DEMO_INSTITUTION.name,
-      slug: DEMO_INSTITUTION.slug,
-      email: DEMO_INSTITUTION.email,
-      city: DEMO_INSTITUTION.city,
-      country: DEMO_INSTITUTION.country,
-      timezone: DEMO_INSTITUTION.timezone,
-      currency: DEMO_INSTITUTION.currency,
+      slug: "bd-gps",
+      name: "BD-GPS Demo School",
+      email: "admin@school.edu",
+      city: "Dhaka",
+      country: "BD",
+      timezone: "Asia/Dhaka",
+      currency: "BDT",
       isActive: true,
     },
   });
 
-  const hashedPassword = await bcrypt.hash(password, 12);
-  
+  // Hash password and create/update user
+  const hashed = await bcrypt.hash(password, 12);
   const user = await db.user.upsert({
     where: { email },
-    update: { password: hashedPassword, role, isActive: true, approvalStatus: "APPROVED", institutionId: institution.id },
-    create: {
-      email,
-      name,
-      password: hashedPassword,
-      role,
-      isActive: true,
-      approvalStatus: "APPROVED",
-      emailVerified: new Date(),
-      institutionId: institution.id,
-    },
+    update: { password: hashed, role, name, isActive: true, approvalStatus: "APPROVED", institutionId: institution.id },
+    create: { email, password: hashed, role, name, isActive: true, approvalStatus: "APPROVED", institutionId: institution.id, emailVerified: new Date() },
   });
 
   return { ...user, institution: { name: institution.name, slug: institution.slug } };
 }
 
-const authConfig = {
+export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  session: { strategy: "jwt" as const },
-  pages: { signIn: "/auth/login/admin" },
+  session: { strategy: "jwt" },
+  pages: { signIn: "/auth/login" },
   providers: [
     Credentials({
-      name: "Credentials",
+      name: "Login",
       credentials: {
-        institution: { label: "Institution", type: "text" },
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const institutionSlug = (credentials?.institution as string)?.trim().toLowerCase() || "";
         const email = (credentials?.email as string)?.trim().toLowerCase();
         const password = credentials?.password as string;
 
-        if (!institutionSlug || !email || !password) {
-          return null;
-        }
+        if (!email || !password) return null;
 
-        if (institutionSlug !== DEMO_INSTITUTION.slug) {
-          return null;
-        }
-
-        const demoUser = DEMO_USERS.find(u => u.email.toLowerCase() === email);
-        if (!demoUser || demoUser.password !== password) {
-          return null;
-        }
+        const demo = DEMO_USERS.find(u => u.email === email && u.password === password);
+        if (!demo) return null;
 
         try {
-          const user = await ensureDemoUser(demoUser.email, demoUser.password, demoUser.name, demoUser.role);
-          
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            institutionId: user.institutionId,
-            institutionName: DEMO_INSTITUTION.name,
-            institutionSlug: DEMO_INSTITUTION.slug,
-          };
-        } catch (error) {
-          console.error("[auth] Error:", error);
+          const user = await setupDemoUser(demo.email, demo.password, demo.name, demo.role);
+          return { id: user.id, email: user.email, name: user.name, role: user.role, institutionId: user.institutionId, institutionName: "BD-GPS Demo School", institutionSlug: "bd-gps" };
+        } catch {
           return null;
         }
       },
@@ -121,7 +84,7 @@ const authConfig = {
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).id = token.sub;
-        (session.user as any).role = (token as any).role || "ADMIN";
+        (session.user as any).role = (token as any).role;
         (session.user as any).institutionId = (token as any).institutionId;
         (session.user as any).institutionName = (token as any).institutionName;
         (session.user as any).institutionSlug = (token as any).institutionSlug;
@@ -129,6 +92,4 @@ const authConfig = {
       return session;
     },
   },
-};
-
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+});
