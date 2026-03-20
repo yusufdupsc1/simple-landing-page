@@ -6,7 +6,7 @@ import { LoginForm } from "@/components/forms/login-form";
 import { GovtMonogram } from "@/components/landing/govt-monogram";
 import { getDefaultDashboardPath } from "@/lib/role-routing";
 
-type LoginScope = "admin" | "teacher" | "student" | "parent" | "owner";
+type LoginScope = "admin" | "teacher" | "student" | "parent" ;
 
 const SCOPE_META: Record<
   LoginScope,
@@ -36,12 +36,6 @@ const SCOPE_META: Record<
     title: "Parent Login",
     subtitle: "Parent portal access",
     scope: "PARENT",
-  },
-  owner: {
-    title: "Owner Login",
-    subtitle: "Ministry owner control access",
-    scope: "ADMIN",
-    institutionSlug: "mope-owner-control",
   },
 };
 

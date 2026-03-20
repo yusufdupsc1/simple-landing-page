@@ -286,7 +286,6 @@ export default async function DashboardPage() {
     redirect(getDefaultDashboardPath(user.role));
   }
   if (user.role === "SUPER_ADMIN") {
-    redirect("/dashboard/owner");
   }
 
   const institutionId = user.institutionId;

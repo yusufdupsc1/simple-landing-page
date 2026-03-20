@@ -74,11 +74,6 @@ export function LandingHeader() {
             লগইন
           </Link>
           <Link
-            href="/auth/login/owner"
-            prefetch={false}
-            className="hidden rounded-md border border-[#da291c]/30 px-3 py-2 text-sm font-semibold text-[#a1271c] transition-colors hover:border-[#da291c]/45 hover:bg-[#fff4f4] lg:inline-flex"
-          >
-            Central Super Admin
           </Link>
           <Button
             asChild
