@@ -804,17 +804,6 @@ export function LoginForm({
                 disabled={isPending || isSendingOtp}
               >
                 Use demo admin
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  applyDemoCredentials("admin@school.edu", "admin123", "ADMIN")
-                }
-                className="rounded-lg border border-[#006a4e]/20 bg-white px-3 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-[#ecf8f4]"
-                disabled={isPending || isSendingOtp}
-              >
-                Use demo admin
-              </button>
               <button
                 type="button"
                 onClick={() =>
@@ -940,13 +929,6 @@ export function LoginForm({
             </div>
           </div>
         ) : (
-          <div className="space-y-1 font-mono text-sm text-foreground/80">
-            <div className="flex justify-between items-center group">
-              <span className="max-w-[65%] truncate">admin@school.edu</span>
-              <span className="text-xs text-muted-foreground transition-colors group-hover:text-[#006a4e]">
-                admin123
-              </span>
-            </div>
             <div className="flex justify-between items-center group">
               <span className="max-w-[65%] truncate">admin@school.edu</span>
               <span className="text-xs text-muted-foreground transition-colors group-hover:text-[#006a4e]">
